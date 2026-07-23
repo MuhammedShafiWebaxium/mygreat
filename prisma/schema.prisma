@@ -1,0 +1,274 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMISSIONS_EXECUTIVE
+  VISA_EXECUTIVE
+  STUDENT
+
+  @@map("user_role")
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  OFFER
+  REJECTED
+  WITHDRAWN
+
+  @@map("application_status")
+}
+
+enum VisaStatus {
+  NOT_STARTED
+  DOCUMENTS_PENDING
+  READY_TO_FILE
+  FILED
+  APPROVED
+  REJECTED
+
+  @@map("visa_status")
+}
+
+enum DocumentStatus {
+  NEEDED
+  PENDING
+  VERIFIED
+  REJECTED
+
+  @@map("document_status")
+}
+
+enum DeadlineType {
+  APPLICATION
+  EXAM
+  DEPOSIT
+  HOUSING
+  VISA
+  TASK
+
+  @@map("deadline_type")
+}
+
+enum NotificationKind {
+  OFFER
+  DOCUMENT
+  DEADLINE
+  MESSAGE
+  SYSTEM
+
+  @@map("notification_kind")
+}
+
+model User {
+  id                    String        @id @default(uuid()) @db.Uuid
+  name                  String
+  email                 String        @unique(map: "users_email_unique")
+  phone                 String?
+  passwordHash          String        @map("password_hash")
+  role                  UserRole      @default(STUDENT)
+  emailVerifiedAt       DateTime?     @map("email_verified_at") @db.Timestamptz(6)
+  active                Boolean       @default(true)
+  createdAt             DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  sessions              Session[]
+  profile               StudentProfile?
+  shortlist             StudentShortlist[]
+  applications          Application[] @relation("StudentApplications")
+  admissionsAssignments Application[] @relation("AdmissionsAssignments")
+  visaAssignments       Application[] @relation("VisaAssignments")
+  tasks                 Task[]
+  documents             Document[]    @relation("StudentDocuments")
+  verifiedDocuments     Document[]    @relation("VerifiedDocuments")
+  deadlines             Deadline[]
+  notifications         Notification[]
+  auditLogs             AuditLog[]
+
+  @@index([role], map: "users_role_idx")
+  @@map("users")
+}
+
+model Session {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  tokenHash  String   @unique(map: "sessions_token_hash_unique") @map("token_hash")
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
+  lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "sessions_user_idx")
+  @@index([expiresAt], map: "sessions_expiry_idx")
+  @@map("sessions")
+}
+
+model StudentProfile {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @unique(map: "student_profiles_user_unique") @map("user_id") @db.Uuid
+  destinationCountry    Json?     @map("destination_country")
+  educationLevel        String    @default("") @map("education_level")
+  degree                String    @default("")
+  field                 String    @default("")
+  gpa                   Decimal?  @db.Decimal(3, 2)
+  graduationYear        String    @default("") @map("graduation_year")
+  englishTest           String    @default("") @map("english_test")
+  preferredIntake       String    @default("") @map("preferred_intake")
+  openToRecommendations Boolean   @default(false) @map("open_to_recommendations")
+  completedAt           DateTime? @map("completed_at") @db.Timestamptz(6)
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("student_profiles")
+}
+
+model University {
+  id           String             @id
+  name         String
+  city         String
+  countryId    String             @map("country_id")
+  rank         Int
+  tuition      String
+  acceptance   String
+  knownFor     String             @map("known_for")
+  active       Boolean            @default(true)
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  shortlists   StudentShortlist[]
+  applications Application[]
+
+  @@index([countryId], map: "universities_country_idx")
+  @@index([rank], map: "universities_rank_idx")
+  @@map("universities")
+}
+
+model StudentShortlist {
+  userId       String     @map("user_id") @db.Uuid
+  universityId String     @map("university_id")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@id([userId, universityId])
+  @@map("student_shortlists")
+}
+
+model Application {
+  id                    String            @id @default(uuid()) @db.Uuid
+  studentId             String            @map("student_id") @db.Uuid
+  universityId          String            @map("university_id")
+  program               String
+  status                ApplicationStatus @default(DRAFT)
+  visaStatus            VisaStatus        @default(NOT_STARTED) @map("visa_status")
+  progress              Int               @default(0)
+  nextAction            String            @default("Complete your application") @map("next_action")
+  applicationDeadline   DateTime?         @map("application_deadline") @db.Date
+  admissionsExecutiveId String?           @map("admissions_executive_id") @db.Uuid
+  visaExecutiveId       String?           @map("visa_executive_id") @db.Uuid
+  submittedAt           DateTime?         @map("submitted_at") @db.Timestamptz(6)
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  student               User              @relation("StudentApplications", fields: [studentId], references: [id], onDelete: Cascade)
+  university            University        @relation(fields: [universityId], references: [id])
+  admissionsExecutive   User?             @relation("AdmissionsAssignments", fields: [admissionsExecutiveId], references: [id], onDelete: SetNull)
+  visaExecutive         User?             @relation("VisaAssignments", fields: [visaExecutiveId], references: [id], onDelete: SetNull)
+  tasks                 Task[]
+  documents             Document[]
+  deadlines             Deadline[]
+
+  @@index([studentId], map: "applications_student_idx")
+  @@index([admissionsExecutiveId], map: "applications_admissions_idx")
+  @@index([visaExecutiveId], map: "applications_visa_idx")
+  @@map("applications")
+}
+
+model Task {
+  id            String       @id @default(uuid()) @db.Uuid
+  userId        String       @map("user_id") @db.Uuid
+  applicationId String?      @map("application_id") @db.Uuid
+  label         String
+  dueDate       DateTime?    @map("due_date") @db.Date
+  tag           String       @default("General")
+  completed     Boolean      @default(false)
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  application   Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "tasks_user_idx")
+  @@map("tasks")
+}
+
+model Document {
+  id            String         @id @default(uuid()) @db.Uuid
+  userId        String         @map("user_id") @db.Uuid
+  applicationId String?        @map("application_id") @db.Uuid
+  name          String
+  status        DocumentStatus @default(NEEDED)
+  note          String         @default("")
+  storageKey    String?        @map("storage_key")
+  verifiedBy    String?        @map("verified_by") @db.Uuid
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user          User           @relation("StudentDocuments", fields: [userId], references: [id], onDelete: Cascade)
+  application   Application?   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  verifier      User?          @relation("VerifiedDocuments", fields: [verifiedBy], references: [id], onDelete: SetNull)
+
+  @@index([userId], map: "documents_user_idx")
+  @@map("documents")
+}
+
+model Deadline {
+  id            String       @id @default(uuid()) @db.Uuid
+  userId        String       @map("user_id") @db.Uuid
+  applicationId String?      @map("application_id") @db.Uuid
+  label         String
+  organization  String
+  dueDate       DateTime     @map("due_date") @db.Date
+  type          DeadlineType
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  application   Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dueDate], map: "deadlines_user_date_idx")
+  @@map("deadlines")
+}
+
+model Notification {
+  id          String           @id @default(uuid()) @db.Uuid
+  userId      String           @map("user_id") @db.Uuid
+  kind        NotificationKind @default(SYSTEM)
+  title       String
+  description String
+  readAt      DateTime?        @map("read_at") @db.Timestamptz(6)
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt], map: "notifications_user_idx")
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @map("actor_id") @db.Uuid
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId], map: "audit_logs_actor_idx")
+  @@index([entityType, entityId], map: "audit_logs_entity_idx")
+  @@map("audit_logs")
+}
