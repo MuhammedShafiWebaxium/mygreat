@@ -1,4 +1,3 @@
-import 'server-only'
 import { randomBytes, scrypt as nodeScrypt, timingSafeEqual } from 'node:crypto'
 
 const KEY_LENGTH = 64

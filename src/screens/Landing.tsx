@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   ArrowRight,
   BadgeCheck,
@@ -19,8 +19,9 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { LandingPreloader } from '@/components/LandingPreloader'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
@@ -48,9 +49,20 @@ export default function Landing() {
   const theme = useAppStore((state) => state.theme)
   const isLight = theme === 'light'
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isPreloading, setIsPreloading] = useState(true)
+  const finishPreloading = useCallback(() => setIsPreloading(false), [])
 
   return (
-    <div className={cn(isLight && 'light-theme', 'min-h-screen overflow-hidden bg-[#070b18] text-white')}>
+    <>
+      <AnimatePresence>{isPreloading && <LandingPreloader onComplete={finishPreloading} />}</AnimatePresence>
+      <div
+        aria-hidden={isPreloading}
+        className={cn(
+          isLight && 'light-theme',
+          isPreloading && 'pointer-events-none h-[100svh] overflow-hidden',
+          'min-h-screen overflow-hidden bg-[#070b18] text-white',
+        )}
+      >
       <div className="pointer-events-none fixed inset-0 opacity-[0.035] noise" />
 
       <header className={cn('fixed inset-x-0 top-0 z-50 border-b backdrop-blur-xl', isLight ? 'border-slate-200/80 bg-white/80' : 'border-white/[0.07] bg-[#070b18]/80')}>
@@ -242,6 +254,7 @@ export default function Landing() {
           <p className="text-xs text-white/25">© {new Date().getFullYear()} Mygreat</p>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   )
 }
