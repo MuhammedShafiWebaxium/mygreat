@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { BarChart3, BriefcaseBusiness, ChevronRight, Compass, LayoutDashboard, LogOut, Menu, ShieldCheck, Users, X } from 'lucide-react'
+import { BarChart3, BriefcaseBusiness, Building2, ChevronRight, Compass, FileText, LayoutDashboard, LogOut, Menu, Plane, ShieldCheck, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { currentUserQuery } from '@/features/auth/auth.queries'
 import { logoutFn } from '@/features/auth/auth.functions'
@@ -14,15 +14,23 @@ import { cn } from '@/lib/utils'
 
 export const STAFF_ROLE_LABELS: Record<UserRole, string> = {
   SUPER_ADMIN: 'Super Admin',
+  PARTNER_ADMIN: 'Partner Admin',
+  MARKETING_EXECUTIVE: 'Marketing Executive',
+  FINANCE_EXECUTIVE: 'Finance Executive',
+  SUPPORT_EXECUTIVE: 'Support Executive',
   ADMISSIONS_EXECUTIVE: 'Admissions Executive',
   VISA_EXECUTIVE: 'Visa Executive',
+  RECEPTION_EXECUTIVE: 'Reception Executive',
   STUDENT: 'Student',
 }
 
 const pageMeta = {
   '/staff': { title: 'Operations overview', description: 'Monitor student progress and focus the team on what matters next.' },
-  '/staff/students': { title: 'Student pipeline', description: 'Review every assigned application and its next action.' },
+  '/staff/students': { title: 'Student management', description: 'View student profiles and manage partner assignments.' },
+  '/staff/applications': { title: 'Applications dashboard', description: 'Create, track, and update university applications.' },
+  '/staff/visas': { title: 'Visa dashboard', description: 'Track visa preparation, filing, and decisions.' },
   '/staff/team': { title: 'Team management', description: 'Manage staff access, roles, and operational coverage.' },
+  '/staff/partners': { title: 'Partner reviews', description: 'Review and approve study abroad partner registrations.' },
 }
 
 export default function Staff({ children }: { children: React.ReactNode }) {
@@ -32,19 +40,25 @@ export default function Staff({ children }: { children: React.ReactNode }) {
   const theme = useAppStore((state) => state.theme)
   const { data: user } = useSuspenseQuery(currentUserQuery)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const meta = pageMeta[pathname as keyof typeof pageMeta] ?? pageMeta['/staff']
+  const meta = pageMeta[pathname as keyof typeof pageMeta]
+    ?? (pathname.startsWith('/staff/students/') ? pageMeta['/staff/students']
+      : pathname.startsWith('/staff/partners/') ? pageMeta['/staff/partners']
+        : pageMeta['/staff'])
   const logout = useMutation({
     mutationFn: () => logoutFn(),
     onSuccess: async () => {
       queryClient.clear()
-      router.replace('/login')
+      router.replace(user?.accountType === 'ADMIN' ? '/login/admin' : '/login/partner')
     },
   })
 
   const navigation = [
     { to: '/staff' as const, label: 'Overview', icon: LayoutDashboard, exact: true },
-    { to: '/staff/students' as const, label: 'Student pipeline', icon: BriefcaseBusiness },
-    ...(user?.role === 'SUPER_ADMIN' ? [{ to: '/staff/team' as const, label: 'Team management', icon: Users }] : []),
+    { to: '/staff/students' as const, label: 'Students', icon: BriefcaseBusiness },
+    { to: '/staff/applications' as const, label: 'Applications', icon: FileText },
+    { to: '/staff/visas' as const, label: 'Visas', icon: Plane },
+    ...(['SUPER_ADMIN', 'PARTNER_ADMIN'].includes(user?.role ?? '') ? [{ to: '/staff/team' as const, label: 'Team management', icon: Users }] : []),
+    ...(user?.accountType === 'ADMIN' ? [{ to: '/staff/partners' as const, label: user.role === 'SUPER_ADMIN' ? 'Partner reviews' : 'Partners', icon: Building2 }] : []),
   ]
 
   const sidebar = (
@@ -88,7 +102,6 @@ export default function Staff({ children }: { children: React.ReactNode }) {
             <button onClick={() => setMobileOpen(true)} className="grid size-10 place-items-center rounded-xl border border-white/10 lg:hidden"><Menu className="size-4.5" /></button>
             <div className="min-w-0"><div className="flex items-center gap-2"><BarChart3 className="size-3.5 text-amber-300" /><span className="text-[9px] font-bold uppercase tracking-[0.2em] text-amber-300/75">Staff workspace</span></div><h1 className="mt-0.5 truncate font-display text-xl">{meta.title}</h1><p className="mt-0.5 hidden truncate text-[10.5px] text-white/32 sm:block">{meta.description}</p></div>
             <div className="flex-1" /><ThemeToggle />
-            <button onClick={() => router.push('/staff/students')} className="hidden items-center gap-2 rounded-xl bg-gradient-to-r from-amber-300 to-amber-500 px-4 py-2.5 text-xs font-bold text-[#10172a] shadow-[0_8px_24px_-10px_rgba(245,158,11,.75)] md:inline-flex">Open pipeline <ChevronRight className="size-3.5" /></button>
           </header>
           <main className="flex-1 overflow-y-auto scrollbar-thin"><div className="mx-auto max-w-[1450px] px-4 py-6 sm:px-7 lg:px-8 lg:py-7">{children}</div></main>
         </div>

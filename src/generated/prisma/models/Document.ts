@@ -222,9 +222,9 @@ export type DocumentWhereInput = {
   verifiedBy?: Prisma.UuidNullableFilter<"Document"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.StudentScalarRelationFilter, Prisma.StudentWhereInput>
   application?: Prisma.XOR<Prisma.ApplicationNullableScalarRelationFilter, Prisma.ApplicationWhereInput> | null
-  verifier?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  verifier?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
 }
 
 export type DocumentOrderByWithRelationInput = {
@@ -238,9 +238,9 @@ export type DocumentOrderByWithRelationInput = {
   verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
+  user?: Prisma.StudentOrderByWithRelationInput
   application?: Prisma.ApplicationOrderByWithRelationInput
-  verifier?: Prisma.UserOrderByWithRelationInput
+  verifier?: Prisma.PartnerOrderByWithRelationInput
 }
 
 export type DocumentWhereUniqueInput = Prisma.AtLeast<{
@@ -257,9 +257,9 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   verifiedBy?: Prisma.UuidNullableFilter<"Document"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.StudentScalarRelationFilter, Prisma.StudentWhereInput>
   application?: Prisma.XOR<Prisma.ApplicationNullableScalarRelationFilter, Prisma.ApplicationWhereInput> | null
-  verifier?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  verifier?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
 }, "id">
 
 export type DocumentOrderByWithAggregationInput = {
@@ -302,9 +302,9 @@ export type DocumentCreateInput = {
   storageKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutDocumentsInput
+  user: Prisma.StudentCreateNestedOneWithoutDocumentsInput
   application?: Prisma.ApplicationCreateNestedOneWithoutDocumentsInput
-  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedDocumentsInput
+  verifier?: Prisma.PartnerCreateNestedOneWithoutVerifiedDocumentsInput
 }
 
 export type DocumentUncheckedCreateInput = {
@@ -328,9 +328,9 @@ export type DocumentUpdateInput = {
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
+  user?: Prisma.StudentUpdateOneRequiredWithoutDocumentsNestedInput
   application?: Prisma.ApplicationUpdateOneWithoutDocumentsNestedInput
-  verifier?: Prisma.UserUpdateOneWithoutVerifiedDocumentsNestedInput
+  verifier?: Prisma.PartnerUpdateOneWithoutVerifiedDocumentsNestedInput
 }
 
 export type DocumentUncheckedUpdateInput = {
@@ -438,24 +438,10 @@ export type DocumentCreateNestedManyWithoutUserInput = {
   connect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
 }
 
-export type DocumentCreateNestedManyWithoutVerifierInput = {
-  create?: Prisma.XOR<Prisma.DocumentCreateWithoutVerifierInput, Prisma.DocumentUncheckedCreateWithoutVerifierInput> | Prisma.DocumentCreateWithoutVerifierInput[] | Prisma.DocumentUncheckedCreateWithoutVerifierInput[]
-  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutVerifierInput | Prisma.DocumentCreateOrConnectWithoutVerifierInput[]
-  createMany?: Prisma.DocumentCreateManyVerifierInputEnvelope
-  connect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
-}
-
 export type DocumentUncheckedCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.DocumentCreateWithoutUserInput, Prisma.DocumentUncheckedCreateWithoutUserInput> | Prisma.DocumentCreateWithoutUserInput[] | Prisma.DocumentUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutUserInput | Prisma.DocumentCreateOrConnectWithoutUserInput[]
   createMany?: Prisma.DocumentCreateManyUserInputEnvelope
-  connect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
-}
-
-export type DocumentUncheckedCreateNestedManyWithoutVerifierInput = {
-  create?: Prisma.XOR<Prisma.DocumentCreateWithoutVerifierInput, Prisma.DocumentUncheckedCreateWithoutVerifierInput> | Prisma.DocumentCreateWithoutVerifierInput[] | Prisma.DocumentUncheckedCreateWithoutVerifierInput[]
-  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutVerifierInput | Prisma.DocumentCreateOrConnectWithoutVerifierInput[]
-  createMany?: Prisma.DocumentCreateManyVerifierInputEnvelope
   connect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
 }
 
@@ -473,20 +459,6 @@ export type DocumentUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.DocumentScalarWhereInput | Prisma.DocumentScalarWhereInput[]
 }
 
-export type DocumentUpdateManyWithoutVerifierNestedInput = {
-  create?: Prisma.XOR<Prisma.DocumentCreateWithoutVerifierInput, Prisma.DocumentUncheckedCreateWithoutVerifierInput> | Prisma.DocumentCreateWithoutVerifierInput[] | Prisma.DocumentUncheckedCreateWithoutVerifierInput[]
-  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutVerifierInput | Prisma.DocumentCreateOrConnectWithoutVerifierInput[]
-  upsert?: Prisma.DocumentUpsertWithWhereUniqueWithoutVerifierInput | Prisma.DocumentUpsertWithWhereUniqueWithoutVerifierInput[]
-  createMany?: Prisma.DocumentCreateManyVerifierInputEnvelope
-  set?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
-  disconnect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
-  delete?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
-  connect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
-  update?: Prisma.DocumentUpdateWithWhereUniqueWithoutVerifierInput | Prisma.DocumentUpdateWithWhereUniqueWithoutVerifierInput[]
-  updateMany?: Prisma.DocumentUpdateManyWithWhereWithoutVerifierInput | Prisma.DocumentUpdateManyWithWhereWithoutVerifierInput[]
-  deleteMany?: Prisma.DocumentScalarWhereInput | Prisma.DocumentScalarWhereInput[]
-}
-
 export type DocumentUncheckedUpdateManyWithoutUserNestedInput = {
   create?: Prisma.XOR<Prisma.DocumentCreateWithoutUserInput, Prisma.DocumentUncheckedCreateWithoutUserInput> | Prisma.DocumentCreateWithoutUserInput[] | Prisma.DocumentUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutUserInput | Prisma.DocumentCreateOrConnectWithoutUserInput[]
@@ -498,6 +470,34 @@ export type DocumentUncheckedUpdateManyWithoutUserNestedInput = {
   connect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
   update?: Prisma.DocumentUpdateWithWhereUniqueWithoutUserInput | Prisma.DocumentUpdateWithWhereUniqueWithoutUserInput[]
   updateMany?: Prisma.DocumentUpdateManyWithWhereWithoutUserInput | Prisma.DocumentUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.DocumentScalarWhereInput | Prisma.DocumentScalarWhereInput[]
+}
+
+export type DocumentCreateNestedManyWithoutVerifierInput = {
+  create?: Prisma.XOR<Prisma.DocumentCreateWithoutVerifierInput, Prisma.DocumentUncheckedCreateWithoutVerifierInput> | Prisma.DocumentCreateWithoutVerifierInput[] | Prisma.DocumentUncheckedCreateWithoutVerifierInput[]
+  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutVerifierInput | Prisma.DocumentCreateOrConnectWithoutVerifierInput[]
+  createMany?: Prisma.DocumentCreateManyVerifierInputEnvelope
+  connect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
+}
+
+export type DocumentUncheckedCreateNestedManyWithoutVerifierInput = {
+  create?: Prisma.XOR<Prisma.DocumentCreateWithoutVerifierInput, Prisma.DocumentUncheckedCreateWithoutVerifierInput> | Prisma.DocumentCreateWithoutVerifierInput[] | Prisma.DocumentUncheckedCreateWithoutVerifierInput[]
+  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutVerifierInput | Prisma.DocumentCreateOrConnectWithoutVerifierInput[]
+  createMany?: Prisma.DocumentCreateManyVerifierInputEnvelope
+  connect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
+}
+
+export type DocumentUpdateManyWithoutVerifierNestedInput = {
+  create?: Prisma.XOR<Prisma.DocumentCreateWithoutVerifierInput, Prisma.DocumentUncheckedCreateWithoutVerifierInput> | Prisma.DocumentCreateWithoutVerifierInput[] | Prisma.DocumentUncheckedCreateWithoutVerifierInput[]
+  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutVerifierInput | Prisma.DocumentCreateOrConnectWithoutVerifierInput[]
+  upsert?: Prisma.DocumentUpsertWithWhereUniqueWithoutVerifierInput | Prisma.DocumentUpsertWithWhereUniqueWithoutVerifierInput[]
+  createMany?: Prisma.DocumentCreateManyVerifierInputEnvelope
+  set?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
+  disconnect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
+  delete?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
+  connect?: Prisma.DocumentWhereUniqueInput | Prisma.DocumentWhereUniqueInput[]
+  update?: Prisma.DocumentUpdateWithWhereUniqueWithoutVerifierInput | Prisma.DocumentUpdateWithWhereUniqueWithoutVerifierInput[]
+  updateMany?: Prisma.DocumentUpdateManyWithWhereWithoutVerifierInput | Prisma.DocumentUpdateManyWithWhereWithoutVerifierInput[]
   deleteMany?: Prisma.DocumentScalarWhereInput | Prisma.DocumentScalarWhereInput[]
 }
 
@@ -570,7 +570,7 @@ export type DocumentCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   application?: Prisma.ApplicationCreateNestedOneWithoutDocumentsInput
-  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedDocumentsInput
+  verifier?: Prisma.PartnerCreateNestedOneWithoutVerifiedDocumentsInput
 }
 
 export type DocumentUncheckedCreateWithoutUserInput = {
@@ -592,40 +592,6 @@ export type DocumentCreateOrConnectWithoutUserInput = {
 
 export type DocumentCreateManyUserInputEnvelope = {
   data: Prisma.DocumentCreateManyUserInput | Prisma.DocumentCreateManyUserInput[]
-  skipDuplicates?: boolean
-}
-
-export type DocumentCreateWithoutVerifierInput = {
-  id?: string
-  name: string
-  status?: $Enums.DocumentStatus
-  note?: string
-  storageKey?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutDocumentsInput
-  application?: Prisma.ApplicationCreateNestedOneWithoutDocumentsInput
-}
-
-export type DocumentUncheckedCreateWithoutVerifierInput = {
-  id?: string
-  userId: string
-  applicationId?: string | null
-  name: string
-  status?: $Enums.DocumentStatus
-  note?: string
-  storageKey?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type DocumentCreateOrConnectWithoutVerifierInput = {
-  where: Prisma.DocumentWhereUniqueInput
-  create: Prisma.XOR<Prisma.DocumentCreateWithoutVerifierInput, Prisma.DocumentUncheckedCreateWithoutVerifierInput>
-}
-
-export type DocumentCreateManyVerifierInputEnvelope = {
-  data: Prisma.DocumentCreateManyVerifierInput | Prisma.DocumentCreateManyVerifierInput[]
   skipDuplicates?: boolean
 }
 
@@ -661,6 +627,40 @@ export type DocumentScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
 }
 
+export type DocumentCreateWithoutVerifierInput = {
+  id?: string
+  name: string
+  status?: $Enums.DocumentStatus
+  note?: string
+  storageKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.StudentCreateNestedOneWithoutDocumentsInput
+  application?: Prisma.ApplicationCreateNestedOneWithoutDocumentsInput
+}
+
+export type DocumentUncheckedCreateWithoutVerifierInput = {
+  id?: string
+  userId: string
+  applicationId?: string | null
+  name: string
+  status?: $Enums.DocumentStatus
+  note?: string
+  storageKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type DocumentCreateOrConnectWithoutVerifierInput = {
+  where: Prisma.DocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.DocumentCreateWithoutVerifierInput, Prisma.DocumentUncheckedCreateWithoutVerifierInput>
+}
+
+export type DocumentCreateManyVerifierInputEnvelope = {
+  data: Prisma.DocumentCreateManyVerifierInput | Prisma.DocumentCreateManyVerifierInput[]
+  skipDuplicates?: boolean
+}
+
 export type DocumentUpsertWithWhereUniqueWithoutVerifierInput = {
   where: Prisma.DocumentWhereUniqueInput
   update: Prisma.XOR<Prisma.DocumentUpdateWithoutVerifierInput, Prisma.DocumentUncheckedUpdateWithoutVerifierInput>
@@ -685,8 +685,8 @@ export type DocumentCreateWithoutApplicationInput = {
   storageKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutDocumentsInput
-  verifier?: Prisma.UserCreateNestedOneWithoutVerifiedDocumentsInput
+  user: Prisma.StudentCreateNestedOneWithoutDocumentsInput
+  verifier?: Prisma.PartnerCreateNestedOneWithoutVerifiedDocumentsInput
 }
 
 export type DocumentUncheckedCreateWithoutApplicationInput = {
@@ -739,18 +739,6 @@ export type DocumentCreateManyUserInput = {
   updatedAt?: Date | string
 }
 
-export type DocumentCreateManyVerifierInput = {
-  id?: string
-  userId: string
-  applicationId?: string | null
-  name: string
-  status?: $Enums.DocumentStatus
-  note?: string
-  storageKey?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
 export type DocumentUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -760,7 +748,7 @@ export type DocumentUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   application?: Prisma.ApplicationUpdateOneWithoutDocumentsNestedInput
-  verifier?: Prisma.UserUpdateOneWithoutVerifiedDocumentsNestedInput
+  verifier?: Prisma.PartnerUpdateOneWithoutVerifiedDocumentsNestedInput
 }
 
 export type DocumentUncheckedUpdateWithoutUserInput = {
@@ -787,6 +775,18 @@ export type DocumentUncheckedUpdateManyWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type DocumentCreateManyVerifierInput = {
+  id?: string
+  userId: string
+  applicationId?: string | null
+  name: string
+  status?: $Enums.DocumentStatus
+  note?: string
+  storageKey?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
 export type DocumentUpdateWithoutVerifierInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -795,7 +795,7 @@ export type DocumentUpdateWithoutVerifierInput = {
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
+  user?: Prisma.StudentUpdateOneRequiredWithoutDocumentsNestedInput
   application?: Prisma.ApplicationUpdateOneWithoutDocumentsNestedInput
 }
 
@@ -843,8 +843,8 @@ export type DocumentUpdateWithoutApplicationInput = {
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
-  verifier?: Prisma.UserUpdateOneWithoutVerifiedDocumentsNestedInput
+  user?: Prisma.StudentUpdateOneRequiredWithoutDocumentsNestedInput
+  verifier?: Prisma.PartnerUpdateOneWithoutVerifiedDocumentsNestedInput
 }
 
 export type DocumentUncheckedUpdateWithoutApplicationInput = {
@@ -884,7 +884,7 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   verifiedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   application?: boolean | Prisma.Document$applicationArgs<ExtArgs>
   verifier?: boolean | Prisma.Document$verifierArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
@@ -900,7 +900,7 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   verifiedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   application?: boolean | Prisma.Document$applicationArgs<ExtArgs>
   verifier?: boolean | Prisma.Document$verifierArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
@@ -916,7 +916,7 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   verifiedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   application?: boolean | Prisma.Document$applicationArgs<ExtArgs>
   verifier?: boolean | Prisma.Document$verifierArgs<ExtArgs>
 }, ExtArgs["result"]["document"]>
@@ -936,17 +936,17 @@ export type DocumentSelectScalar = {
 
 export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "applicationId" | "name" | "status" | "note" | "storageKey" | "verifiedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
 export type DocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   application?: boolean | Prisma.Document$applicationArgs<ExtArgs>
   verifier?: boolean | Prisma.Document$verifierArgs<ExtArgs>
 }
 export type DocumentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   application?: boolean | Prisma.Document$applicationArgs<ExtArgs>
   verifier?: boolean | Prisma.Document$verifierArgs<ExtArgs>
 }
 export type DocumentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   application?: boolean | Prisma.Document$applicationArgs<ExtArgs>
   verifier?: boolean | Prisma.Document$verifierArgs<ExtArgs>
 }
@@ -954,9 +954,9 @@ export type DocumentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Document"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
+    user: Prisma.$StudentPayload<ExtArgs>
     application: Prisma.$ApplicationPayload<ExtArgs> | null
-    verifier: Prisma.$UserPayload<ExtArgs> | null
+    verifier: Prisma.$PartnerPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1363,9 +1363,9 @@ readonly fields: DocumentFieldRefs;
  */
 export interface Prisma__DocumentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.StudentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StudentDefaultArgs<ExtArgs>>): Prisma.Prisma__StudentClient<runtime.Types.Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   application<T extends Prisma.Document$applicationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$applicationArgs<ExtArgs>>): Prisma.Prisma__ApplicationClient<runtime.Types.Result.GetResult<Prisma.$ApplicationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  verifier<T extends Prisma.Document$verifierArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$verifierArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  verifier<T extends Prisma.Document$verifierArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$verifierArgs<ExtArgs>>): Prisma.Prisma__PartnerClient<runtime.Types.Result.GetResult<Prisma.$PartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1829,18 +1829,18 @@ export type Document$applicationArgs<ExtArgs extends runtime.Types.Extensions.In
  */
 export type Document$verifierArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the User
+   * Select specific fields to fetch from the Partner
    */
-  select?: Prisma.UserSelect<ExtArgs> | null
+  select?: Prisma.PartnerSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the User
+   * Omit specific fields from the Partner
    */
-  omit?: Prisma.UserOmit<ExtArgs> | null
+  omit?: Prisma.PartnerOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
+  include?: Prisma.PartnerInclude<ExtArgs> | null
+  where?: Prisma.PartnerWhereInput
 }
 
 /**

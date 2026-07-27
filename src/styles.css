@@ -215,6 +215,42 @@
   color: #b45309 !important;
 }
 
+/* Semantic colors designed for the dark canvas need darker foregrounds on
+   light surfaces. Keep this centralized so selected labels and status badges
+   remain readable across onboarding, student, and staff workspaces. */
+.light-theme [class*="text-amber-100"],
+.light-theme [class*="text-amber-200"],
+.light-theme [class*="text-amber-500"] {
+  color: #a64b08 !important;
+}
+
+.light-theme [class*="text-emerald-200"],
+.light-theme [class*="text-emerald-300"],
+.light-theme [class*="text-emerald-400"],
+.light-theme [class*="text-emerald-500"] {
+  color: #047857 !important;
+}
+
+.light-theme [class*="text-indigo-200"],
+.light-theme [class*="text-indigo-300"] {
+  color: #4338ca !important;
+}
+
+.light-theme [class*="text-violet-200"],
+.light-theme [class*="text-violet-300"] {
+  color: #6d28d9 !important;
+}
+
+.light-theme [class*="text-sky-300"] {
+  color: #0369a1 !important;
+}
+
+.light-theme [class*="text-rose-300"],
+.light-theme [class*="text-rose-400"],
+.light-theme [class*="text-rose-500"] {
+  color: #be123c !important;
+}
+
 .light-theme input,
 .light-theme textarea,
 .light-theme select {
@@ -228,6 +264,57 @@
 
 .light-theme .scrollbar-thin::-webkit-scrollbar-thumb {
   background: rgb(100 116 139 / 0.28);
+}
+
+.landing-page.light-theme {
+  background:
+    radial-gradient(circle at 8% 6%, rgb(99 102 241 / 0.07), transparent 32rem),
+    radial-gradient(circle at 92% 8%, rgb(245 158 11 / 0.08), transparent 34rem),
+    #f7f8fc !important;
+  color: #172033 !important;
+}
+
+.landing-page.light-theme .landing-hero {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.35), transparent);
+}
+
+.landing-page.light-theme .landing-hero-card {
+  background: rgb(255 255 255 / 0.92) !important;
+  border-color: rgb(148 163 184 / 0.25) !important;
+  box-shadow: 0 30px 70px -42px rgb(15 23 42 / 0.38) !important;
+}
+
+.landing-page.light-theme .landing-review-card {
+  background: #fff !important;
+  border-color: rgb(148 163 184 / 0.25) !important;
+  box-shadow: 0 18px 42px -28px rgb(15 23 42 / 0.42) !important;
+}
+
+.landing-page.light-theme .landing-steps-section {
+  background: #f0f3f9 !important;
+  border-color: #e1e6ef !important;
+}
+
+.landing-page.light-theme .landing-hero-badge {
+  color: #a44b08 !important;
+  background: #fff5df !important;
+  border-color: rgb(217 119 6 / 0.25) !important;
+}
+
+.landing-page.light-theme .landing-profile-badge {
+  color: #047857 !important;
+  background: #ecfdf5 !important;
+  border-color: rgb(5 150 105 / 0.2) !important;
+}
+
+.landing-page.light-theme .landing-metric-value {
+  color: #b45309 !important;
+}
+
+.landing-page.light-theme .landing-final-cta {
+  background: linear-gradient(135deg, #fffaf0, #f4f2ff) !important;
+  border-color: rgb(217 119 6 / 0.2) !important;
+  box-shadow: 0 30px 70px -45px rgb(15 23 42 / 0.38);
 }
 
 /* Student workspace has denser translucent surfaces than onboarding. Give its
@@ -363,6 +450,12 @@
   border-color: #e4e8f0 !important;
 }
 
+.staff-workspace.light-theme .staff-application-drawer {
+  background: #fff !important;
+  border-color: #e4e8f0 !important;
+}
+
+
 /* Keep the authentication layout deterministic across Tailwind/Vite rebuilds. */
 .login-brand-panel {
   display: none;
@@ -394,5 +487,3 @@
     overflow-y: auto;
   }
 }
-
-

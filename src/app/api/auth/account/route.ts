@@ -7,6 +7,7 @@ import { apiError } from '@/lib/api'
 export async function PATCH(request: Request) {
   try {
     const user = await requireUser()
+    if (user.accountType !== 'STUDENT') throw new Error('Student authentication required.')
     return NextResponse.json(await updateAccount(user.id, accountSchema.parse(await request.json())))
   } catch (error) {
     return apiError(error)

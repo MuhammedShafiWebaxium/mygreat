@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export default async function Page() {
   const user = await getSessionUser()
   if (!user) redirect('/')
-  if (user.role !== 'STUDENT') redirect('/staff')
+  if (user.accountType !== 'STUDENT') redirect('/staff')
   const fallback = <div className="min-h-screen bg-[#070b18]" />
   return (
     <ClientOnly fallback={fallback}>

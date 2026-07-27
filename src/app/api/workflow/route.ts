@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { assertRole, requireUser } from '@/features/auth/authorization.server'
-import { applicationUpdateSchema, createApplicationSchema, taskToggleSchema } from '@/features/workflow/workflow.schema'
-import { createApplication, readStudentDashboard, setTaskCompleted, updateApplication } from '@/features/workflow/workflow.server'
+import { applicationUpdateSchema, createApplicationSchema, staffCreateApplicationSchema, taskToggleSchema } from '@/features/workflow/workflow.schema'
+import { createApplication, createApplicationForStudent, readStudentDashboard, setTaskCompleted, updateApplication } from '@/features/workflow/workflow.server'
 import { apiError } from '@/lib/api'
 
 export async function GET() {
@@ -28,8 +28,12 @@ export async function POST(request: Request) {
       return NextResponse.json(await setTaskCompleted(user.id, data.taskId, data.completed))
     }
     if (body.action === 'updateApplication') {
-      assertRole(user.role, ['SUPER_ADMIN', 'ADMISSIONS_EXECUTIVE', 'VISA_EXECUTIVE'])
+      assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN', 'ADMISSIONS_EXECUTIVE', 'VISA_EXECUTIVE'])
       return NextResponse.json(await updateApplication(user, applicationUpdateSchema.parse(body.data)))
+    }
+    if (body.action === 'staffCreateApplication') {
+      assertRole(user.role, ['SUPER_ADMIN', 'MARKETING_EXECUTIVE', 'FINANCE_EXECUTIVE', 'SUPPORT_EXECUTIVE', 'PARTNER_ADMIN', 'ADMISSIONS_EXECUTIVE', 'VISA_EXECUTIVE', 'RECEPTION_EXECUTIVE'])
+      return NextResponse.json(await createApplicationForStudent(user, staffCreateApplicationSchema.parse(body.data)))
     }
     return NextResponse.json({ error: 'Unknown workflow action.' }, { status: 400 })
   } catch (error) {

@@ -8,6 +8,6 @@ export const metadata: Metadata = { title: 'Team management' }
 
 export default async function Page() {
   const user = await getSessionUser()
-  if (user?.role !== 'SUPER_ADMIN') redirect('/staff')
+  if (!user || !['SUPER_ADMIN', 'PARTNER_ADMIN'].includes(user.role)) redirect('/staff')
   return <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-white/[0.03]" />}><TeamManagement /></Suspense>
 }

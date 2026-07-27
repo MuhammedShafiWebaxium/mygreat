@@ -4,6 +4,6 @@ import { getSessionUser } from '@/features/auth/session.server'
 
 export default async function Page() {
   const user = await getSessionUser()
-  if (user) redirect(user.role === 'STUDENT' ? '/dashboard' : '/staff')
+  if (user) redirect(user.accountType === 'STUDENT' ? '/dashboard' : '/staff')
   return <Landing />
 }

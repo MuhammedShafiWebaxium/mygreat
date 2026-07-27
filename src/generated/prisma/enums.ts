@@ -9,14 +9,33 @@
 * 🟢 You can import this file directly.
 */
 
-export const UserRole = {
-  SUPER_ADMIN: 'SUPER_ADMIN',
+export const PartnerRole = {
+  PARTNER_ADMIN: 'PARTNER_ADMIN',
   ADMISSIONS_EXECUTIVE: 'ADMISSIONS_EXECUTIVE',
   VISA_EXECUTIVE: 'VISA_EXECUTIVE',
-  STUDENT: 'STUDENT'
+  RECEPTION_EXECUTIVE: 'RECEPTION_EXECUTIVE'
 } as const
 
-export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+export type PartnerRole = (typeof PartnerRole)[keyof typeof PartnerRole]
+
+
+export const PartnerStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type PartnerStatus = (typeof PartnerStatus)[keyof typeof PartnerStatus]
+
+
+export const AdminRole = {
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  MARKETING_EXECUTIVE: 'MARKETING_EXECUTIVE',
+  FINANCE_EXECUTIVE: 'FINANCE_EXECUTIVE',
+  SUPPORT_EXECUTIVE: 'SUPPORT_EXECUTIVE'
+} as const
+
+export type AdminRole = (typeof AdminRole)[keyof typeof AdminRole]
 
 
 export const ApplicationStatus = {

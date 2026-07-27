@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Check, ArrowRight, Trophy, Clock, PenLine, PartyPopper, CalendarClock, ShieldCheck, Compass } from 'lucide-react'
+import { Check, ArrowRight, Trophy, Clock, PenLine, PartyPopper, CalendarClock, ShieldCheck, Compass, Plane } from 'lucide-react'
 import { daysUntil, fmtDate } from '@/data/dashboard'
 import type { Application } from '@/data/dashboard'
 import { Panel, StatusChip, Bar, UniMark, fadeUp } from './bits'
@@ -79,6 +79,9 @@ export default function Applications({ applications, onNavigate }: Props) {
                     </div>
                     <p className="text-[13px] text-white/45 mt-1">{a.program} · {a.city}</p>
                     <p className="text-[11px] text-white/30 mt-0.5">QS World Ranking #{a.rank}</p>
+                    <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-violet-400/20 bg-violet-400/[0.08] px-2.5 py-1 text-[10px] font-semibold text-violet-200">
+                      <Plane className="size-3" /> Visa: {(a.visaStatus ?? 'not-started').replaceAll('-', ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
+                    </div>
                   </div>
                 </div>
 
@@ -203,4 +206,3 @@ export default function Applications({ applications, onNavigate }: Props) {
     </div>
   )
 }
-

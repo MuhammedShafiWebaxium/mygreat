@@ -10,7 +10,7 @@ import { staffListQuery } from '@/features/admin/admin.queries'
 import { STAFF_ROLE_LABELS } from '@/screens/Staff'
 import { cn } from '@/lib/utils'
 
-type StaffRole = 'SUPER_ADMIN' | 'ADMISSIONS_EXECUTIVE' | 'VISA_EXECUTIVE'
+type StaffRole = 'SUPER_ADMIN' | 'MARKETING_EXECUTIVE' | 'FINANCE_EXECUTIVE' | 'SUPPORT_EXECUTIVE' | 'PARTNER_ADMIN' | 'ADMISSIONS_EXECUTIVE' | 'VISA_EXECUTIVE' | 'RECEPTION_EXECUTIVE'
 
 const EMPTY_CREATE = { name: '', email: '', password: '', role: 'ADMISSIONS_EXECUTIVE' as StaffRole }
 
@@ -49,7 +49,7 @@ export default function TeamManagement() {
     },
   })
   const updateStaff = useMutation({
-    mutationFn: () => updateStaffFn({ data: { userId: selected!.id, ...editForm } }),
+    mutationFn: () => updateStaffFn({ data: { userId: selected!.id, accountType: selected!.accountType, ...editForm } }),
     onSuccess: async () => {
       await refreshTeam()
       closeDrawer()
@@ -76,7 +76,7 @@ export default function TeamManagement() {
         <div className="flex flex-col gap-5 md:flex-row md:items-center">
           <div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/35">Team administration</p><h2 className="mt-1 font-display text-2xl">Your operations team</h2><p className="mt-2 text-xs leading-5 text-white/38">Control staff access and keep admissions and visa coverage balanced.</p></div>
           <div className="flex-1" />
-          <button onClick={() => { setSelectedId(null); setCreateOpen(true) }} className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-300 to-amber-500 px-5 py-3 text-xs font-bold text-[#10172a] shadow-[0_10px_30px_-12px_rgba(245,158,11,.7)] transition hover:-translate-y-0.5"><Plus className="size-4" /> Add staff member</button>
+          <button onClick={() => { setSelectedId(null); setCreateForm({ ...EMPTY_CREATE, role: currentUser?.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'ADMISSIONS_EXECUTIVE' }); setCreateOpen(true) }} className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-300 to-amber-500 px-5 py-3 text-xs font-bold text-[#10172a] shadow-[0_10px_30px_-12px_rgba(245,158,11,.7)] transition hover:-translate-y-0.5"><Plus className="size-4" /> Add staff member</button>
         </div>
         <div className="mt-6 grid grid-cols-2 gap-3 border-t border-white/[0.06] pt-5 lg:grid-cols-4">
           {summaries.map((summary) => <div key={summary.label} className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4"><summary.icon className="size-4 text-amber-300" /><p className="mt-3 font-display text-2xl">{summary.value}</p><p className="mt-1 text-[10.5px] text-white/35">{summary.label}</p></div>)}
@@ -125,5 +125,6 @@ export default function TeamManagement() {
 }
 
 function RoleSelect({ value, onChange }: { value: StaffRole; onChange: (role: StaffRole) => void }) {
-  return <label className="block"><span className="mb-2 block text-[11px] font-semibold text-white/55">Role and permissions</span><select value={value} onChange={(event) => onChange(event.target.value as StaffRole)} className="w-full rounded-xl border border-white/[0.08] bg-[#0a0f24] px-4 py-3 text-sm outline-none focus:border-amber-300/35"><option value="ADMISSIONS_EXECUTIVE">Admissions Executive</option><option value="VISA_EXECUTIVE">Visa Executive</option><option value="SUPER_ADMIN">Super Admin</option></select><p className="mt-2 text-[10px] leading-4 text-white/30">{value === 'SUPER_ADMIN' ? 'Full access to students, team management, and operations.' : value === 'ADMISSIONS_EXECUTIVE' ? 'Access to assigned admissions cases and student applications.' : 'Access to assigned visa cases and student documentation.'}</p></label>
+  const platformAdmin = ['SUPER_ADMIN', 'MARKETING_EXECUTIVE', 'FINANCE_EXECUTIVE', 'SUPPORT_EXECUTIVE'].includes(value)
+  return <label className="block"><span className="mb-2 block text-[11px] font-semibold text-white/55">Role and permissions</span><select value={value} onChange={(event) => onChange(event.target.value as StaffRole)} className="w-full rounded-xl border border-white/[0.08] bg-[#0a0f24] px-4 py-3 text-sm outline-none focus:border-amber-300/35">{platformAdmin ? <><option value="SUPER_ADMIN">Super Admin</option><option value="MARKETING_EXECUTIVE">Marketing Executive</option><option value="FINANCE_EXECUTIVE">Finance Executive</option><option value="SUPPORT_EXECUTIVE">Support Executive</option></> : <><option value="ADMISSIONS_EXECUTIVE">Admissions Executive</option><option value="VISA_EXECUTIVE">Visa Executive</option><option value="RECEPTION_EXECUTIVE">Reception Executive</option></>}</select><p className="mt-2 text-[10px] leading-4 text-white/30">{platformAdmin ? 'Platform administration account.' : 'Staff access is limited to this partner company.'}</p></label>
 }

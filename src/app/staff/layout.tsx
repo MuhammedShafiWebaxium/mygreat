@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser()
   if (!user) redirect('/login')
-  if (user.role === 'STUDENT') redirect('/dashboard')
+  if (user.accountType === 'STUDENT') redirect('/dashboard')
   const fallback = <div className="min-h-screen bg-[#060a18]" />
   return (
     <ClientOnly fallback={fallback}>

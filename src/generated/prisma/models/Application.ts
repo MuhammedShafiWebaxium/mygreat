@@ -288,10 +288,10 @@ export type ApplicationWhereInput = {
   submittedAt?: Prisma.DateTimeNullableFilter<"Application"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Application"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Application"> | Date | string
-  student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  student?: Prisma.XOR<Prisma.StudentScalarRelationFilter, Prisma.StudentWhereInput>
   university?: Prisma.XOR<Prisma.UniversityScalarRelationFilter, Prisma.UniversityWhereInput>
-  admissionsExecutive?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  visaExecutive?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  admissionsExecutive?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
+  visaExecutive?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
   tasks?: Prisma.TaskListRelationFilter
   documents?: Prisma.DocumentListRelationFilter
   deadlines?: Prisma.DeadlineListRelationFilter
@@ -312,10 +312,10 @@ export type ApplicationOrderByWithRelationInput = {
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  student?: Prisma.UserOrderByWithRelationInput
+  student?: Prisma.StudentOrderByWithRelationInput
   university?: Prisma.UniversityOrderByWithRelationInput
-  admissionsExecutive?: Prisma.UserOrderByWithRelationInput
-  visaExecutive?: Prisma.UserOrderByWithRelationInput
+  admissionsExecutive?: Prisma.PartnerOrderByWithRelationInput
+  visaExecutive?: Prisma.PartnerOrderByWithRelationInput
   tasks?: Prisma.TaskOrderByRelationAggregateInput
   documents?: Prisma.DocumentOrderByRelationAggregateInput
   deadlines?: Prisma.DeadlineOrderByRelationAggregateInput
@@ -339,10 +339,10 @@ export type ApplicationWhereUniqueInput = Prisma.AtLeast<{
   submittedAt?: Prisma.DateTimeNullableFilter<"Application"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Application"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Application"> | Date | string
-  student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  student?: Prisma.XOR<Prisma.StudentScalarRelationFilter, Prisma.StudentWhereInput>
   university?: Prisma.XOR<Prisma.UniversityScalarRelationFilter, Prisma.UniversityWhereInput>
-  admissionsExecutive?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  visaExecutive?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  admissionsExecutive?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
+  visaExecutive?: Prisma.XOR<Prisma.PartnerNullableScalarRelationFilter, Prisma.PartnerWhereInput> | null
   tasks?: Prisma.TaskListRelationFilter
   documents?: Prisma.DocumentListRelationFilter
   deadlines?: Prisma.DeadlineListRelationFilter
@@ -401,10 +401,10 @@ export type ApplicationCreateInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutApplicationsInput
+  student: Prisma.StudentCreateNestedOneWithoutApplicationsInput
   university: Prisma.UniversityCreateNestedOneWithoutApplicationsInput
-  admissionsExecutive?: Prisma.UserCreateNestedOneWithoutAdmissionsAssignmentsInput
-  visaExecutive?: Prisma.UserCreateNestedOneWithoutVisaAssignmentsInput
+  admissionsExecutive?: Prisma.PartnerCreateNestedOneWithoutAdmissionsAssignmentsInput
+  visaExecutive?: Prisma.PartnerCreateNestedOneWithoutVisaAssignmentsInput
   tasks?: Prisma.TaskCreateNestedManyWithoutApplicationInput
   documents?: Prisma.DocumentCreateNestedManyWithoutApplicationInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
@@ -441,10 +441,10 @@ export type ApplicationUpdateInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutApplicationsNestedInput
+  student?: Prisma.StudentUpdateOneRequiredWithoutApplicationsNestedInput
   university?: Prisma.UniversityUpdateOneRequiredWithoutApplicationsNestedInput
-  admissionsExecutive?: Prisma.UserUpdateOneWithoutAdmissionsAssignmentsNestedInput
-  visaExecutive?: Prisma.UserUpdateOneWithoutVisaAssignmentsNestedInput
+  admissionsExecutive?: Prisma.PartnerUpdateOneWithoutAdmissionsAssignmentsNestedInput
+  visaExecutive?: Prisma.PartnerUpdateOneWithoutVisaAssignmentsNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutApplicationNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutApplicationNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
@@ -598,38 +598,10 @@ export type ApplicationCreateNestedManyWithoutStudentInput = {
   connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
 }
 
-export type ApplicationCreateNestedManyWithoutAdmissionsExecutiveInput = {
-  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutAdmissionsExecutiveInput, Prisma.ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput> | Prisma.ApplicationCreateWithoutAdmissionsExecutiveInput[] | Prisma.ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput[]
-  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutAdmissionsExecutiveInput | Prisma.ApplicationCreateOrConnectWithoutAdmissionsExecutiveInput[]
-  createMany?: Prisma.ApplicationCreateManyAdmissionsExecutiveInputEnvelope
-  connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
-}
-
-export type ApplicationCreateNestedManyWithoutVisaExecutiveInput = {
-  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutVisaExecutiveInput, Prisma.ApplicationUncheckedCreateWithoutVisaExecutiveInput> | Prisma.ApplicationCreateWithoutVisaExecutiveInput[] | Prisma.ApplicationUncheckedCreateWithoutVisaExecutiveInput[]
-  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutVisaExecutiveInput | Prisma.ApplicationCreateOrConnectWithoutVisaExecutiveInput[]
-  createMany?: Prisma.ApplicationCreateManyVisaExecutiveInputEnvelope
-  connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
-}
-
 export type ApplicationUncheckedCreateNestedManyWithoutStudentInput = {
   create?: Prisma.XOR<Prisma.ApplicationCreateWithoutStudentInput, Prisma.ApplicationUncheckedCreateWithoutStudentInput> | Prisma.ApplicationCreateWithoutStudentInput[] | Prisma.ApplicationUncheckedCreateWithoutStudentInput[]
   connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutStudentInput | Prisma.ApplicationCreateOrConnectWithoutStudentInput[]
   createMany?: Prisma.ApplicationCreateManyStudentInputEnvelope
-  connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
-}
-
-export type ApplicationUncheckedCreateNestedManyWithoutAdmissionsExecutiveInput = {
-  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutAdmissionsExecutiveInput, Prisma.ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput> | Prisma.ApplicationCreateWithoutAdmissionsExecutiveInput[] | Prisma.ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput[]
-  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutAdmissionsExecutiveInput | Prisma.ApplicationCreateOrConnectWithoutAdmissionsExecutiveInput[]
-  createMany?: Prisma.ApplicationCreateManyAdmissionsExecutiveInputEnvelope
-  connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
-}
-
-export type ApplicationUncheckedCreateNestedManyWithoutVisaExecutiveInput = {
-  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutVisaExecutiveInput, Prisma.ApplicationUncheckedCreateWithoutVisaExecutiveInput> | Prisma.ApplicationCreateWithoutVisaExecutiveInput[] | Prisma.ApplicationUncheckedCreateWithoutVisaExecutiveInput[]
-  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutVisaExecutiveInput | Prisma.ApplicationCreateOrConnectWithoutVisaExecutiveInput[]
-  createMany?: Prisma.ApplicationCreateManyVisaExecutiveInputEnvelope
   connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
 }
 
@@ -645,6 +617,48 @@ export type ApplicationUpdateManyWithoutStudentNestedInput = {
   update?: Prisma.ApplicationUpdateWithWhereUniqueWithoutStudentInput | Prisma.ApplicationUpdateWithWhereUniqueWithoutStudentInput[]
   updateMany?: Prisma.ApplicationUpdateManyWithWhereWithoutStudentInput | Prisma.ApplicationUpdateManyWithWhereWithoutStudentInput[]
   deleteMany?: Prisma.ApplicationScalarWhereInput | Prisma.ApplicationScalarWhereInput[]
+}
+
+export type ApplicationUncheckedUpdateManyWithoutStudentNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutStudentInput, Prisma.ApplicationUncheckedCreateWithoutStudentInput> | Prisma.ApplicationCreateWithoutStudentInput[] | Prisma.ApplicationUncheckedCreateWithoutStudentInput[]
+  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutStudentInput | Prisma.ApplicationCreateOrConnectWithoutStudentInput[]
+  upsert?: Prisma.ApplicationUpsertWithWhereUniqueWithoutStudentInput | Prisma.ApplicationUpsertWithWhereUniqueWithoutStudentInput[]
+  createMany?: Prisma.ApplicationCreateManyStudentInputEnvelope
+  set?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
+  disconnect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
+  delete?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
+  connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
+  update?: Prisma.ApplicationUpdateWithWhereUniqueWithoutStudentInput | Prisma.ApplicationUpdateWithWhereUniqueWithoutStudentInput[]
+  updateMany?: Prisma.ApplicationUpdateManyWithWhereWithoutStudentInput | Prisma.ApplicationUpdateManyWithWhereWithoutStudentInput[]
+  deleteMany?: Prisma.ApplicationScalarWhereInput | Prisma.ApplicationScalarWhereInput[]
+}
+
+export type ApplicationCreateNestedManyWithoutAdmissionsExecutiveInput = {
+  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutAdmissionsExecutiveInput, Prisma.ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput> | Prisma.ApplicationCreateWithoutAdmissionsExecutiveInput[] | Prisma.ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput[]
+  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutAdmissionsExecutiveInput | Prisma.ApplicationCreateOrConnectWithoutAdmissionsExecutiveInput[]
+  createMany?: Prisma.ApplicationCreateManyAdmissionsExecutiveInputEnvelope
+  connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
+}
+
+export type ApplicationCreateNestedManyWithoutVisaExecutiveInput = {
+  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutVisaExecutiveInput, Prisma.ApplicationUncheckedCreateWithoutVisaExecutiveInput> | Prisma.ApplicationCreateWithoutVisaExecutiveInput[] | Prisma.ApplicationUncheckedCreateWithoutVisaExecutiveInput[]
+  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutVisaExecutiveInput | Prisma.ApplicationCreateOrConnectWithoutVisaExecutiveInput[]
+  createMany?: Prisma.ApplicationCreateManyVisaExecutiveInputEnvelope
+  connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
+}
+
+export type ApplicationUncheckedCreateNestedManyWithoutAdmissionsExecutiveInput = {
+  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutAdmissionsExecutiveInput, Prisma.ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput> | Prisma.ApplicationCreateWithoutAdmissionsExecutiveInput[] | Prisma.ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput[]
+  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutAdmissionsExecutiveInput | Prisma.ApplicationCreateOrConnectWithoutAdmissionsExecutiveInput[]
+  createMany?: Prisma.ApplicationCreateManyAdmissionsExecutiveInputEnvelope
+  connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
+}
+
+export type ApplicationUncheckedCreateNestedManyWithoutVisaExecutiveInput = {
+  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutVisaExecutiveInput, Prisma.ApplicationUncheckedCreateWithoutVisaExecutiveInput> | Prisma.ApplicationCreateWithoutVisaExecutiveInput[] | Prisma.ApplicationUncheckedCreateWithoutVisaExecutiveInput[]
+  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutVisaExecutiveInput | Prisma.ApplicationCreateOrConnectWithoutVisaExecutiveInput[]
+  createMany?: Prisma.ApplicationCreateManyVisaExecutiveInputEnvelope
+  connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
 }
 
 export type ApplicationUpdateManyWithoutAdmissionsExecutiveNestedInput = {
@@ -672,20 +686,6 @@ export type ApplicationUpdateManyWithoutVisaExecutiveNestedInput = {
   connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
   update?: Prisma.ApplicationUpdateWithWhereUniqueWithoutVisaExecutiveInput | Prisma.ApplicationUpdateWithWhereUniqueWithoutVisaExecutiveInput[]
   updateMany?: Prisma.ApplicationUpdateManyWithWhereWithoutVisaExecutiveInput | Prisma.ApplicationUpdateManyWithWhereWithoutVisaExecutiveInput[]
-  deleteMany?: Prisma.ApplicationScalarWhereInput | Prisma.ApplicationScalarWhereInput[]
-}
-
-export type ApplicationUncheckedUpdateManyWithoutStudentNestedInput = {
-  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutStudentInput, Prisma.ApplicationUncheckedCreateWithoutStudentInput> | Prisma.ApplicationCreateWithoutStudentInput[] | Prisma.ApplicationUncheckedCreateWithoutStudentInput[]
-  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutStudentInput | Prisma.ApplicationCreateOrConnectWithoutStudentInput[]
-  upsert?: Prisma.ApplicationUpsertWithWhereUniqueWithoutStudentInput | Prisma.ApplicationUpsertWithWhereUniqueWithoutStudentInput[]
-  createMany?: Prisma.ApplicationCreateManyStudentInputEnvelope
-  set?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
-  disconnect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
-  delete?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
-  connect?: Prisma.ApplicationWhereUniqueInput | Prisma.ApplicationWhereUniqueInput[]
-  update?: Prisma.ApplicationUpdateWithWhereUniqueWithoutStudentInput | Prisma.ApplicationUpdateWithWhereUniqueWithoutStudentInput[]
-  updateMany?: Prisma.ApplicationUpdateManyWithWhereWithoutStudentInput | Prisma.ApplicationUpdateManyWithWhereWithoutStudentInput[]
   deleteMany?: Prisma.ApplicationScalarWhereInput | Prisma.ApplicationScalarWhereInput[]
 }
 
@@ -827,8 +827,8 @@ export type ApplicationCreateWithoutStudentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   university: Prisma.UniversityCreateNestedOneWithoutApplicationsInput
-  admissionsExecutive?: Prisma.UserCreateNestedOneWithoutAdmissionsAssignmentsInput
-  visaExecutive?: Prisma.UserCreateNestedOneWithoutVisaAssignmentsInput
+  admissionsExecutive?: Prisma.PartnerCreateNestedOneWithoutAdmissionsAssignmentsInput
+  visaExecutive?: Prisma.PartnerCreateNestedOneWithoutVisaAssignmentsInput
   tasks?: Prisma.TaskCreateNestedManyWithoutApplicationInput
   documents?: Prisma.DocumentCreateNestedManyWithoutApplicationInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
@@ -863,6 +863,42 @@ export type ApplicationCreateManyStudentInputEnvelope = {
   skipDuplicates?: boolean
 }
 
+export type ApplicationUpsertWithWhereUniqueWithoutStudentInput = {
+  where: Prisma.ApplicationWhereUniqueInput
+  update: Prisma.XOR<Prisma.ApplicationUpdateWithoutStudentInput, Prisma.ApplicationUncheckedUpdateWithoutStudentInput>
+  create: Prisma.XOR<Prisma.ApplicationCreateWithoutStudentInput, Prisma.ApplicationUncheckedCreateWithoutStudentInput>
+}
+
+export type ApplicationUpdateWithWhereUniqueWithoutStudentInput = {
+  where: Prisma.ApplicationWhereUniqueInput
+  data: Prisma.XOR<Prisma.ApplicationUpdateWithoutStudentInput, Prisma.ApplicationUncheckedUpdateWithoutStudentInput>
+}
+
+export type ApplicationUpdateManyWithWhereWithoutStudentInput = {
+  where: Prisma.ApplicationScalarWhereInput
+  data: Prisma.XOR<Prisma.ApplicationUpdateManyMutationInput, Prisma.ApplicationUncheckedUpdateManyWithoutStudentInput>
+}
+
+export type ApplicationScalarWhereInput = {
+  AND?: Prisma.ApplicationScalarWhereInput | Prisma.ApplicationScalarWhereInput[]
+  OR?: Prisma.ApplicationScalarWhereInput[]
+  NOT?: Prisma.ApplicationScalarWhereInput | Prisma.ApplicationScalarWhereInput[]
+  id?: Prisma.UuidFilter<"Application"> | string
+  studentId?: Prisma.UuidFilter<"Application"> | string
+  universityId?: Prisma.StringFilter<"Application"> | string
+  program?: Prisma.StringFilter<"Application"> | string
+  status?: Prisma.EnumApplicationStatusFilter<"Application"> | $Enums.ApplicationStatus
+  visaStatus?: Prisma.EnumVisaStatusFilter<"Application"> | $Enums.VisaStatus
+  progress?: Prisma.IntFilter<"Application"> | number
+  nextAction?: Prisma.StringFilter<"Application"> | string
+  applicationDeadline?: Prisma.DateTimeNullableFilter<"Application"> | Date | string | null
+  admissionsExecutiveId?: Prisma.UuidNullableFilter<"Application"> | string | null
+  visaExecutiveId?: Prisma.UuidNullableFilter<"Application"> | string | null
+  submittedAt?: Prisma.DateTimeNullableFilter<"Application"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"Application"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Application"> | Date | string
+}
+
 export type ApplicationCreateWithoutAdmissionsExecutiveInput = {
   id?: string
   program: string
@@ -874,9 +910,9 @@ export type ApplicationCreateWithoutAdmissionsExecutiveInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutApplicationsInput
+  student: Prisma.StudentCreateNestedOneWithoutApplicationsInput
   university: Prisma.UniversityCreateNestedOneWithoutApplicationsInput
-  visaExecutive?: Prisma.UserCreateNestedOneWithoutVisaAssignmentsInput
+  visaExecutive?: Prisma.PartnerCreateNestedOneWithoutVisaAssignmentsInput
   tasks?: Prisma.TaskCreateNestedManyWithoutApplicationInput
   documents?: Prisma.DocumentCreateNestedManyWithoutApplicationInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
@@ -922,9 +958,9 @@ export type ApplicationCreateWithoutVisaExecutiveInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutApplicationsInput
+  student: Prisma.StudentCreateNestedOneWithoutApplicationsInput
   university: Prisma.UniversityCreateNestedOneWithoutApplicationsInput
-  admissionsExecutive?: Prisma.UserCreateNestedOneWithoutAdmissionsAssignmentsInput
+  admissionsExecutive?: Prisma.PartnerCreateNestedOneWithoutAdmissionsAssignmentsInput
   tasks?: Prisma.TaskCreateNestedManyWithoutApplicationInput
   documents?: Prisma.DocumentCreateNestedManyWithoutApplicationInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
@@ -957,42 +993,6 @@ export type ApplicationCreateOrConnectWithoutVisaExecutiveInput = {
 export type ApplicationCreateManyVisaExecutiveInputEnvelope = {
   data: Prisma.ApplicationCreateManyVisaExecutiveInput | Prisma.ApplicationCreateManyVisaExecutiveInput[]
   skipDuplicates?: boolean
-}
-
-export type ApplicationUpsertWithWhereUniqueWithoutStudentInput = {
-  where: Prisma.ApplicationWhereUniqueInput
-  update: Prisma.XOR<Prisma.ApplicationUpdateWithoutStudentInput, Prisma.ApplicationUncheckedUpdateWithoutStudentInput>
-  create: Prisma.XOR<Prisma.ApplicationCreateWithoutStudentInput, Prisma.ApplicationUncheckedCreateWithoutStudentInput>
-}
-
-export type ApplicationUpdateWithWhereUniqueWithoutStudentInput = {
-  where: Prisma.ApplicationWhereUniqueInput
-  data: Prisma.XOR<Prisma.ApplicationUpdateWithoutStudentInput, Prisma.ApplicationUncheckedUpdateWithoutStudentInput>
-}
-
-export type ApplicationUpdateManyWithWhereWithoutStudentInput = {
-  where: Prisma.ApplicationScalarWhereInput
-  data: Prisma.XOR<Prisma.ApplicationUpdateManyMutationInput, Prisma.ApplicationUncheckedUpdateManyWithoutStudentInput>
-}
-
-export type ApplicationScalarWhereInput = {
-  AND?: Prisma.ApplicationScalarWhereInput | Prisma.ApplicationScalarWhereInput[]
-  OR?: Prisma.ApplicationScalarWhereInput[]
-  NOT?: Prisma.ApplicationScalarWhereInput | Prisma.ApplicationScalarWhereInput[]
-  id?: Prisma.UuidFilter<"Application"> | string
-  studentId?: Prisma.UuidFilter<"Application"> | string
-  universityId?: Prisma.StringFilter<"Application"> | string
-  program?: Prisma.StringFilter<"Application"> | string
-  status?: Prisma.EnumApplicationStatusFilter<"Application"> | $Enums.ApplicationStatus
-  visaStatus?: Prisma.EnumVisaStatusFilter<"Application"> | $Enums.VisaStatus
-  progress?: Prisma.IntFilter<"Application"> | number
-  nextAction?: Prisma.StringFilter<"Application"> | string
-  applicationDeadline?: Prisma.DateTimeNullableFilter<"Application"> | Date | string | null
-  admissionsExecutiveId?: Prisma.UuidNullableFilter<"Application"> | string | null
-  visaExecutiveId?: Prisma.UuidNullableFilter<"Application"> | string | null
-  submittedAt?: Prisma.DateTimeNullableFilter<"Application"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"Application"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Application"> | Date | string
 }
 
 export type ApplicationUpsertWithWhereUniqueWithoutAdmissionsExecutiveInput = {
@@ -1038,9 +1038,9 @@ export type ApplicationCreateWithoutUniversityInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutApplicationsInput
-  admissionsExecutive?: Prisma.UserCreateNestedOneWithoutAdmissionsAssignmentsInput
-  visaExecutive?: Prisma.UserCreateNestedOneWithoutVisaAssignmentsInput
+  student: Prisma.StudentCreateNestedOneWithoutApplicationsInput
+  admissionsExecutive?: Prisma.PartnerCreateNestedOneWithoutAdmissionsAssignmentsInput
+  visaExecutive?: Prisma.PartnerCreateNestedOneWithoutVisaAssignmentsInput
   tasks?: Prisma.TaskCreateNestedManyWithoutApplicationInput
   documents?: Prisma.DocumentCreateNestedManyWithoutApplicationInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
@@ -1102,10 +1102,10 @@ export type ApplicationCreateWithoutTasksInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutApplicationsInput
+  student: Prisma.StudentCreateNestedOneWithoutApplicationsInput
   university: Prisma.UniversityCreateNestedOneWithoutApplicationsInput
-  admissionsExecutive?: Prisma.UserCreateNestedOneWithoutAdmissionsAssignmentsInput
-  visaExecutive?: Prisma.UserCreateNestedOneWithoutVisaAssignmentsInput
+  admissionsExecutive?: Prisma.PartnerCreateNestedOneWithoutAdmissionsAssignmentsInput
+  visaExecutive?: Prisma.PartnerCreateNestedOneWithoutVisaAssignmentsInput
   documents?: Prisma.DocumentCreateNestedManyWithoutApplicationInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
 }
@@ -1156,10 +1156,10 @@ export type ApplicationUpdateWithoutTasksInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutApplicationsNestedInput
+  student?: Prisma.StudentUpdateOneRequiredWithoutApplicationsNestedInput
   university?: Prisma.UniversityUpdateOneRequiredWithoutApplicationsNestedInput
-  admissionsExecutive?: Prisma.UserUpdateOneWithoutAdmissionsAssignmentsNestedInput
-  visaExecutive?: Prisma.UserUpdateOneWithoutVisaAssignmentsNestedInput
+  admissionsExecutive?: Prisma.PartnerUpdateOneWithoutAdmissionsAssignmentsNestedInput
+  visaExecutive?: Prisma.PartnerUpdateOneWithoutVisaAssignmentsNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutApplicationNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
 }
@@ -1194,10 +1194,10 @@ export type ApplicationCreateWithoutDocumentsInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutApplicationsInput
+  student: Prisma.StudentCreateNestedOneWithoutApplicationsInput
   university: Prisma.UniversityCreateNestedOneWithoutApplicationsInput
-  admissionsExecutive?: Prisma.UserCreateNestedOneWithoutAdmissionsAssignmentsInput
-  visaExecutive?: Prisma.UserCreateNestedOneWithoutVisaAssignmentsInput
+  admissionsExecutive?: Prisma.PartnerCreateNestedOneWithoutAdmissionsAssignmentsInput
+  visaExecutive?: Prisma.PartnerCreateNestedOneWithoutVisaAssignmentsInput
   tasks?: Prisma.TaskCreateNestedManyWithoutApplicationInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
 }
@@ -1248,10 +1248,10 @@ export type ApplicationUpdateWithoutDocumentsInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutApplicationsNestedInput
+  student?: Prisma.StudentUpdateOneRequiredWithoutApplicationsNestedInput
   university?: Prisma.UniversityUpdateOneRequiredWithoutApplicationsNestedInput
-  admissionsExecutive?: Prisma.UserUpdateOneWithoutAdmissionsAssignmentsNestedInput
-  visaExecutive?: Prisma.UserUpdateOneWithoutVisaAssignmentsNestedInput
+  admissionsExecutive?: Prisma.PartnerUpdateOneWithoutAdmissionsAssignmentsNestedInput
+  visaExecutive?: Prisma.PartnerUpdateOneWithoutVisaAssignmentsNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutApplicationNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
 }
@@ -1286,10 +1286,10 @@ export type ApplicationCreateWithoutDeadlinesInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutApplicationsInput
+  student: Prisma.StudentCreateNestedOneWithoutApplicationsInput
   university: Prisma.UniversityCreateNestedOneWithoutApplicationsInput
-  admissionsExecutive?: Prisma.UserCreateNestedOneWithoutAdmissionsAssignmentsInput
-  visaExecutive?: Prisma.UserCreateNestedOneWithoutVisaAssignmentsInput
+  admissionsExecutive?: Prisma.PartnerCreateNestedOneWithoutAdmissionsAssignmentsInput
+  visaExecutive?: Prisma.PartnerCreateNestedOneWithoutVisaAssignmentsInput
   tasks?: Prisma.TaskCreateNestedManyWithoutApplicationInput
   documents?: Prisma.DocumentCreateNestedManyWithoutApplicationInput
 }
@@ -1340,10 +1340,10 @@ export type ApplicationUpdateWithoutDeadlinesInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutApplicationsNestedInput
+  student?: Prisma.StudentUpdateOneRequiredWithoutApplicationsNestedInput
   university?: Prisma.UniversityUpdateOneRequiredWithoutApplicationsNestedInput
-  admissionsExecutive?: Prisma.UserUpdateOneWithoutAdmissionsAssignmentsNestedInput
-  visaExecutive?: Prisma.UserUpdateOneWithoutVisaAssignmentsNestedInput
+  admissionsExecutive?: Prisma.PartnerUpdateOneWithoutAdmissionsAssignmentsNestedInput
+  visaExecutive?: Prisma.PartnerUpdateOneWithoutVisaAssignmentsNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutApplicationNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutApplicationNestedInput
 }
@@ -1383,38 +1383,6 @@ export type ApplicationCreateManyStudentInput = {
   updatedAt?: Date | string
 }
 
-export type ApplicationCreateManyAdmissionsExecutiveInput = {
-  id?: string
-  studentId: string
-  universityId: string
-  program: string
-  status?: $Enums.ApplicationStatus
-  visaStatus?: $Enums.VisaStatus
-  progress?: number
-  nextAction?: string
-  applicationDeadline?: Date | string | null
-  visaExecutiveId?: string | null
-  submittedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ApplicationCreateManyVisaExecutiveInput = {
-  id?: string
-  studentId: string
-  universityId: string
-  program: string
-  status?: $Enums.ApplicationStatus
-  visaStatus?: $Enums.VisaStatus
-  progress?: number
-  nextAction?: string
-  applicationDeadline?: Date | string | null
-  admissionsExecutiveId?: string | null
-  submittedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
 export type ApplicationUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   program?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1427,8 +1395,8 @@ export type ApplicationUpdateWithoutStudentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   university?: Prisma.UniversityUpdateOneRequiredWithoutApplicationsNestedInput
-  admissionsExecutive?: Prisma.UserUpdateOneWithoutAdmissionsAssignmentsNestedInput
-  visaExecutive?: Prisma.UserUpdateOneWithoutVisaAssignmentsNestedInput
+  admissionsExecutive?: Prisma.PartnerUpdateOneWithoutAdmissionsAssignmentsNestedInput
+  visaExecutive?: Prisma.PartnerUpdateOneWithoutVisaAssignmentsNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutApplicationNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutApplicationNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
@@ -1469,6 +1437,38 @@ export type ApplicationUncheckedUpdateManyWithoutStudentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type ApplicationCreateManyAdmissionsExecutiveInput = {
+  id?: string
+  studentId: string
+  universityId: string
+  program: string
+  status?: $Enums.ApplicationStatus
+  visaStatus?: $Enums.VisaStatus
+  progress?: number
+  nextAction?: string
+  applicationDeadline?: Date | string | null
+  visaExecutiveId?: string | null
+  submittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ApplicationCreateManyVisaExecutiveInput = {
+  id?: string
+  studentId: string
+  universityId: string
+  program: string
+  status?: $Enums.ApplicationStatus
+  visaStatus?: $Enums.VisaStatus
+  progress?: number
+  nextAction?: string
+  applicationDeadline?: Date | string | null
+  admissionsExecutiveId?: string | null
+  submittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
 export type ApplicationUpdateWithoutAdmissionsExecutiveInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   program?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1480,9 +1480,9 @@ export type ApplicationUpdateWithoutAdmissionsExecutiveInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutApplicationsNestedInput
+  student?: Prisma.StudentUpdateOneRequiredWithoutApplicationsNestedInput
   university?: Prisma.UniversityUpdateOneRequiredWithoutApplicationsNestedInput
-  visaExecutive?: Prisma.UserUpdateOneWithoutVisaAssignmentsNestedInput
+  visaExecutive?: Prisma.PartnerUpdateOneWithoutVisaAssignmentsNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutApplicationNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutApplicationNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
@@ -1534,9 +1534,9 @@ export type ApplicationUpdateWithoutVisaExecutiveInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutApplicationsNestedInput
+  student?: Prisma.StudentUpdateOneRequiredWithoutApplicationsNestedInput
   university?: Prisma.UniversityUpdateOneRequiredWithoutApplicationsNestedInput
-  admissionsExecutive?: Prisma.UserUpdateOneWithoutAdmissionsAssignmentsNestedInput
+  admissionsExecutive?: Prisma.PartnerUpdateOneWithoutAdmissionsAssignmentsNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutApplicationNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutApplicationNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
@@ -1604,9 +1604,9 @@ export type ApplicationUpdateWithoutUniversityInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutApplicationsNestedInput
-  admissionsExecutive?: Prisma.UserUpdateOneWithoutAdmissionsAssignmentsNestedInput
-  visaExecutive?: Prisma.UserUpdateOneWithoutVisaAssignmentsNestedInput
+  student?: Prisma.StudentUpdateOneRequiredWithoutApplicationsNestedInput
+  admissionsExecutive?: Prisma.PartnerUpdateOneWithoutAdmissionsAssignmentsNestedInput
+  visaExecutive?: Prisma.PartnerUpdateOneWithoutVisaAssignmentsNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutApplicationNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutApplicationNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
@@ -1711,7 +1711,7 @@ export type ApplicationSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   university?: boolean | Prisma.UniversityDefaultArgs<ExtArgs>
   admissionsExecutive?: boolean | Prisma.Application$admissionsExecutiveArgs<ExtArgs>
   visaExecutive?: boolean | Prisma.Application$visaExecutiveArgs<ExtArgs>
@@ -1736,7 +1736,7 @@ export type ApplicationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   university?: boolean | Prisma.UniversityDefaultArgs<ExtArgs>
   admissionsExecutive?: boolean | Prisma.Application$admissionsExecutiveArgs<ExtArgs>
   visaExecutive?: boolean | Prisma.Application$visaExecutiveArgs<ExtArgs>
@@ -1757,7 +1757,7 @@ export type ApplicationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   university?: boolean | Prisma.UniversityDefaultArgs<ExtArgs>
   admissionsExecutive?: boolean | Prisma.Application$admissionsExecutiveArgs<ExtArgs>
   visaExecutive?: boolean | Prisma.Application$visaExecutiveArgs<ExtArgs>
@@ -1782,7 +1782,7 @@ export type ApplicationSelectScalar = {
 
 export type ApplicationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "universityId" | "program" | "status" | "visaStatus" | "progress" | "nextAction" | "applicationDeadline" | "admissionsExecutiveId" | "visaExecutiveId" | "submittedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["application"]>
 export type ApplicationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   university?: boolean | Prisma.UniversityDefaultArgs<ExtArgs>
   admissionsExecutive?: boolean | Prisma.Application$admissionsExecutiveArgs<ExtArgs>
   visaExecutive?: boolean | Prisma.Application$visaExecutiveArgs<ExtArgs>
@@ -1792,13 +1792,13 @@ export type ApplicationInclude<ExtArgs extends runtime.Types.Extensions.Internal
   _count?: boolean | Prisma.ApplicationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ApplicationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   university?: boolean | Prisma.UniversityDefaultArgs<ExtArgs>
   admissionsExecutive?: boolean | Prisma.Application$admissionsExecutiveArgs<ExtArgs>
   visaExecutive?: boolean | Prisma.Application$visaExecutiveArgs<ExtArgs>
 }
 export type ApplicationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   university?: boolean | Prisma.UniversityDefaultArgs<ExtArgs>
   admissionsExecutive?: boolean | Prisma.Application$admissionsExecutiveArgs<ExtArgs>
   visaExecutive?: boolean | Prisma.Application$visaExecutiveArgs<ExtArgs>
@@ -1807,10 +1807,10 @@ export type ApplicationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.
 export type $ApplicationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Application"
   objects: {
-    student: Prisma.$UserPayload<ExtArgs>
+    student: Prisma.$StudentPayload<ExtArgs>
     university: Prisma.$UniversityPayload<ExtArgs>
-    admissionsExecutive: Prisma.$UserPayload<ExtArgs> | null
-    visaExecutive: Prisma.$UserPayload<ExtArgs> | null
+    admissionsExecutive: Prisma.$PartnerPayload<ExtArgs> | null
+    visaExecutive: Prisma.$PartnerPayload<ExtArgs> | null
     tasks: Prisma.$TaskPayload<ExtArgs>[]
     documents: Prisma.$DocumentPayload<ExtArgs>[]
     deadlines: Prisma.$DeadlinePayload<ExtArgs>[]
@@ -2224,10 +2224,10 @@ readonly fields: ApplicationFieldRefs;
  */
 export interface Prisma__ApplicationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  student<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  student<T extends Prisma.StudentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StudentDefaultArgs<ExtArgs>>): Prisma.Prisma__StudentClient<runtime.Types.Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   university<T extends Prisma.UniversityDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UniversityDefaultArgs<ExtArgs>>): Prisma.Prisma__UniversityClient<runtime.Types.Result.GetResult<Prisma.$UniversityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  admissionsExecutive<T extends Prisma.Application$admissionsExecutiveArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$admissionsExecutiveArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  visaExecutive<T extends Prisma.Application$visaExecutiveArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$visaExecutiveArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  admissionsExecutive<T extends Prisma.Application$admissionsExecutiveArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$admissionsExecutiveArgs<ExtArgs>>): Prisma.Prisma__PartnerClient<runtime.Types.Result.GetResult<Prisma.$PartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  visaExecutive<T extends Prisma.Application$visaExecutiveArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$visaExecutiveArgs<ExtArgs>>): Prisma.Prisma__PartnerClient<runtime.Types.Result.GetResult<Prisma.$PartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   tasks<T extends Prisma.Application$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   documents<T extends Prisma.Application$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   deadlines<T extends Prisma.Application$deadlinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$deadlinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DeadlinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2679,18 +2679,18 @@ export type ApplicationDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
  */
 export type Application$admissionsExecutiveArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the User
+   * Select specific fields to fetch from the Partner
    */
-  select?: Prisma.UserSelect<ExtArgs> | null
+  select?: Prisma.PartnerSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the User
+   * Omit specific fields from the Partner
    */
-  omit?: Prisma.UserOmit<ExtArgs> | null
+  omit?: Prisma.PartnerOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
+  include?: Prisma.PartnerInclude<ExtArgs> | null
+  where?: Prisma.PartnerWhereInput
 }
 
 /**
@@ -2698,18 +2698,18 @@ export type Application$admissionsExecutiveArgs<ExtArgs extends runtime.Types.Ex
  */
 export type Application$visaExecutiveArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the User
+   * Select specific fields to fetch from the Partner
    */
-  select?: Prisma.UserSelect<ExtArgs> | null
+  select?: Prisma.PartnerSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the User
+   * Omit specific fields from the Partner
    */
-  omit?: Prisma.UserOmit<ExtArgs> | null
+  omit?: Prisma.PartnerOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
+  include?: Prisma.PartnerInclude<ExtArgs> | null
+  where?: Prisma.PartnerWhereInput
 }
 
 /**

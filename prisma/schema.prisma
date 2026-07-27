@@ -8,13 +8,30 @@ datasource db {
   provider = "postgresql"
 }
 
-enum UserRole {
-  SUPER_ADMIN
+enum PartnerRole {
+  PARTNER_ADMIN
   ADMISSIONS_EXECUTIVE
   VISA_EXECUTIVE
-  STUDENT
+  RECEPTION_EXECUTIVE
 
-  @@map("user_role")
+  @@map("partner_role")
+}
+
+enum PartnerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@map("partner_status")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  MARKETING_EXECUTIVE
+  FINANCE_EXECUTIVE
+  SUPPORT_EXECUTIVE
+
+  @@map("admin_role")
 }
 
 enum ApplicationStatus {
@@ -69,46 +86,136 @@ enum NotificationKind {
   @@map("notification_kind")
 }
 
-model User {
+model Student {
   id                    String        @id @default(uuid()) @db.Uuid
   name                  String
-  email                 String        @unique(map: "users_email_unique")
+  email                 String        @unique(map: "students_email_unique")
   phone                 String?
   passwordHash          String        @map("password_hash")
-  role                  UserRole      @default(STUDENT)
   emailVerifiedAt       DateTime?     @map("email_verified_at") @db.Timestamptz(6)
   active                Boolean       @default(true)
   createdAt             DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt             DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  sessions              Session[]
+  sessions              StudentSession[]
   profile               StudentProfile?
   shortlist             StudentShortlist[]
   applications          Application[] @relation("StudentApplications")
-  admissionsAssignments Application[] @relation("AdmissionsAssignments")
-  visaAssignments       Application[] @relation("VisaAssignments")
   tasks                 Task[]
   documents             Document[]    @relation("StudentDocuments")
-  verifiedDocuments     Document[]    @relation("VerifiedDocuments")
   deadlines             Deadline[]
   notifications         Notification[]
-  auditLogs             AuditLog[]
+  assignedPartnerCompanyId String?      @map("assigned_partner_company_id") @db.Uuid
+  assignedPartnerCompany   PartnerCompany? @relation(fields: [assignedPartnerCompanyId], references: [id], onDelete: SetNull)
 
-  @@index([role], map: "users_role_idx")
-  @@map("users")
+  @@index([assignedPartnerCompanyId], map: "students_partner_company_idx")
+  @@map("students")
 }
 
-model Session {
+model Partner {
+  id                    String        @id @default(uuid()) @db.Uuid
+  name                  String
+  email                 String        @unique(map: "partners_email_unique")
+  phone                 String?
+  passwordHash          String        @map("password_hash")
+  role                  PartnerRole
+  partnerCompanyId      String        @map("partner_company_id") @db.Uuid
+  emailVerifiedAt       DateTime?     @map("email_verified_at") @db.Timestamptz(6)
+  active                Boolean       @default(true)
+  mustChangePassword    Boolean       @default(false) @map("must_change_password")
+  createdAt             DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  sessions              PartnerSession[]
+  admissionsAssignments Application[] @relation("AdmissionsAssignments")
+  visaAssignments       Application[] @relation("VisaAssignments")
+  verifiedDocuments     Document[]    @relation("VerifiedDocuments")
+  partnerCompany        PartnerCompany @relation(fields: [partnerCompanyId], references: [id], onDelete: Cascade)
+
+  @@index([role], map: "partners_role_idx")
+  @@index([partnerCompanyId], map: "partners_company_idx")
+  @@map("partners")
+}
+
+model PartnerCompany {
+  id                 String             @id @default(uuid()) @db.Uuid
+  name               String
+  registrationNumber String        @unique(map: "partner_companies_registration_unique") @map("registration_number")
+  website            String?
+  address            String
+  country            String
+  contactName        String             @map("contact_name")
+  contactEmail       String        @unique(map: "partner_companies_contact_email_unique") @map("contact_email")
+  contactPhone       String             @map("contact_phone")
+  status             PartnerStatus @default(PENDING)
+  reviewNote         String?            @map("review_note")
+  reviewedBy         String?            @map("reviewed_by") @db.Uuid
+  reviewedAt         DateTime?          @map("reviewed_at") @db.Timestamptz(6)
+  credentialsSentAt  DateTime?          @map("credentials_sent_at") @db.Timestamptz(6)
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  partners           Partner[]
+  assignedStudents   Student[]
+
+  @@index([status, createdAt], map: "partner_companies_status_idx")
+  @@map("partner_companies")
+}
+
+model Admin {
+  id              String         @id @default(uuid()) @db.Uuid
+  name            String
+  email           String         @unique(map: "admins_email_unique")
+  phone           String?
+  passwordHash    String         @map("password_hash")
+  role            AdminRole
+  emailVerifiedAt DateTime?      @map("email_verified_at") @db.Timestamptz(6)
+  active          Boolean        @default(true)
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  sessions        AdminSession[]
+
+  @@index([role], map: "admins_role_idx")
+  @@map("admins")
+}
+
+model StudentSession {
   id         String   @id @default(uuid()) @db.Uuid
-  userId     String   @map("user_id") @db.Uuid
+  studentId  String   @map("student_id") @db.Uuid
   tokenHash  String   @unique(map: "sessions_token_hash_unique") @map("token_hash")
   expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
   lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(6)
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  @@index([userId], map: "sessions_user_idx")
-  @@index([expiresAt], map: "sessions_expiry_idx")
-  @@map("sessions")
+  @@index([studentId], map: "student_sessions_student_idx")
+  @@index([expiresAt], map: "student_sessions_expiry_idx")
+  @@map("student_sessions")
+}
+
+model PartnerSession {
+  id         String   @id @default(uuid()) @db.Uuid
+  partnerId  String   @map("partner_id") @db.Uuid
+  tokenHash  String   @unique(map: "partner_sessions_token_hash_unique") @map("token_hash")
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
+  lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  partner    Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId], map: "partner_sessions_partner_idx")
+  @@index([expiresAt], map: "partner_sessions_expiry_idx")
+  @@map("partner_sessions")
+}
+
+model AdminSession {
+  id         String   @id @default(uuid()) @db.Uuid
+  adminId    String   @map("admin_id") @db.Uuid
+  tokenHash  String   @unique(map: "admin_sessions_token_hash_unique") @map("token_hash")
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
+  lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  admin      Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId], map: "admin_sessions_admin_idx")
+  @@index([expiresAt], map: "admin_sessions_expiry_idx")
+  @@map("admin_sessions")
 }
 
 model StudentProfile {
@@ -126,7 +233,7 @@ model StudentProfile {
   completedAt           DateTime? @map("completed_at") @db.Timestamptz(6)
   createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                  Student   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("student_profiles")
 }
@@ -155,7 +262,7 @@ model StudentShortlist {
   userId       String     @map("user_id") @db.Uuid
   universityId String     @map("university_id")
   createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         Student    @relation(fields: [userId], references: [id], onDelete: Cascade)
   university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
 
   @@id([userId, universityId])
@@ -177,10 +284,10 @@ model Application {
   submittedAt           DateTime?         @map("submitted_at") @db.Timestamptz(6)
   createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt             DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  student               User              @relation("StudentApplications", fields: [studentId], references: [id], onDelete: Cascade)
+  student               Student           @relation("StudentApplications", fields: [studentId], references: [id], onDelete: Cascade)
   university            University        @relation(fields: [universityId], references: [id])
-  admissionsExecutive   User?             @relation("AdmissionsAssignments", fields: [admissionsExecutiveId], references: [id], onDelete: SetNull)
-  visaExecutive         User?             @relation("VisaAssignments", fields: [visaExecutiveId], references: [id], onDelete: SetNull)
+  admissionsExecutive   Partner?          @relation("AdmissionsAssignments", fields: [admissionsExecutiveId], references: [id], onDelete: SetNull)
+  visaExecutive         Partner?          @relation("VisaAssignments", fields: [visaExecutiveId], references: [id], onDelete: SetNull)
   tasks                 Task[]
   documents             Document[]
   deadlines             Deadline[]
@@ -201,7 +308,7 @@ model Task {
   completed     Boolean      @default(false)
   createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          Student      @relation(fields: [userId], references: [id], onDelete: Cascade)
   application   Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "tasks_user_idx")
@@ -219,9 +326,9 @@ model Document {
   verifiedBy    String?        @map("verified_by") @db.Uuid
   createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user          User           @relation("StudentDocuments", fields: [userId], references: [id], onDelete: Cascade)
+  user          Student        @relation("StudentDocuments", fields: [userId], references: [id], onDelete: Cascade)
   application   Application?   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  verifier      User?          @relation("VerifiedDocuments", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  verifier      Partner?       @relation("VerifiedDocuments", fields: [verifiedBy], references: [id], onDelete: SetNull)
 
   @@index([userId], map: "documents_user_idx")
   @@map("documents")
@@ -237,7 +344,7 @@ model Deadline {
   type          DeadlineType
   createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          Student      @relation(fields: [userId], references: [id], onDelete: Cascade)
   application   Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([userId, dueDate], map: "deadlines_user_date_idx")
@@ -252,7 +359,7 @@ model Notification {
   description String
   readAt      DateTime?        @map("read_at") @db.Timestamptz(6)
   createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        Student          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt], map: "notifications_user_idx")
   @@map("notifications")
@@ -266,7 +373,6 @@ model AuditLog {
   entityId   String?  @map("entity_id")
   metadata   Json     @default("{}")
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
 
   @@index([actorId], map: "audit_logs_actor_idx")
   @@index([entityType, entityId], map: "audit_logs_entity_idx")

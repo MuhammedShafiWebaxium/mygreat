@@ -23,6 +23,53 @@ export async function createApplication(userId: string, input: z.infer<typeof cr
   })
 }
 
+async function assertPartnerCanAccessStudent(actorId: string, studentId: string) {
+  const partner = await prisma.partner.findUnique({
+    where: { id: actorId },
+    select: { partnerCompanyId: true, partnerCompany: { select: { status: true } } },
+  })
+  if (!partner || partner.partnerCompany.status !== 'APPROVED') throw new Error('FORBIDDEN')
+  const [student] = await prisma.$queryRaw<Array<{ assignedPartnerCompanyId: string | null }>>(Prisma.sql`
+    SELECT assigned_partner_company_id AS "assignedPartnerCompanyId"
+    FROM students
+    WHERE id = ${studentId}::uuid
+  `)
+  if (!student || student.assignedPartnerCompanyId !== partner.partnerCompanyId) throw new Error('FORBIDDEN')
+}
+
+export async function createApplicationForStudent(
+  actor: { id: string; role: UserRole; accountType: 'ADMIN' | 'PARTNER' | 'STUDENT' },
+  input: { studentId: string; universityId: string; program: string; deadline?: string },
+) {
+  if (actor.accountType === 'PARTNER') await assertPartnerCanAccessStudent(actor.id, input.studentId)
+  else if (actor.accountType !== 'ADMIN') throw new Error('FORBIDDEN')
+  const duplicate = await prisma.application.findFirst({
+    where: { studentId: input.studentId, universityId: input.universityId, program: input.program },
+    select: { id: true },
+  })
+  if (duplicate) throw new Error('An application for this university and program already exists.')
+  const application = await prisma.$transaction(async (tx) => {
+    const created = await tx.application.create({
+      data: {
+        studentId: input.studentId,
+        universityId: input.universityId,
+        program: input.program,
+        applicationDeadline: input.deadline ? new Date(`${input.deadline}T00:00:00.000Z`) : null,
+        admissionsExecutiveId: actor.role === 'ADMISSIONS_EXECUTIVE' ? actor.id : null,
+        visaExecutiveId: actor.role === 'VISA_EXECUTIVE' ? actor.id : null,
+      },
+    })
+    await tx.auditLog.create({
+      data: {
+        actorId: actor.id, action: 'APPLICATION_CREATED', entityType: 'application',
+        entityId: created.id, metadata: { studentId: input.studentId },
+      },
+    })
+    return created
+  })
+  return application
+}
+
 export async function updateApplication(
   actor: { id: string; role: UserRole },
   input: z.infer<typeof applicationUpdateSchema>,
@@ -31,11 +78,14 @@ export async function updateApplication(
   if (!current) throw new Error('Application not found.')
 
   if (actor.role === 'ADMISSIONS_EXECUTIVE') {
-    if (current.admissionsExecutiveId !== actor.id) throw new Error('FORBIDDEN')
+    await assertPartnerCanAccessStudent(actor.id, current.studentId)
     if (input.visaStatus !== undefined || input.visaExecutiveId !== undefined) throw new Error('FORBIDDEN')
   } else if (actor.role === 'VISA_EXECUTIVE') {
-    if (current.visaExecutiveId !== actor.id) throw new Error('FORBIDDEN')
+    await assertPartnerCanAccessStudent(actor.id, current.studentId)
     if (input.status !== undefined || input.admissionsExecutiveId !== undefined) throw new Error('FORBIDDEN')
+  } else if (actor.role === 'PARTNER_ADMIN') {
+    await assertPartnerCanAccessStudent(actor.id, current.studentId)
+    if (input.admissionsExecutiveId !== undefined || input.visaExecutiveId !== undefined) throw new Error('FORBIDDEN')
   } else if (actor.role !== 'SUPER_ADMIN') {
     throw new Error('FORBIDDEN')
   }

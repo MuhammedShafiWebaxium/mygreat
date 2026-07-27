@@ -51,8 +51,13 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  User: 'User',
-  Session: 'Session',
+  Student: 'Student',
+  Partner: 'Partner',
+  PartnerCompany: 'PartnerCompany',
+  Admin: 'Admin',
+  StudentSession: 'StudentSession',
+  PartnerSession: 'PartnerSession',
+  AdminSession: 'AdminSession',
   StudentProfile: 'StudentProfile',
   University: 'University',
   StudentShortlist: 'StudentShortlist',
@@ -80,7 +85,63 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const UserScalarFieldEnum = {
+export const StudentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  passwordHash: 'passwordHash',
+  emailVerifiedAt: 'emailVerifiedAt',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  assignedPartnerCompanyId: 'assignedPartnerCompanyId'
+} as const
+
+export type StudentScalarFieldEnum = (typeof StudentScalarFieldEnum)[keyof typeof StudentScalarFieldEnum]
+
+
+export const PartnerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  passwordHash: 'passwordHash',
+  role: 'role',
+  partnerCompanyId: 'partnerCompanyId',
+  emailVerifiedAt: 'emailVerifiedAt',
+  active: 'active',
+  mustChangePassword: 'mustChangePassword',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PartnerScalarFieldEnum = (typeof PartnerScalarFieldEnum)[keyof typeof PartnerScalarFieldEnum]
+
+
+export const PartnerCompanyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  registrationNumber: 'registrationNumber',
+  website: 'website',
+  address: 'address',
+  country: 'country',
+  contactName: 'contactName',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  status: 'status',
+  reviewNote: 'reviewNote',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  credentialsSentAt: 'credentialsSentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PartnerCompanyScalarFieldEnum = (typeof PartnerCompanyScalarFieldEnum)[keyof typeof PartnerCompanyScalarFieldEnum]
+
+
+export const AdminScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
@@ -93,19 +154,43 @@ export const UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+export type AdminScalarFieldEnum = (typeof AdminScalarFieldEnum)[keyof typeof AdminScalarFieldEnum]
 
 
-export const SessionScalarFieldEnum = {
+export const StudentSessionScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
+  studentId: 'studentId',
   tokenHash: 'tokenHash',
   expiresAt: 'expiresAt',
   lastSeenAt: 'lastSeenAt',
   createdAt: 'createdAt'
 } as const
 
-export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+export type StudentSessionScalarFieldEnum = (typeof StudentSessionScalarFieldEnum)[keyof typeof StudentSessionScalarFieldEnum]
+
+
+export const PartnerSessionScalarFieldEnum = {
+  id: 'id',
+  partnerId: 'partnerId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PartnerSessionScalarFieldEnum = (typeof PartnerSessionScalarFieldEnum)[keyof typeof PartnerSessionScalarFieldEnum]
+
+
+export const AdminSessionScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminSessionScalarFieldEnum = (typeof AdminSessionScalarFieldEnum)[keyof typeof AdminSessionScalarFieldEnum]
 
 
 export const StudentProfileScalarFieldEnum = {

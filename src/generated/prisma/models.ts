@@ -8,8 +8,13 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/User'
-export type * from './models/Session'
+export type * from './models/Student'
+export type * from './models/Partner'
+export type * from './models/PartnerCompany'
+export type * from './models/Admin'
+export type * from './models/StudentSession'
+export type * from './models/PartnerSession'
+export type * from './models/AdminSession'
 export type * from './models/StudentProfile'
 export type * from './models/University'
 export type * from './models/StudentShortlist'

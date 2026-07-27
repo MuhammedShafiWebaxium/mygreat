@@ -48,3 +48,24 @@ npm run db:studio
 - `/staff/team` — Super Admin team management
 
 Authentication uses Prisma-backed database sessions in HTTP-only cookies. Authorization is enforced in both App Router layouts/pages and every mutating route handler. The app does not depend on Radix UI or Drizzle.
+# Account architecture
+
+Mygreat uses three isolated account tables and login portals:
+
+- Students: `students`, signed in at `/login/student`
+- Partners: `partners`, signed in at `/login/partner`
+- Admins: `admins`, signed in at `/login/admin`
+
+Partner roles are `ADMISSIONS_EXECUTIVE`, `VISA_EXECUTIVE`, and
+`RECEPTION_EXECUTIVE`, plus `PARTNER_ADMIN` for an approved partner company's
+administrator. Admin roles are `SUPER_ADMIN`,
+`MARKETING_EXECUTIVE`, `FINANCE_EXECUTIVE`, and `SUPPORT_EXECUTIVE`.
+Each account type also has its own session table.
+
+Study abroad companies register at `/partner/register`. A Super Admin reviews
+applications at `/staff/partners`. Approval creates the company's
+`PARTNER_ADMIN` account and emails its username and generated password
+through Nodemailer using Gmail. Configure `GMAIL_USER`,
+`GMAIL_APP_PASSWORD`, and optionally `EMAIL_FROM` before approving
+companies. Partner Admins can manage only staff belonging to their own partner
+company.

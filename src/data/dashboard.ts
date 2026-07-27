@@ -21,6 +21,7 @@ export interface Application {
   deadline?: string
   deadlineLabel?: string
   stages: Stage[]
+  visaStatus?: 'not-started' | 'documents-pending' | 'ready-to-file' | 'filed' | 'approved' | 'rejected'
 }
 
 export interface Task {
@@ -252,4 +253,3 @@ export function fmtDate(iso: string): string {
     year: 'numeric',
   })
 }
-

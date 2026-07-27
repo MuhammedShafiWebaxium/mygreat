@@ -60,7 +60,7 @@ export default function Landing() {
         className={cn(
           isLight && 'light-theme',
           isPreloading && 'pointer-events-none h-[100svh] overflow-hidden',
-          'min-h-screen overflow-hidden bg-[#070b18] text-white',
+          'landing-page min-h-screen overflow-hidden bg-[#070b18] text-white',
         )}
       >
       <div className="pointer-events-none fixed inset-0 opacity-[0.035] noise" />
@@ -111,12 +111,12 @@ export default function Landing() {
       </header>
 
       <main>
-        <section className="relative px-5 pb-20 pt-36 sm:px-8 sm:pt-44 lg:px-10 lg:pb-28">
+        <section className="landing-hero relative px-5 pb-20 pt-36 sm:px-8 sm:pt-44 lg:px-10 lg:pb-28">
           <div className="aurora -left-40 top-12 size-[520px] bg-indigo-600/20" />
           <div className="aurora -right-52 top-0 size-[620px] bg-amber-400/10" />
           <div className="relative mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[1.04fr_.96fr]">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }}>
-              <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3.5 py-2 text-xs font-semibold text-amber-200">
+              <div className="landing-hero-badge mb-7 inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3.5 py-2 text-xs font-semibold text-amber-200">
                 <Sparkles className="size-3.5" /> Your study abroad journey starts here
               </div>
               <h1 className="max-w-3xl font-display text-[3.2rem] font-light leading-[0.98] tracking-[-0.035em] sm:text-6xl lg:text-[5rem]">
@@ -142,18 +142,18 @@ export default function Landing() {
 
             <motion.div initial={{ opacity: 0, scale: 0.96, y: 24 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.12 }} className="relative mx-auto w-full max-w-xl">
               <div className="absolute -inset-8 rounded-full bg-indigo-500/10 blur-3xl" />
-              <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#0c1225]/90 p-4 shadow-2xl shadow-black/30 sm:p-6">
+              <div className="landing-hero-card relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#0c1225]/90 p-4 shadow-2xl shadow-black/30 sm:p-6">
                 <div className="flex items-center justify-between border-b border-white/[0.07] pb-5">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/35">Your journey</p>
                     <p className="mt-1 font-display text-xl">Fall 2027 intake</p>
                   </div>
-                  <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-300">Profile ready</span>
+                  <span className="landing-profile-badge rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-300">Profile ready</span>
                 </div>
                 <div className="mt-5 grid grid-cols-3 gap-3">
                   {[['12', 'Matches'], ['4', 'Shortlisted'], ['2', 'Applications']].map(([value, label]) => (
                     <div key={label} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
-                      <p className="font-display text-2xl text-amber-200">{value}</p>
+                      <p className="landing-metric-value font-display text-2xl text-amber-200">{value}</p>
                       <p className="mt-1 text-[10px] text-white/35 sm:text-xs">{label}</p>
                     </div>
                   ))}
@@ -176,7 +176,7 @@ export default function Landing() {
                   ))}
                 </div>
               </div>
-              <div className="absolute -bottom-6 -left-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#11182d] px-4 py-3 shadow-xl sm:-left-9">
+              <div className="landing-review-card absolute -bottom-6 -left-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#11182d] px-4 py-3 shadow-xl sm:-left-9">
                 <span className="grid size-9 place-items-center rounded-xl bg-amber-400 text-[#10172a]"><BadgeCheck className="size-5" /></span>
                 <div><p className="text-xs font-semibold">Application reviewed</p><p className="mt-0.5 text-[10px] text-white/35">Your advisor left feedback</p></div>
               </div>
@@ -212,7 +212,7 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="how-it-works" className="scroll-mt-20 border-y border-white/[0.07] bg-[#090f20] px-5 py-24 sm:px-8 lg:px-10 lg:py-32">
+        <section id="how-it-works" className="landing-steps-section scroll-mt-20 border-y border-white/[0.07] bg-[#090f20] px-5 py-24 sm:px-8 lg:px-10 lg:py-32">
           <div className="mx-auto max-w-7xl">
             <div className="mx-auto max-w-2xl text-center"><p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">From unsure to underway</p><h2 className="mt-4 font-display text-4xl font-light sm:text-5xl">A clearer path in <span className="text-gradient-gold font-medium">three steps.</span></h2><p className="mt-5 text-sm leading-7 text-white/45 sm:text-base">Less searching in circles. More confident decisions, visible progress, and support when it matters.</p></div>
             <div className="relative mt-16 grid gap-5 lg:grid-cols-3">
@@ -239,7 +239,7 @@ export default function Landing() {
         </section>
 
         <section className="px-5 pb-24 sm:px-8 lg:px-10 lg:pb-32">
-          <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2.25rem] border border-amber-300/15 bg-gradient-to-br from-[#171b2d] to-[#0b1122] px-6 py-16 text-center sm:px-12 sm:py-20">
+          <div className="landing-final-cta relative mx-auto max-w-7xl overflow-hidden rounded-[2.25rem] border border-amber-300/15 bg-gradient-to-br from-[#171b2d] to-[#0b1122] px-6 py-16 text-center sm:px-12 sm:py-20">
             <div className="aurora -left-32 top-0 size-80 bg-indigo-500/20" /><div className="aurora -right-24 top-0 size-80 bg-amber-400/15" />
             <div className="relative mx-auto max-w-3xl"><Globe2 className="mx-auto size-9 text-amber-300" /><h2 className="mt-6 font-display text-4xl font-light leading-tight sm:text-5xl">Your next chapter deserves a <span className="text-gradient-gold font-medium">great beginning.</span></h2><p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/45 sm:text-base">Create your profile, discover your best-fit universities, and turn a big dream into clear next steps.</p><Link href="/onboarding" className="group mt-8 inline-flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-300 to-amber-500 px-7 py-4 text-sm font-bold text-[#10172a] shadow-[0_18px_50px_-15px_rgba(245,158,11,.7)] transition hover:-translate-y-1">Plan my study journey <ArrowRight className="size-4 transition group-hover:translate-x-1" /></Link></div>
           </div>

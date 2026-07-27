@@ -78,6 +78,7 @@ export default function Dashboard() {
     deadline: item.deadline ?? undefined,
     deadlineLabel: item.deadline ? 'Application deadline' : undefined,
     stages: [{ label: item.status.replaceAll('_', ' '), state: 'current' }],
+    visaStatus: item.visaStatus.toLowerCase().replaceAll('_', '-') as Application['visaStatus'],
   })), [serverDashboard.applications])
   const recommendations = useMemo(
     () => profile ? buildRecommendations(profile) : [],
@@ -226,7 +227,7 @@ export default function Dashboard() {
                   )}
                   {tab === 'applications' && <Applications applications={applications} onNavigate={setTab} />}
                   {tab === 'universities' && (
-                    <UniversitiesTab student={student} applications={applications} recommendations={recommendations} />
+                    <UniversitiesTab student={student} shortlisted={profile?.universities ?? []} recommendations={recommendations} />
                   )}
                   {tab === 'documents' && <Documents documents={documentItems} />}
                   {tab === 'deadlines' && <Deadlines deadlines={deadlines} />}

@@ -16,3 +16,14 @@ export const applicationUpdateSchema = z.object({
 })
 export const taskToggleSchema = z.object({ taskId: z.uuid(), completed: z.boolean() })
 
+export const staffCreateApplicationSchema = z.object({
+  studentId: z.uuid(),
+  universityId: z.string().min(1),
+  program: z.string().trim().min(2).max(200),
+  deadline: z.iso.date().optional(),
+})
+
+export const assignStudentSchema = z.object({
+  studentId: z.uuid(),
+  partnerCompanyId: z.uuid().nullable(),
+})

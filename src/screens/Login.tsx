@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import {
   ArrowRight,
   BriefcaseBusiness,
-  CheckCircle2,
+  Check,
   Compass,
   Eye,
   EyeOff,
@@ -19,16 +19,18 @@ import {
 import { loginFn } from '@/features/auth/auth.functions'
 import { currentUserQuery } from '@/features/auth/auth.queries'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { AuthBrandPanel } from '@/components/auth/AuthBrandPanel'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
+import type { AccountType } from '@/features/auth/auth.schema'
 
-const FEATURES = [
-  'Track every application in one place',
-  'Stay ahead of documents and deadlines',
-  'Work directly with your admissions team',
-]
+const LOGIN_COPY: Record<AccountType, { label: string; title: string; description: string }> = {
+  STUDENT: { label: 'Student login', title: 'Sign in as a student', description: 'Continue to your applications and study journey.' },
+  PARTNER: { label: 'Partner login', title: 'Sign in as a partner', description: 'Continue to the admissions, visa, or reception workspace.' },
+  ADMIN: { label: 'Admin login', title: 'Sign in as an admin', description: 'Continue to the Mygreat administration workspace.' },
+}
 
-export default function Login() {
+export default function Login({ accountType }: { accountType: AccountType }) {
   const router = useRouter()
   const queryClient = useQueryClient()
   const theme = useAppStore((state) => state.theme)
@@ -38,62 +40,18 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
 
   const login = useMutation({
-    mutationFn: () => loginFn({ data: { email, password } }),
+    mutationFn: () => loginFn({ data: { email, password, accountType } }),
     onSuccess: async (user) => {
       // Seed the authenticated user before entering a protected route. Invalidating
       // here can leave the route guard reading the previously cached anonymous user.
       queryClient.setQueryData(currentUserQuery.queryKey, user)
-      router.replace(user.role === 'STUDENT' ? '/dashboard' : '/staff')
+      router.replace(user.accountType === 'STUDENT' ? '/dashboard' : '/staff')
     },
   })
 
   return (
     <main className="login-shell min-h-screen bg-[#07101f]">
-      <section className="login-brand-panel relative overflow-hidden border-r border-white/10 px-10 py-10 text-white xl:px-16 xl:py-12">
-        <div className="absolute -left-44 -top-40 size-[500px] rounded-full bg-indigo-600/25 blur-[110px]" />
-        <div className="absolute -bottom-56 right-[-12rem] size-[520px] rounded-full bg-amber-400/15 blur-[120px]" />
-        <div className="absolute inset-0 opacity-[0.035] noise" />
-
-        <Link href="/" className="relative z-10 flex w-fit items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 shadow-lg shadow-amber-500/20">
-            <Compass className="size-6 text-[#10172a]" strokeWidth={2.4} />
-          </span>
-          <span>
-            <span className="block font-display text-2xl leading-none">Mygreat</span>
-            <span className="mt-1 block text-[10px] uppercase tracking-[0.24em] text-white/45">Study Abroad</span>
-          </span>
-        </Link>
-
-        <div className="relative z-10 my-auto max-w-lg py-16">
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3.5 py-2 text-xs font-semibold text-amber-200">
-            <ShieldCheck className="size-3.5" /> One secure workspace
-          </p>
-          <h1 className="font-display text-5xl font-light leading-[1.04] tracking-[-0.025em] xl:text-[4rem]">
-            Your next chapter,<br />
-            <span className="text-gradient-gold font-medium">beautifully organized.</span>
-          </h1>
-          <p className="mt-6 max-w-md text-[15px] leading-7 text-white/55">
-            From your first shortlist to your final visa decision, keep the whole journey moving with your Mygreat team beside you.
-          </p>
-
-          <div className="mt-9 space-y-4">
-            {FEATURES.map((feature) => (
-              <div key={feature} className="flex items-center gap-3 text-sm text-white/70">
-                <span className="grid size-6 place-items-center rounded-full border border-emerald-300/20 bg-emerald-300/10">
-                  <CheckCircle2 className="size-3.5 text-emerald-300" />
-                </span>
-                {feature}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="relative z-10 flex items-center gap-3 border-t border-white/10 pt-6 text-xs text-white/40">
-          <span>Trusted guidance</span><span className="size-1 rounded-full bg-white/25" />
-          <span>Secure student data</span><span className="size-1 rounded-full bg-white/25" />
-          <span>Human support</span>
-        </div>
-      </section>
+      <AuthBrandPanel />
 
       <section className={cn('login-form-panel relative flex min-h-screen flex-col', isLight ? 'bg-[#f7f8fb] text-slate-950' : 'bg-[#090e1c] text-white')}>
         <div className="flex items-center justify-between px-5 py-5 sm:px-8 lg:justify-end lg:px-10">
@@ -107,24 +65,47 @@ export default function Login() {
         <div className="flex flex-1 items-center justify-center px-5 pb-12 sm:px-8 lg:px-12">
           <div className="w-full max-w-[460px]">
             <div className="mb-9">
-              <p className={cn('mb-3 text-xs font-bold uppercase tracking-[0.18em]', isLight ? 'text-amber-700' : 'text-amber-300')}>Welcome back</p>
-              <h2 className="font-display text-4xl font-medium tracking-tight sm:text-[2.75rem]">Sign in to Mygreat</h2>
+              <p className={cn('mb-3 text-xs font-bold uppercase tracking-[0.18em]', isLight ? 'text-amber-700' : 'text-amber-300')}>{LOGIN_COPY[accountType].label}</p>
+              <h2 className="font-display text-4xl font-medium tracking-tight sm:text-[2.75rem]">{LOGIN_COPY[accountType].title}</h2>
               <p className={cn('mt-3 text-[15px]', isLight ? 'text-slate-500' : 'text-white/45')}>
-                Continue to your student dashboard or staff workspace.
+                {LOGIN_COPY[accountType].description}
               </p>
             </div>
 
-            <div className="mb-7 grid grid-cols-2 gap-3">
-              <div className={cn('rounded-2xl border p-3.5', isLight ? 'border-slate-200 bg-white' : 'border-white/10 bg-white/[0.035]')}>
+            <div className="mb-7 grid grid-cols-3 gap-3">
+              <Link href="/login/student" aria-current={accountType === 'STUDENT' ? 'page' : undefined} className={cn(
+                'group relative overflow-hidden rounded-2xl border p-3.5 text-left transition-all duration-300 hover:-translate-y-1',
+                accountType === 'STUDENT'
+                  ? isLight ? 'border-amber-500/70 bg-amber-50 shadow-[0_8px_40px_-8px_rgba(242,179,61,0.25)]' : 'border-amber-400/70 bg-amber-400/[0.08] shadow-[0_8px_40px_-8px_rgba(242,179,61,0.35)]'
+                  : isLight ? 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50' : 'border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.05]',
+              )}>
                 <GraduationCap className={cn('mb-2 size-4.5', isLight ? 'text-indigo-600' : 'text-indigo-300')} />
                 <p className="text-xs font-semibold">Students</p>
                 <p className={cn('mt-0.5 text-[11px]', isLight ? 'text-slate-400' : 'text-white/35')}>Applications & journey</p>
-              </div>
-              <div className={cn('rounded-2xl border p-3.5', isLight ? 'border-slate-200 bg-white' : 'border-white/10 bg-white/[0.035]')}>
+                {accountType === 'STUDENT' && <span className="absolute right-2.5 top-2.5 grid size-5 place-items-center rounded-full bg-amber-400"><Check className="size-3 text-[#0a0f24]" strokeWidth={3.2} /></span>}
+              </Link>
+              <Link href="/login/partner" aria-current={accountType === 'PARTNER' ? 'page' : undefined} className={cn(
+                'group relative overflow-hidden rounded-2xl border p-3.5 text-left transition-all duration-300 hover:-translate-y-1',
+                accountType === 'PARTNER'
+                  ? isLight ? 'border-amber-500/70 bg-amber-50 shadow-[0_8px_40px_-8px_rgba(242,179,61,0.25)]' : 'border-amber-400/70 bg-amber-400/[0.08] shadow-[0_8px_40px_-8px_rgba(242,179,61,0.35)]'
+                  : isLight ? 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50' : 'border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.05]',
+              )}>
                 <BriefcaseBusiness className={cn('mb-2 size-4.5', isLight ? 'text-amber-700' : 'text-amber-300')} />
-                <p className="text-xs font-semibold">Mygreat team</p>
-                <p className={cn('mt-0.5 text-[11px]', isLight ? 'text-slate-400' : 'text-white/35')}>Admissions & visa desk</p>
-              </div>
+                <p className="text-xs font-semibold">Partners</p>
+                <p className={cn('mt-0.5 text-[11px]', isLight ? 'text-slate-400' : 'text-white/35')}>Partner workspace</p>
+                {accountType === 'PARTNER' && <span className="absolute right-2.5 top-2.5 grid size-5 place-items-center rounded-full bg-amber-400"><Check className="size-3 text-[#0a0f24]" strokeWidth={3.2} /></span>}
+              </Link>
+              <Link href="/login/admin" aria-current={accountType === 'ADMIN' ? 'page' : undefined} className={cn(
+                'group relative overflow-hidden rounded-2xl border p-3.5 text-left transition-all duration-300 hover:-translate-y-1',
+                accountType === 'ADMIN'
+                  ? isLight ? 'border-amber-500/70 bg-amber-50 shadow-[0_8px_40px_-8px_rgba(242,179,61,0.25)]' : 'border-amber-400/70 bg-amber-400/[0.08] shadow-[0_8px_40px_-8px_rgba(242,179,61,0.35)]'
+                  : isLight ? 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50' : 'border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.05]',
+              )}>
+                <ShieldCheck className={cn('mb-2 size-4.5', isLight ? 'text-emerald-700' : 'text-emerald-300')} />
+                <p className="text-xs font-semibold">Admins</p>
+                <p className={cn('mt-0.5 text-[11px]', isLight ? 'text-slate-400' : 'text-white/35')}>Administration</p>
+                {accountType === 'ADMIN' && <span className="absolute right-2.5 top-2.5 grid size-5 place-items-center rounded-full bg-amber-400"><Check className="size-3 text-[#0a0f24]" strokeWidth={3.2} /></span>}
+              </Link>
             </div>
 
             <form onSubmit={(event) => { event.preventDefault(); login.mutate() }} noValidate>
@@ -195,9 +176,9 @@ export default function Login() {
             </form>
 
             <div className={cn('mt-8 border-t pt-6 text-center text-sm', isLight ? 'border-slate-200 text-slate-500' : 'border-white/10 text-white/40')}>
-              New student?{' '}
-              <Link href="/onboarding" className={cn('font-semibold underline decoration-transparent underline-offset-4 transition-colors hover:decoration-current', isLight ? 'text-slate-900' : 'text-white')}>
-                Build your study profile
+              {accountType === 'PARTNER' ? 'New partner company?' : 'New student?'}{' '}
+              <Link href={accountType === 'PARTNER' ? '/partner/register' : '/onboarding'} className={cn('font-semibold underline decoration-transparent underline-offset-4 transition-colors hover:decoration-current', isLight ? 'text-slate-900' : 'text-white')}>
+                {accountType === 'PARTNER' ? 'Register as a partner' : 'Build your study profile'}
               </Link>
             </div>
           </div>
