@@ -1,7 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import type { QueryClient } from '@tanstack/react-query'
 import { ClientStoreHydrator } from '@/components/ClientStoreHydrator'
 import appCss from '@/styles.css?url'
@@ -32,7 +30,6 @@ function RootDocument() {
       <body>
         <QueryClientProvider client={queryClient}>
           <ClientStoreHydrator><Outlet /></ClientStoreHydrator>
-          {import.meta.env.DEV && <><ReactQueryDevtools initialIsOpen={false} /><TanStackRouterDevtools /></>}
         </QueryClientProvider>
         <Scripts />
       </body>
