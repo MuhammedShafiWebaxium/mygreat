@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/lib/navigation'
 import { Search, Bell, Compass, ArrowRight, Sparkles, MoreHorizontal, X } from 'lucide-react'
 import Sidebar, { TABS, type TabId } from '@/components/dashboard/Sidebar'
 import Overview from '@/components/dashboard/Overview'

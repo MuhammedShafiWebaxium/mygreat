@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/lib/navigation'
 import { Building2, CalendarDays, Compass, FileText, FolderOpen, LayoutDashboard, MessageSquare, Send, Settings, Sparkles } from 'lucide-react'
 import { ProgressRing } from './bits'
 import { cn } from '@/lib/utils'

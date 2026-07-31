@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/lib/navigation'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { ArrowRight, CheckCircle2, Clock3, FileSearch, GraduationCap, Plane, Sparkles, TrendingUp, Users } from 'lucide-react'
 import { staffQueueQuery } from '@/features/admin/admin.queries'

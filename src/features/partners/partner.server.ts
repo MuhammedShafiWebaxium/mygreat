@@ -1,4 +1,4 @@
-import 'server-only'
+import '@tanstack/react-start/server-only'
 import { randomBytes } from 'node:crypto'
 import type { z } from 'zod'
 import { prisma } from '@/db/client.server'

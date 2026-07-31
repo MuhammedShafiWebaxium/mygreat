@@ -1,4 +1,4 @@
-import 'server-only'
+import '@tanstack/react-start/server-only'
 import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/db/client.server'
 import type { z } from 'zod'

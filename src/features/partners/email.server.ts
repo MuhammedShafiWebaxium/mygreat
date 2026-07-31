@@ -1,4 +1,4 @@
-import 'server-only'
+import '@tanstack/react-start/server-only'
 import nodemailer from 'nodemailer'
 import { getServerEnv } from '@/config/env.server'
 

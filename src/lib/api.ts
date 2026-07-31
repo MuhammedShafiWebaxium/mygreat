@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 
 export function apiError(error: unknown) {
@@ -10,5 +9,5 @@ export function apiError(error: unknown) {
   const status = message === 'Authentication required.' ? 401
     : message.startsWith('This action requires') ? 403
       : error instanceof ZodError ? 400 : 500
-  return NextResponse.json({ error: message }, { status })
+  return Response.json({ error: message }, { status })
 }

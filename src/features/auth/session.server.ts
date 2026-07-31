@@ -1,6 +1,6 @@
-import 'server-only'
+import '@tanstack/react-start/server-only'
 import { createHmac, randomBytes } from 'node:crypto'
-import { cookies } from 'next/headers'
+import { deleteCookie, getCookie, setCookie } from '@tanstack/react-start/server'
 import { prisma } from '@/db/client.server'
 import { getServerEnv } from '@/config/env.server'
 import type { AccountType } from './auth.schema'
@@ -32,23 +32,22 @@ export async function createUserSession(userId: string, accountType: AccountType
   if (accountType === 'ADMIN') await withDatabaseRecoveryRetry(() => prisma.adminSession.create({ data: { ...data, adminId: userId } }))
   else if (accountType === 'PARTNER') await withDatabaseRecoveryRetry(() => prisma.partnerSession.create({ data: { ...data, partnerId: userId } }))
   else await withDatabaseRecoveryRetry(() => prisma.studentSession.create({ data: { ...data, studentId: userId } }))
-  ;(await cookies()).set(cookieName(), `${accountType}.${token}`, cookieOptions())
+  setCookie(cookieName(), `${accountType}.${token}`, cookieOptions())
 }
 
 export async function deleteUserSession() {
-  const cookieStore = await cookies()
-  const value = cookieStore.get(cookieName())?.value
+  const value = getCookie(cookieName())
   if (value) {
     const [accountType, token] = value.split('.', 2)
     if (token && accountType === 'ADMIN') await prisma.adminSession.deleteMany({ where: { tokenHash: tokenHash(token) } })
     else if (token && accountType === 'PARTNER') await prisma.partnerSession.deleteMany({ where: { tokenHash: tokenHash(token) } })
     else if (token && accountType === 'STUDENT') await prisma.studentSession.deleteMany({ where: { tokenHash: tokenHash(token) } })
   }
-  cookieStore.delete({ name: cookieName(), path: '/' })
+  deleteCookie(cookieName(), { path: '/' })
 }
 
 export async function getSessionUser() {
-  const value = (await cookies()).get(cookieName())?.value
+  const value = getCookie(cookieName())
   if (!value) return null
   const [accountType, token] = value.split('.', 2)
   if (!token || !['ADMIN', 'PARTNER', 'STUDENT'].includes(accountType)) return null

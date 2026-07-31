@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { CheckCircle2, FilePlus2, GraduationCap, X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/lib/navigation'
 import { staffCreateApplicationFn } from '@/features/workflow/workflow.functions'
 
 type DesiredUniversity = {

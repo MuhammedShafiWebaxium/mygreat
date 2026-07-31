@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/lib/navigation'
 import { motion, type Variants } from 'framer-motion'
 import {
   Check, MapPin, GraduationCap, Plane, Building2, ArrowRight, RotateCcw,

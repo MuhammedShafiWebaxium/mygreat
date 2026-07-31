@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from 'react'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Search, UserRoundSearch } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from '@/lib/navigation'
 import { assignmentOptionsQuery, staffStudentsQuery } from '@/features/admin/admin.queries'
 import { assignStudentFn } from '@/features/admin/admin.functions'
 import { currentUserQuery } from '@/features/auth/auth.queries'
@@ -35,6 +36,11 @@ export default function StudentPipeline() {
   const pageCount = Math.max(1, Math.ceil(filtered.length / STAFF_PAGE_SIZE))
   const currentPage = Math.min(page, pageCount)
   const visibleStudents = filtered.slice((currentPage - 1) * STAFF_PAGE_SIZE, currentPage * STAFF_PAGE_SIZE)
+  const table = useReactTable({
+    data: visibleStudents,
+    columns: [{ id: 'student', accessorFn: (student) => student.id }],
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <div className="space-y-5">
@@ -49,13 +55,15 @@ export default function StudentPipeline() {
           <table className="w-full min-w-[880px] text-left">
             <thead><tr className="border-b border-white/[0.06] text-[9px] font-bold uppercase tracking-[0.17em] text-white/28"><th className="px-6 py-4">Student</th><th className="px-4 py-4">Contact</th><th className="px-4 py-4">Study goal</th><th className="px-4 py-4">Intake</th><th className="px-6 py-4">Partner assignment</th></tr></thead>
             <tbody className="divide-y divide-white/[0.05]">
-              {visibleStudents.map((student) => <tr key={student.id} className="transition hover:bg-white/[0.025]">
+              {table.getRowModel().rows.map((row) => {
+                const student = row.original
+                return <tr key={student.id} className="transition hover:bg-white/[0.025]">
                 <td className="px-6 py-4"><div className="flex items-center gap-3"><span className="grid size-9 place-items-center rounded-xl bg-indigo-400/10 text-[11px] font-bold text-indigo-200">{student.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join('')}</span><div><Link href={`/staff/students/${student.id}`} className="text-[13px] font-semibold transition hover:text-amber-300">{student.name}</Link><p className="mt-0.5 text-[10px] text-white/30">Joined {new Date(student.createdAt).toLocaleDateString()}</p></div></div></td>
                 <td className="px-4 py-4"><p className="text-xs">{student.email}</p><p className="mt-1 text-[10.5px] text-white/35">{student.phone || 'No phone provided'}</p></td>
                 <td className="px-4 py-4"><p className="text-xs">{[student.degree, student.field].filter(Boolean).join(' in ') || 'Profile incomplete'}</p><p className="mt-1 text-[10.5px] text-white/35">{student.destinationCountry?.name || 'Destination not selected'}</p></td>
                 <td className="px-4 py-4 text-xs text-white/60">{student.preferredIntake || 'Not selected'}</td>
                 <td className="px-6 py-4">{user?.role === 'SUPER_ADMIN' ? <select value={student.assignedPartnerCompanyId ?? ''} disabled={assign.isPending} onChange={(event) => assign.mutate({ studentId: student.id, partnerCompanyId: event.target.value || null })} className="max-w-[220px] rounded-lg border border-white/10 bg-[#0c1122] px-3 py-2 text-[10.5px]"><option value="">Unassigned</option>{options.companies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}</select> : <span className="rounded-full border border-emerald-400/20 bg-emerald-400/[0.07] px-2.5 py-1 text-[10px] font-semibold text-emerald-300">Assigned to Mygreat</span>}</td>
-              </tr>)}
+              </tr>})}
             </tbody>
           </table>
         </div>

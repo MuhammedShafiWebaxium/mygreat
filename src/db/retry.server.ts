@@ -1,4 +1,4 @@
-import 'server-only'
+import '@tanstack/react-start/server-only'
 
 const RETRY_DELAYS_MS = [250, 750, 1_500, 3_000]
 

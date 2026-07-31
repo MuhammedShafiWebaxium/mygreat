@@ -1,4 +1,4 @@
-import 'server-only'
+import '@tanstack/react-start/server-only'
 import type { UserRole } from './auth.schema'
 import { getSessionUser } from './session.server'
 

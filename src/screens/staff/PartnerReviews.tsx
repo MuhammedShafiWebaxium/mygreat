@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { Link } from '@/lib/navigation'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { Building2, CheckCircle2, Clock3, Mail, MapPin, XCircle } from 'lucide-react'
 import { partnerApplicationsQuery } from '@/features/admin/admin.queries'

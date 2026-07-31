@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/lib/navigation'
 import { Check, User, Mail, Phone, MapPin, GraduationCap, BookOpen, Plane, Bell, LogOut, Trash2, ShieldCheck } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { COUNTRIES, DEGREES, FIELDS, INTAKES } from '@/data/onboarding'

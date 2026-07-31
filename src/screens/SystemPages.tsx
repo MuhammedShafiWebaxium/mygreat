@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/lib/navigation'
 import { ArrowLeft, ArrowRight, Compass, Home, Map, RefreshCw, ServerCrash, ShieldCheck } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useAppStore } from '@/lib/store'

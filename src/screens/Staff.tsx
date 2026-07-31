@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { Link } from '@/lib/navigation'
+import { usePathname, useRouter } from '@/lib/navigation'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { BarChart3, BriefcaseBusiness, Building2, ChevronRight, Compass, FileText, LayoutDashboard, LogOut, Menu, Plane, ShieldCheck, Users, X } from 'lucide-react'
 import { useState } from 'react'

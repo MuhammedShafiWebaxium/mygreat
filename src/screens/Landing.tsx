@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/lib/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   ArrowRight,

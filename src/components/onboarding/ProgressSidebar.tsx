@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import Link from 'next/link'
+import { Link } from '@/lib/navigation'
 import { Compass, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

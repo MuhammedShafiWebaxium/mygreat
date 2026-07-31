@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useForm } from '@tanstack/react-form'
+import { Link } from '@/lib/navigation'
+import { useRouter } from '@/lib/navigation'
 import {
   ArrowRight,
   BriefcaseBusiness,
@@ -35,18 +36,20 @@ export default function Login({ accountType }: { accountType: AccountType }) {
   const queryClient = useQueryClient()
   const theme = useAppStore((state) => state.theme)
   const isLight = theme === 'light'
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
   const login = useMutation({
-    mutationFn: () => loginFn({ data: { email, password, accountType } }),
+    mutationFn: (values: { email: string; password: string }) => loginFn({ data: { ...values, accountType } }),
     onSuccess: async (user) => {
       // Seed the authenticated user before entering a protected route. Invalidating
       // here can leave the route guard reading the previously cached anonymous user.
       queryClient.setQueryData(currentUserQuery.queryKey, user)
       router.replace(user.accountType === 'STUDENT' ? '/dashboard' : '/staff')
     },
+  })
+  const form = useForm({
+    defaultValues: { email: '', password: '' },
+    onSubmit: ({ value }) => login.mutate(value),
   })
 
   return (
@@ -108,10 +111,11 @@ export default function Login({ accountType }: { accountType: AccountType }) {
               </Link>
             </div>
 
-            <form onSubmit={(event) => { event.preventDefault(); login.mutate() }} noValidate>
+            <form onSubmit={(event) => { event.preventDefault(); event.stopPropagation(); void form.handleSubmit() }} noValidate>
               <div className="mb-5">
                 <label htmlFor="email" className="mb-2 block text-[13px] font-semibold">Email address</label>
-                <div className="relative">
+                <form.Field name="email" validators={{ onChange: ({ value }) => value ? undefined : 'Email is required.' }}>
+                  {(field) => <div className="relative">
                   <Mail className={cn('pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2', isLight ? 'text-slate-400' : 'text-white/30')} />
                   <input
                     id="email"
@@ -120,13 +124,15 @@ export default function Login({ accountType }: { accountType: AccountType }) {
                       isLight ? 'border-slate-200 bg-white text-slate-950 placeholder:text-slate-400 shadow-sm' : 'border-white/10 bg-white/[0.04] text-white placeholder:text-white/25',
                     )}
                     type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
                     autoComplete="email"
                     placeholder="you@example.com"
                     required
                   />
-                </div>
+                  </div>}
+                </form.Field>
               </div>
 
               <div>
@@ -134,7 +140,8 @@ export default function Login({ accountType }: { accountType: AccountType }) {
                   <label htmlFor="password" className="text-[13px] font-semibold">Password</label>
                   <span className={cn('text-xs', isLight ? 'text-slate-400' : 'text-white/30')}>Case-sensitive</span>
                 </div>
-                <div className="relative">
+                <form.Field name="password" validators={{ onChange: ({ value }) => value ? undefined : 'Password is required.' }}>
+                  {(field) => <div className="relative">
                   <LockKeyhole className={cn('pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2', isLight ? 'text-slate-400' : 'text-white/30')} />
                   <input
                     id="password"
@@ -143,8 +150,9 @@ export default function Login({ accountType }: { accountType: AccountType }) {
                       isLight ? 'border-slate-200 bg-white text-slate-950 placeholder:text-slate-400 shadow-sm' : 'border-white/10 bg-white/[0.04] text-white placeholder:text-white/25',
                     )}
                     type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
                     autoComplete="current-password"
                     placeholder="Enter your password"
                     required
@@ -157,7 +165,8 @@ export default function Login({ accountType }: { accountType: AccountType }) {
                   >
                     {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                   </button>
-                </div>
+                  </div>}
+                </form.Field>
               </div>
 
               {login.error && (
@@ -166,13 +175,15 @@ export default function Login({ accountType }: { accountType: AccountType }) {
                 </div>
               )}
 
-              <button
-                disabled={login.isPending || !email || !password}
+              <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+                {([canSubmit]) => <button
+                disabled={login.isPending || !canSubmit}
                 className="group mt-6 inline-flex h-13 w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-300 to-amber-500 px-5 text-sm font-bold text-[#10172a] shadow-[0_12px_35px_-12px_rgba(245,158,11,0.65)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-10px_rgba(245,158,11,0.7)] disabled:pointer-events-none disabled:opacity-50"
               >
                 {login.isPending ? 'Signing you in…' : 'Sign in securely'}
                 {!login.isPending && <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />}
-              </button>
+                </button>}
+              </form.Subscribe>
             </form>
 
             <div className={cn('mt-8 border-t pt-6 text-center text-sm', isLight ? 'border-slate-200 text-slate-500' : 'border-white/10 text-white/40')}>

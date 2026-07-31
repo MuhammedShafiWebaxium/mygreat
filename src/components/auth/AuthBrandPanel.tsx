@@ -1,5 +1,5 @@
-import Image from 'next/image'
-import Link from 'next/link'
+import { Image } from '@/lib/navigation'
+import { Link } from '@/lib/navigation'
 import { CheckCircle2, Compass, ShieldCheck } from 'lucide-react'
 
 const FEATURES = [

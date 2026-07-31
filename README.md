@@ -1,21 +1,21 @@
-# Mygreat Study Abroad — Next.js
+# Mygreat Study Abroad — TanStack Start
 
-Full migration of the Mygreat application to Next.js 15 App Router.
+Mygreat is a full-stack React application built on TanStack Start.
 
 ## Stack
 
-- Next.js 15 App Router and React 19
+- TanStack Start, TanStack Router, Nitro, Vite, and React 19
+- TanStack Query, Form, and Table
+- TanStack Intent for versioned agent guidance
 - TypeScript in strict mode
-- Tailwind CSS v4 and repository-owned shadcn/ui components
+- Tailwind CSS v4
 - Lucide React and Framer Motion
-- TanStack Query
-- React Hook Form and Zod
-- Zustand with explicit client hydration
+- Zod and Zustand
 - PostgreSQL and Prisma ORM
 
 ## Local setup
 
-1. Copy `.env.example` to `.env.local`.
+1. Copy `.env.example` to `.env`.
 2. Set `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, and a random `SESSION_SECRET` of at least 32 characters.
 3. Install packages with `npm install`.
 4. Run database migrations with `npm run db:migrate`.
@@ -40,32 +40,14 @@ npm run db:studio
 ## Application routes
 
 - `/` — public landing page
-- `/login` — student and staff sign-in
-- `/onboarding` — student planning and registration flow
+- `/login/:accountType` — student, partner, and administrator sign-in
+- `/onboarding` — student planning and registration
 - `/dashboard` — authenticated student workspace
 - `/staff` — authenticated staff overview
 - `/staff/students` — staff student pipeline
-- `/staff/team` — Super Admin team management
+- `/staff/team` — team management
+- `/staff/partners` — partner reviews
 
-Authentication uses Prisma-backed database sessions in HTTP-only cookies. Authorization is enforced in both App Router layouts/pages and every mutating route handler. The app does not depend on Radix UI or Drizzle.
-# Account architecture
+Authentication uses Prisma-backed sessions in HTTP-only cookies. Authorization is enforced in TanStack route guards, server functions, and mutating route handlers.
 
-Mygreat uses three isolated account tables and login portals:
-
-- Students: `students`, signed in at `/login/student`
-- Partners: `partners`, signed in at `/login/partner`
-- Admins: `admins`, signed in at `/login/admin`
-
-Partner roles are `ADMISSIONS_EXECUTIVE`, `VISA_EXECUTIVE`, and
-`RECEPTION_EXECUTIVE`, plus `PARTNER_ADMIN` for an approved partner company's
-administrator. Admin roles are `SUPER_ADMIN`,
-`MARKETING_EXECUTIVE`, `FINANCE_EXECUTIVE`, and `SUPPORT_EXECUTIVE`.
-Each account type also has its own session table.
-
-Study abroad companies register at `/partner/register`. A Super Admin reviews
-applications at `/staff/partners`. Approval creates the company's
-`PARTNER_ADMIN` account and emails its username and generated password
-through Nodemailer using Gmail. Configure `GMAIL_USER`,
-`GMAIL_APP_PASSWORD`, and optionally `EMAIL_FROM` before approving
-companies. Partner Admins can manage only staff belonging to their own partner
-company.
+TanStack does not currently publish an official chart runtime. Existing visualizations remain repository-owned UI until an official TanStack Charts package exists.
