@@ -4,7 +4,8 @@ Mygreat is a full-stack React application built on TanStack Start.
 
 ## Stack
 
-- TanStack Start, TanStack Router, Nitro, Vite, and React 19
+- TanStack Start, TanStack Router, Vite, and React 19
+- Netlify's official TanStack Start Vite integration
 - TanStack Query, Form, and Table
 - TanStack Intent for versioned agent guidance
 - TypeScript in strict mode
@@ -51,3 +52,11 @@ npm run db:studio
 Authentication uses Prisma-backed sessions in HTTP-only cookies. Authorization is enforced in TanStack route guards, server functions, and mutating route handlers.
 
 TanStack does not currently publish an official chart runtime. Existing visualizations remain repository-owned UI until an official TanStack Charts package exists.
+
+## Netlify deployment
+
+The repository includes `netlify.toml` and Netlify's official TanStack Start
+Vite plugin. Connect the GitHub repository in Netlify and configure the
+production environment variables from `.env.example`. Netlify will run
+`npm run build`, publish `dist/client`, and deploy SSR, server functions, and
+API routes as Netlify Functions.
