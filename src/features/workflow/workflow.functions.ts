@@ -23,3 +23,5 @@ export const createApplicationFn = ({ data }: { data: unknown }) => request<Crea
 export const toggleTaskFn = ({ data }: { data: unknown }) => request<UpdatedTask>('toggleTask', data)
 export const updateApplicationFn = ({ data }: { data: unknown }) => request<UpdatedApplication>('updateApplication', data)
 export const staffCreateApplicationFn = ({ data }: { data: unknown }) => request<CreatedApplication>('staffCreateApplication', data)
+export async function uploadRequiredDocumentFn(documentType:string,file:File){const form=new FormData();form.set('documentType',documentType);form.set('file',file);const response=await fetch('/api/workflow',{method:'POST',body:form}),body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||'Upload failed.');return body}
+export const reviewDocumentFn = (data:{documentId:string;status:'VERIFIED'|'NEEDED';note?:string}) => request('reviewDocument',data)

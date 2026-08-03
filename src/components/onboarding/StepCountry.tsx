@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { motion, type Variants } from 'framer-motion'
 import { Search, Check, MapPin } from 'lucide-react'
-import { COUNTRIES } from '@/data/onboarding'
 import type { Country } from '@/types'
 import { cn } from '@/lib/utils'
 
 interface Props {
+  countries: Country[]
   selected: Country | null
   onSelect: (c: Country) => void
 }
@@ -19,10 +19,10 @@ const item: Variants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 160, damping: 20 } },
 }
 
-export default function StepCountry({ selected, onSelect }: Props) {
+export default function StepCountry({ countries, selected, onSelect }: Props) {
   const [query, setQuery] = useState('')
 
-  const filtered = COUNTRIES.filter((c) =>
+  const filtered = countries.filter((c) =>
     c.name.toLowerCase().includes(query.toLowerCase())
   )
 
@@ -97,4 +97,3 @@ export default function StepCountry({ selected, onSelect }: Props) {
     </div>
   )
 }
-

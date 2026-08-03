@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
-import { Search, Check, Trophy, HelpCircle } from 'lucide-react'
-import { UNIVERSITIES, MAX_UNIVERSITY_PICKS } from '@/data/onboarding'
+import { Search, Check, Trophy, HelpCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MAX_UNIVERSITY_PICKS } from '@/data/onboarding'
 import type { Country, University } from '@/types'
 import { cn } from '@/lib/utils'
 
 interface Props {
   country: Country
+  universities: University[]
   selected: University[]
   notSure: boolean
   onToggle: (u: University) => void
@@ -19,11 +20,17 @@ const item: Variants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 160, damping: 20 } },
 }
 
-export default function StepUniversity({ country, selected, notSure, onToggle, onNotSure }: Props) {
+export default function StepUniversity({ country, universities, selected, notSure, onToggle, onNotSure }: Props) {
   const [query, setQuery] = useState('')
-  const list = UNIVERSITIES.filter(
+  const [page, setPage] = useState(1)
+  const pageSize = 10
+  const list = universities.filter(
     (u) => u.countryId === country.id && u.name.toLowerCase().includes(query.toLowerCase())
   )
+  const pageCount = Math.max(1, Math.ceil(list.length / pageSize))
+  const visible = list.slice((page - 1) * pageSize, page * pageSize)
+  useEffect(() => setPage(1), [country.id, query])
+  useEffect(() => { if (page > pageCount) setPage(pageCount) }, [page, pageCount])
   const full = selected.length >= MAX_UNIVERSITY_PICKS
 
   return (
@@ -34,7 +41,7 @@ export default function StepUniversity({ country, selected, notSure, onToggle, o
       </h2>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mt-3">
         <p className="text-white/50 text-[15px]">
-          Top picks in {country.flag} {country.name} — shortlist up to {MAX_UNIVERSITY_PICKS}.
+          Universities in {country.flag} {country.name} offering your selected course — shortlist up to {MAX_UNIVERSITY_PICKS}.
         </p>
         <span
           className={cn(
@@ -46,7 +53,27 @@ export default function StepUniversity({ country, selected, notSure, onToggle, o
         </span>
       </div>
 
-      <div className="relative mt-6 mb-5">
+      <motion.button
+        variants={item}
+        onClick={onNotSure}
+        className={cn(
+          'mt-6 w-full text-left rounded-2xl p-4 border border-dashed transition-all duration-300 flex items-center gap-3.5',
+          notSure
+            ? 'bg-amber-400/[0.06] border-amber-400/60'
+            : 'bg-transparent border-white/15 hover:border-white/30'
+        )}
+      >
+        <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center', notSure ? 'bg-amber-400/15' : 'bg-white/5')}>
+          <HelpCircle className={cn('w-4.5 h-4.5', notSure ? 'text-amber-300' : 'text-white/40')} />
+        </div>
+        <div className="flex-1">
+          <p className={cn('text-sm font-semibold', notSure ? 'text-amber-200' : 'text-white/70')}>I'm not sure yet</p>
+          <p className="text-xs text-white/35 mt-0.5">Let Mygreat recommend universities based on my profile.</p>
+        </div>
+        {notSure && <Check className="w-4 h-4 text-amber-400" strokeWidth={3} />}
+      </motion.button>
+
+      <div className="relative mt-4 mb-5">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35" />
         <input
           value={query}
@@ -58,7 +85,7 @@ export default function StepUniversity({ country, selected, notSure, onToggle, o
 
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-3">
         <AnimatePresence mode="popLayout">
-          {list.map((u) => {
+          {visible.map((u) => {
             const active = selected.some((s) => s.id === u.id)
             const disabled = !active && (full || notSure)
             return (
@@ -92,15 +119,15 @@ export default function StepUniversity({ country, selected, notSure, onToggle, o
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className={cn('font-semibold text-[15px] truncate', active ? 'text-amber-100' : 'text-white')}>{u.name}</p>
-                    {u.rank <= 50 && <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
+                    {u.rank > 0 && u.rank <= 50 && <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
                   </div>
                   <p className="text-xs text-white/40 mt-0.5 truncate">
-                    {u.city} · Known for {u.knownFor}
+                    {u.city || 'Location not specified'}
                   </p>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                    <span className="text-[11px] text-white/50">QS Rank <span className="text-white/80 font-semibold">#{u.rank}</span></span>
-                    <span className="text-[11px] text-white/50">Tuition <span className="text-white/80 font-semibold">{u.tuition}/yr</span></span>
-                    <span className="text-[11px] text-white/50">Acceptance <span className="text-white/80 font-semibold">{u.acceptance}</span></span>
+                    <span className="text-[11px] text-white/50">Courses <span className="text-white/80 font-semibold">{u.courseCount?.toLocaleString() ?? 0}</span></span>
+                    {u.rank > 0 && <span className="text-[11px] text-white/50">Rank <span className="text-white/80 font-semibold">#{u.rank}</span></span>}
+                    {u.website && <span className="text-[11px] text-white/50">Website available</span>}
                   </div>
                 </div>
 
@@ -121,28 +148,18 @@ export default function StepUniversity({ country, selected, notSure, onToggle, o
           <p className="text-white/40 text-sm text-center py-12">No universities match “{query}”.</p>
         )}
 
-        {/* Not sure option */}
-        <motion.button
-          variants={item}
-          onClick={onNotSure}
-          className={cn(
-            'w-full text-left rounded-2xl p-4 border border-dashed transition-all duration-300 flex items-center gap-3.5',
-            notSure
-              ? 'bg-amber-400/[0.06] border-amber-400/60'
-              : 'bg-transparent border-white/15 hover:border-white/30'
-          )}
-        >
-          <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center', notSure ? 'bg-amber-400/15' : 'bg-white/5')}>
-            <HelpCircle className={cn('w-4.5 h-4.5', notSure ? 'text-amber-300' : 'text-white/40')} />
+        {list.length > 0 && (
+          <div className="flex flex-col gap-3 rounded-2xl border border-white/[0.07] bg-white/[0.02] px-4 py-3 sm:flex-row sm:items-center">
+            <p className="text-[11px] text-white/40">Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, list.length)} of {list.length} universities</p>
+            <div className="flex items-center gap-2 sm:ml-auto">
+              <button type="button" aria-label="Previous university page" disabled={page === 1} onClick={() => setPage(value => value - 1)} className="grid size-9 place-items-center rounded-xl border border-white/10 text-white/55 transition hover:border-amber-400/35 hover:text-amber-300 disabled:cursor-not-allowed disabled:opacity-25"><ChevronLeft className="size-4" /></button>
+              <span className="min-w-20 text-center text-[11px] font-semibold text-white/55">Page {page} of {pageCount}</span>
+              <button type="button" aria-label="Next university page" disabled={page === pageCount} onClick={() => setPage(value => value + 1)} className="grid size-9 place-items-center rounded-xl border border-white/10 text-white/55 transition hover:border-amber-400/35 hover:text-amber-300 disabled:cursor-not-allowed disabled:opacity-25"><ChevronRight className="size-4" /></button>
+            </div>
           </div>
-          <div className="flex-1">
-            <p className={cn('text-sm font-semibold', notSure ? 'text-amber-200' : 'text-white/70')}>I'm not sure yet</p>
-            <p className="text-xs text-white/35 mt-0.5">Let Mygreat recommend universities based on my profile.</p>
-          </div>
-          {notSure && <Check className="w-4 h-4 text-amber-400" strokeWidth={3} />}
-        </motion.button>
+        )}
+
       </motion.div>
     </div>
   )
 }
-

@@ -272,11 +272,51 @@ export async function readStudentProfileForStaff(
         include: { university: true },
         orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
       },
-      documents: { select: { id: true, name: true, status: true, note: true }, orderBy: { createdAt: 'asc' } },
+      documents: { select: { id: true, name: true, status: true, note: true, storageKey: true }, orderBy: { createdAt: 'asc' } },
     },
   })
   if (!student) throw new Error('Student not found.')
-  return student
+  return {
+    ...student,
+    profile: student.profile ? { ...student.profile, gpa: student.profile.gpa === null ? null : Number(student.profile.gpa) } : null,
+    applications: student.applications.map(({ university, ...application }) => ({
+      ...application,
+      quotedFeeAmount: application.quotedFeeAmount === null ? null : application.quotedFeeAmount.toString(),
+      university,
+    })),
+  }
+}
+
+export async function readDocumentReviewQueue(actor: { id: string; role: UserRole }) {
+  const visibleStudents = await listStudentUsers(actor)
+  if (!visibleStudents.length) return []
+  const documents = await prisma.document.findMany({
+    where: { userId: { in: visibleStudents.map(student => student.id) }, storageKey: { not: null } },
+    select: { userId: true, status: true, updatedAt: true },
+    orderBy: { updatedAt: 'desc' },
+  })
+  const byStudent = new Map<string, { uploaded: number; pending: number; verified: number; needsAction: number; lastUploadedAt: Date }>()
+  for (const document of documents) {
+    const current = byStudent.get(document.userId) ?? { uploaded: 0, pending: 0, verified: 0, needsAction: 0, lastUploadedAt: document.updatedAt }
+    current.uploaded += 1
+    if (document.status === 'PENDING') current.pending += 1
+    if (document.status === 'VERIFIED') current.verified += 1
+    if (document.status === 'NEEDED' || document.status === 'REJECTED') current.needsAction += 1
+    if (document.updatedAt > current.lastUploadedAt) current.lastUploadedAt = document.updatedAt
+    byStudent.set(document.userId, current)
+  }
+  return visibleStudents.flatMap(student => {
+    const counts = byStudent.get(student.id)
+    return counts ? [{
+      studentId: student.id,
+      studentName: student.name,
+      email: student.email,
+      ...counts,
+    }] : []
+  }).sort((left, right) =>
+    Number(right.pending > 0) - Number(left.pending > 0)
+    || right.lastUploadedAt.getTime() - left.lastUploadedAt.getTime()
+  )
 }
 
 export async function readPartnerProfileForStaff(

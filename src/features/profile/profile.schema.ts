@@ -16,7 +16,7 @@ export const universitySchema = z.object({
   name: z.string().min(1),
   city: z.string().min(1),
   countryId: z.string().min(1),
-  rank: z.number().int().positive(),
+  rank: z.number().int().nonnegative(),
   tuition: z.string(),
   acceptance: z.string(),
   knownFor: z.string(),
@@ -26,14 +26,13 @@ export const onboardingSchema: z.ZodType<OnboardingData> = z.object({
   country: countrySchema.nullable(),
   educationLevel: z.string().max(100),
   degree: z.string().max(160),
-  field: z.string().max(160),
+  field: z.string().max(1000),
   gpa: z.number().min(0).max(4),
   gradYear: z.string().max(20),
-  englishTest: z.string().max(100),
+  englishTest: z.string().max(500),
   intake: z.string().max(100),
   universities: z.array(universitySchema).max(3),
   notSure: z.boolean(),
 })
 
 export type OnboardingInput = z.infer<typeof onboardingSchema>
-

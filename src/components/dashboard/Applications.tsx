@@ -8,11 +8,14 @@ import type { TabId } from './Sidebar'
 
 interface Props {
   applications: Application[]
+  documentsComplete: boolean
   onNavigate: (t: TabId) => void
 }
 
-export default function Applications({ applications, onNavigate }: Props) {
+export default function Applications({ applications, documentsComplete, onNavigate }: Props) {
   const hasOffer = applications.some((a) => a.status === 'offer')
+
+  if (!documentsComplete && applications.length===0) return <div className="max-w-5xl space-y-5"><motion.div variants={fadeUp} initial="hidden" animate="show" custom={0}><h2 className="font-display text-2xl font-light sm:text-3xl">Application <span className="text-gradient-gold font-medium">prerequisites</span></h2></motion.div><motion.div variants={fadeUp} initial="hidden" animate="show" custom={1}><Panel className="border-dashed p-10 text-center sm:p-14"><div className="mx-auto grid size-14 place-items-center rounded-2xl border border-amber-400/20 bg-amber-400/10"><ShieldCheck className="size-6 text-amber-300"/></div><h3 className="mt-6 font-display text-2xl">Upload your required documents first</h3><p className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-white/45">Passport, passport-size photograph, CV or résumé, and Aadhaar are required before an application can be created.</p><button onClick={()=>onNavigate('documents')} className="mt-7 inline-flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-300 to-amber-500 px-7 py-4 text-sm font-semibold text-[#0a0f24] shadow-[0_10px_36px_-8px_rgba(242,179,61,0.55)]">Upload documents <ArrowRight className="size-4"/></button></Panel></motion.div></div>
 
   if (applications.length === 0) {
     return (

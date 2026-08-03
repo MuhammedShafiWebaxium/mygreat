@@ -33,14 +33,6 @@ export async function registerStudent(input: z.infer<typeof registerSchema>) {
       select: publicStudentSelect,
     })
 
-    await Promise.all(input.onboarding.universities.map((university) =>
-      tx.university.upsert({
-        where: { id: university.id },
-        create: university,
-        update: university,
-      }),
-    ))
-
     await tx.studentProfile.create({
       data: {
         userId: created.id,

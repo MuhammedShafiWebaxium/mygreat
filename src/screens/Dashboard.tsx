@@ -17,7 +17,7 @@ import Notifications from '@/components/dashboard/Notifications'
 import {
   CONVERSATIONS,
 } from '@/data/dashboard'
-import type { Application, Deadline, DocItem, Notice, Task } from '@/data/dashboard'
+import type { Application, Deadline, Notice, Task } from '@/data/dashboard'
 import { buildStudent, buildRecommendations } from '@/data/student'
 import { useAppStore, type Account } from '@/lib/store'
 import { Avatar } from '@/components/dashboard/bits'
@@ -28,7 +28,9 @@ import { myProfileQuery } from '@/features/profile/profile.queries'
 import { myDashboardQuery } from '@/features/workflow/workflow.queries'
 import { logoutFn, updateMyAccountFn } from '@/features/auth/auth.functions'
 import { saveMyProfileFn } from '@/features/profile/profile.functions'
+import { REQUIRED_DOCUMENTS } from '@/lib/local-documents'
 import { toggleTaskFn } from '@/features/workflow/workflow.functions'
+import { getOnboardingCatalogFn } from '@/features/onboarding/onboarding.functions'
 
 const TAB_TITLES: Record<TabId, string> = {
   overview: 'Your home',
@@ -57,6 +59,7 @@ export default function Dashboard() {
   const { data: user } = useSuspenseQuery(currentUserQuery)
   const { data: profile } = useSuspenseQuery(myProfileQuery)
   const { data: serverDashboard } = useSuspenseQuery(myDashboardQuery)
+  const { data: catalog } = useSuspenseQuery({ queryKey: ['onboarding', 'catalog'], queryFn: () => getOnboardingCatalogFn() })
   const clearStore = useAppStore((state) => state.clear)
   const theme = useAppStore((state) => state.theme)
   const account: Account | null = user ? { name: user.name, email: user.email, phone: user.phone } : null
@@ -86,11 +89,12 @@ export default function Dashboard() {
   )
   const deadlines: Deadline[] = serverDashboard.deadlines.map((item) => ({ id: item.id, label: item.label, org: item.organization, date: item.dueDate, type: item.type.toLowerCase() as Deadline['type'] }))
   const tasks: Task[] = serverDashboard.tasks.map((item) => ({ id: item.id, label: item.label, due: item.dueDate ?? undefined, tag: item.tag, done: item.completed }))
-  const documentItems: DocItem[] = serverDashboard.documents.map((item) => ({ id: item.id, name: item.name, status: item.status.toLowerCase() as DocItem['status'], note: item.note }))
   const [unread, setUnread] = useState(CONVERSATIONS[0].unread)
   const [notices, setNotices] = useState<Notice[]>(() => serverDashboard.notifications.map((item) => ({ id: item.id, kind: item.kind === 'DOCUMENT' ? 'doc' : item.kind.toLowerCase() as Notice['kind'], title: item.title, desc: item.description, time: 'Recently', read: Boolean(item.readAt) })))
   const [showNotifs, setShowNotifs] = useState(false)
   const [showMobileMore, setShowMobileMore] = useState(false)
+  const requiredDocumentCount=REQUIRED_DOCUMENTS.filter(required=>serverDashboard.documents.some(document=>document.name===required.name&&document.status==='VERIFIED')).length
+  const requiredDocumentsComplete=requiredDocumentCount===REQUIRED_DOCUMENTS.length
 
   const unreadNotifs = notices.filter((n) => !n.read).length
 
@@ -103,12 +107,14 @@ export default function Dashboard() {
     if (task) taskMutation.mutate({ id, completed: !task.done })
   }
 
-  const handleSaveAccount = (a: Account) => {
-    updateMyAccountFn({ data: a }).then(() => queryClient.invalidateQueries({ queryKey: ['auth'] }))
+  const handleSaveAccount = async (a: Account) => {
+    await updateMyAccountFn({ data: a })
+    await queryClient.invalidateQueries({ queryKey: ['auth'] })
   }
 
-  const handleSaveProfile = (p: NonNullable<typeof profile>) => {
-    saveMyProfileFn({ data: p }).then(() => queryClient.invalidateQueries({ queryKey: ['student'] }))
+  const handleSaveProfile = async (p: NonNullable<typeof profile>) => {
+    await saveMyProfileFn({ data: p })
+    await queryClient.invalidateQueries({ queryKey: ['student'] })
   }
 
   const signOut = async () => {
@@ -216,26 +222,28 @@ export default function Dashboard() {
                 >
                   {tab === 'overview' && (
                     <Overview
-                      student={student}
+                      student={{...student,journeyStep:requiredDocumentsComplete?3:2}}
                       applications={applications}
                       recommendations={recommendations}
                       deadlines={deadlines}
                       tasks={tasks}
+                      requiredDocumentCount={requiredDocumentCount}
                       onToggleTask={toggleTask}
                       onNavigate={setTab}
                     />
                   )}
-                  {tab === 'applications' && <Applications applications={applications} onNavigate={setTab} />}
+                  {tab === 'applications' && <Applications applications={applications} documentsComplete={requiredDocumentsComplete} onNavigate={setTab} />}
                   {tab === 'universities' && (
                     <UniversitiesTab student={student} shortlisted={profile?.universities ?? []} recommendations={recommendations} />
                   )}
-                  {tab === 'documents' && <Documents documents={documentItems} />}
+                  {tab === 'documents' && <Documents documents={serverDashboard.documents} onChanged={()=>queryClient.invalidateQueries({queryKey:['student','dashboard']})} />}
                   {tab === 'deadlines' && <Deadlines deadlines={deadlines} />}
                   {tab === 'messages' && <Messages onRead={() => setUnread(0)} />}
                   {tab === 'settings' && (
                     <Settings
                       profile={profile}
                       account={account}
+                      countries={catalog.countries}
                       onSaveAccount={handleSaveAccount}
                       onSaveProfile={handleSaveProfile}
                       onSignOut={signOut}

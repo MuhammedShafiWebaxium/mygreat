@@ -17,6 +17,14 @@ export interface University {
   tuition: string
   acceptance: string
   knownFor: string
+  website?: string
+  courseCount?: number
+}
+
+export interface OnboardingCourseOption {
+  name: string
+  level: string
+  universityIds: string[]
 }
 
 export interface OnboardingData {
@@ -31,4 +39,3 @@ export interface OnboardingData {
   universities: University[]
   notSure: boolean
 }
-

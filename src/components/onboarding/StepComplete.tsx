@@ -77,15 +77,15 @@ export default function StepComplete({ data, onRestart }: Props) {
     },
     {
       icon: GraduationCap,
-      label: 'Program',
-      value: [data.degree, data.field].filter(Boolean).join(' in ') || '—',
+      label: 'Selected course',
+      value: data.field || '—',
       sub: [data.gpa ? `GPA ${data.gpa.toFixed(1)}` : '', data.gradYear ? `Class of ${data.gradYear}` : ''].filter(Boolean).join(' · '),
     },
     {
       icon: Plane,
       label: 'Intake',
       value: data.intake || '—',
-      sub: data.englishTest && data.englishTest !== 'Not taken yet' ? `${data.englishTest} planned` : 'English test not taken yet',
+      sub: data.englishTest && data.englishTest !== 'Not taken yet' ? data.englishTest : 'English test not taken yet',
     },
     {
       icon: Building2,

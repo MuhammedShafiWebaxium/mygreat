@@ -41,13 +41,6 @@ export async function readStudentProfile(userId: string) {
 
 export async function writeStudentProfile(userId: string, input: OnboardingInput) {
   await prisma.$transaction(async (tx) => {
-    await Promise.all(input.universities.map((university) =>
-      tx.university.upsert({
-        where: { id: university.id },
-        create: university,
-        update: university,
-      }),
-    ))
     await tx.studentProfile.upsert({
       where: { userId },
       create: {

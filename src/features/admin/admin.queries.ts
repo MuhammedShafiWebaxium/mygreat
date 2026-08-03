@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query'
-import { getAssignmentOptionsFn, getPrimaryApplicationQueueFn, getStaffQueueFn, listPartnersFn, listStaffFn, listStudentsFn, listUniversityCatalogFn } from './admin.functions'
+import { getAssignmentOptionsFn, getDocumentReviewQueueFn, getPrimaryApplicationQueueFn, getStaffQueueFn, listPartnersFn, listStaffFn, listStudentsFn, listUniversityCatalogFn } from './admin.functions'
 
 export const staffQueueQuery = queryOptions({
   queryKey: ['staff', 'queue'],
@@ -24,5 +24,9 @@ export const partnerApplicationsQuery = queryOptions({
 export const assignmentOptionsQuery = queryOptions({
   queryKey: ['staff', 'assignment-options'],
   queryFn: () => getAssignmentOptionsFn(),
+})
+export const documentReviewQueueQuery = queryOptions({
+  queryKey: ['staff', 'document-reviews'],
+  queryFn: () => getDocumentReviewQueueFn(),
 })
 export const universityCatalogQuery = queryOptions({ queryKey: ['staff', 'university-catalog'], queryFn: listUniversityCatalogFn })

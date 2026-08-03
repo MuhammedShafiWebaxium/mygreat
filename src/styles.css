@@ -455,6 +455,116 @@
   border-color: #e4e8f0 !important;
 }
 
+.onboarding-course-menu {
+  background: rgb(11 17 34 / 0.98);
+  box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.75);
+}
+
+.onboarding-course-option {
+  background: transparent;
+}
+
+.onboarding-course-option:hover {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.onboarding-course-option[data-selected="true"] {
+  background: rgb(251 191 36 / 0.1);
+}
+
+.light-theme .onboarding-course-menu {
+  background: rgb(255 255 255 / 0.98) !important;
+  border-color: #d8dee9 !important;
+  box-shadow: 0 24px 60px -24px rgb(15 23 42 / 0.28);
+}
+
+.light-theme .onboarding-course-search {
+  border-color: #e5e9f0 !important;
+  background: #f8fafc !important;
+}
+
+.light-theme .onboarding-course-search input {
+  background: #fff !important;
+  border-color: #d8dee9 !important;
+}
+
+.light-theme .onboarding-course-option {
+  background: transparent !important;
+  color: #475569 !important;
+}
+
+.light-theme .onboarding-course-option:hover {
+  background: #f1f5f9 !important;
+  color: #172033 !important;
+}
+
+.light-theme .onboarding-course-option[data-selected="true"] {
+  background: #fff7e8 !important;
+  color: #9a4b09 !important;
+}
+
+.light-theme .onboarding-chip:disabled {
+  color: #94a3b8 !important;
+  background: #eef2f7 !important;
+  border-color: #dbe2ea !important;
+  box-shadow: none !important;
+  opacity: 0.62;
+}
+
+.light-theme .onboarding-chip[data-selected="true"]:not(:disabled) {
+  color: #172033 !important;
+  background: #fbbf24 !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 8px 24px -10px rgb(217 119 6 / 0.55) !important;
+}
+
+.light-theme .onboarding-level-tooltip {
+  color: #475569 !important;
+  background: #fff !important;
+  border-color: #dbe2ea !important;
+  box-shadow: 0 16px 36px -20px rgb(15 23 42 / 0.35);
+}
+
+.english-test-card {
+  background: linear-gradient(145deg, #121a31, #0c1326);
+}
+
+.light-theme .english-test-card {
+  background: linear-gradient(145deg, #fff, #f8fafc) !important;
+  border-color: #dbe2ea !important;
+  box-shadow: 0 14px 30px -20px rgb(15 23 42 / 0.38);
+}
+
+.light-theme .document-center .action {
+  color: #9a4b09 !important;
+  background: #fffaf0 !important;
+  border-color: rgb(217 119 6 / 0.42) !important;
+  box-shadow: 0 6px 18px -14px rgb(146 64 14 / 0.55);
+}
+
+.light-theme .document-center .action:hover {
+  color: #78350f !important;
+  background: #fff7e8 !important;
+  border-color: rgb(217 119 6 / 0.68) !important;
+}
+
+.light-theme .document-center .icon {
+  color: #526176 !important;
+  background: #f8fafc !important;
+  border: 1px solid #dbe2ea;
+}
+
+.light-theme .document-center .icon:hover {
+  color: #b45309 !important;
+  background: #fff7e8 !important;
+}
+
+.light-theme .document-center button[title="Remove"]:hover {
+  color: #e11d48 !important;
+  background: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+}
+
 .staff-workspace.light-theme .catalog-card,
 .staff-workspace.light-theme .catalog-modal {
   background: rgb(255 255 255 / 0.94) !important;

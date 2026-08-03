@@ -69,7 +69,16 @@ export const EDUCATION_LEVELS = [
   { id: 'masters', label: "Master's", desc: 'Postgraduate degree holder' },
 ]
 
-export const DEGREES = ["Bachelor's", "Master's", 'MBA', 'PhD']
+export const DEGREES = [
+  'Undergraduate',
+  'UG Diploma /Certificate /Associate Degree',
+  'Twinning Programmes (PG)',
+  'Short Term Programs',
+  'High School (11th-12th)',
+  'Foundation',
+  'PG Diploma /Certificate',
+  'Postgraduate',
+]
 
 export const FIELDS = [
   'Computer Science', 'Engineering', 'Business & Management', 'Data Science & AI',
@@ -84,4 +93,3 @@ export const ENGLISH_TESTS = ['Not taken yet', 'IELTS', 'TOEFL', 'PTE', 'Duoling
 export const INTAKES = ['Fall 2026', 'Spring 2027', 'Fall 2027', 'Spring 2028']
 
 export const MAX_UNIVERSITY_PICKS = 3
-

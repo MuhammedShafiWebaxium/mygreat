@@ -8,7 +8,8 @@ import StepCountry from '@/components/onboarding/StepCountry'
 import StepEducation from '@/components/onboarding/StepEducation'
 import StepUniversity from '@/components/onboarding/StepUniversity'
 import StepComplete from '@/components/onboarding/StepComplete'
-import type { Country, OnboardingData, University } from '@/types'
+import type { Country, OnboardingCourseOption, OnboardingData, University } from '@/types'
+import { getOnboardingCoursesFn } from '@/features/onboarding/onboarding.functions'
 import { MAX_UNIVERSITY_PICKS } from '@/data/onboarding'
 import { saveOnboarding } from '@/lib/store'
 import { cn } from '@/lib/utils'
@@ -34,16 +35,25 @@ const stepVariants = {
   exit: (dir: number) => ({ opacity: 0, x: dir * -48, filter: 'blur(4px)' }),
 }
 
-export default function Home() {
+export default function Home({ catalog }: { catalog:{ countries:Country[]; universities:University[] } }) {
   const theme = useAppStore((state) => state.theme)
   const [step, setStep] = useState(0)
   const [direction, setDirection] = useState(1)
   const [data, setData] = useState<OnboardingData>(initialData)
+  const [courses,setCourses]=useState<OnboardingCourseOption[]>([])
+  const [coursesLoading,setCoursesLoading]=useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     saveOnboarding(data)
   }, [data])
+  useEffect(()=>{
+    if(!data.country){setCourses([]);return}
+    let active=true
+    setCoursesLoading(true)
+    getOnboardingCoursesFn({data:data.country.id}).then(result=>{if(active)setCourses(result)}).catch(()=>{if(active)setCourses([])}).finally(()=>{if(active)setCoursesLoading(false)})
+    return()=>{active=false}
+  },[data.country?.id])
 
   const canContinue = useMemo(() => {
     switch (step) {
@@ -71,6 +81,8 @@ export default function Home() {
       // reset shortlist if the country actually changed
       universities: d.country?.id === country.id ? d.universities : [],
       notSure: d.country?.id === country.id ? d.notSure : false,
+      field: d.country?.id === country.id ? d.field : '',
+      degree: d.country?.id === country.id ? d.degree : '',
     }))
   }
 
@@ -108,22 +120,25 @@ export default function Home() {
                   exit="exit"
                   transition={{ type: 'spring', stiffness: 130, damping: 22 }}
                 >
-                  {step === 0 && <StepCountry selected={data.country} onSelect={selectCountry} />}
+                  {step === 0 && <StepCountry countries={catalog.countries} selected={data.country} onSelect={selectCountry} />}
                   {step === 1 && (
                     <StepEducation
                       educationLevel={data.educationLevel}
                       degree={data.degree}
                       field={data.field}
+                      courses={courses}
+                      coursesLoading={coursesLoading}
                       gpa={data.gpa}
                       gradYear={data.gradYear}
                       englishTest={data.englishTest}
                       intake={data.intake}
-                      onChange={(patch) => setData((d) => ({ ...d, ...patch }))}
+                      onChange={(patch) => setData((d) => ({ ...d, ...patch, ...((patch.field !== undefined && patch.field !== d.field) || (patch.degree !== undefined && patch.degree !== d.degree) ? { universities: [], notSure: false } : {}) }))}
                     />
                   )}
                   {step === 2 && data.country && (
                     <StepUniversity
                       country={data.country}
+                      universities={catalog.universities.filter(university=>courses.find(course=>course.name===data.field&&course.level===data.degree)?.universityIds.includes(university.id))}
                       selected={data.universities}
                       notSure={data.notSure}
                       onToggle={toggleUniversity}

@@ -322,7 +322,6 @@ model Course {
   fees         CourseFee[]
   applications Application[]
 
-  @@unique([universityId, code])
   @@index([universityId])
   @@map("courses")
 }
@@ -466,4 +465,37 @@ model AuditLog {
   @@index([actorId], map: "audit_logs_actor_idx")
   @@index([entityType, entityId], map: "audit_logs_entity_idx")
   @@map("audit_logs")
+}
+
+model CatalogImportJob {
+  id            String               @id @default(uuid()) @db.Uuid
+  actorId       String               @map("actor_id") @db.Uuid
+  entityType    String               @map("entity_type")
+  fileName      String               @map("file_name")
+  totalRows     Int                  @default(0) @map("total_rows")
+  processedRows Int                  @default(0) @map("processed_rows")
+  createdRows   Int                  @default(0) @map("created_rows")
+  updatedRows   Int                  @default(0) @map("updated_rows")
+  skippedRows   Int                  @default(0) @map("skipped_rows")
+  failedRows    Int                  @default(0) @map("failed_rows")
+  status        String               @default("PROCESSING")
+  createdAt     DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  completedAt   DateTime?            @map("completed_at") @db.Timestamptz(6)
+  errors        CatalogImportError[]
+
+  @@index([actorId, createdAt], map: "catalog_import_jobs_actor_created_idx")
+  @@map("catalog_import_jobs")
+}
+
+model CatalogImportError {
+  id        String           @id @default(uuid()) @db.Uuid
+  jobId     String           @map("job_id") @db.Uuid
+  rowNumber Int              @map("row_number")
+  message   String
+  rowData   Json             @map("row_data")
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  job       CatalogImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, rowNumber], map: "catalog_import_errors_job_row_idx")
+  @@map("catalog_import_errors")
 }

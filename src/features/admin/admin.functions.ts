@@ -1,6 +1,6 @@
 'use client'
 
-import type { createStaffUser, listAssignmentOptions, listStaffUsers, listStudentUsers, readPrimaryApplicationQueue, readStaffQueue, updateStaffUser } from './admin.server'
+import type { createStaffUser, listAssignmentOptions, listStaffUsers, listStudentUsers, readDocumentReviewQueue, readPrimaryApplicationQueue, readStaffQueue, updateStaffUser } from './admin.server'
 import type { listPartnerApplications, reviewPartner } from '@/features/partners/partner.server'
 import type { Catalog } from '@/features/university-management/university.server'
 
@@ -13,6 +13,7 @@ type PartnerList = Awaited<ReturnType<typeof listPartnerApplications>>
 type ReviewedPartner = Awaited<ReturnType<typeof reviewPartner>>
 type AssignmentOptions = Awaited<ReturnType<typeof listAssignmentOptions>>
 type PrimaryApplicationQueue = Awaited<ReturnType<typeof readPrimaryApplicationQueue>>
+type DocumentReviewQueue = Awaited<ReturnType<typeof readDocumentReviewQueue>>
 
 async function request<T>(action: string, data?: unknown): Promise<T> {
   const response = await fetch(`/api/admin?action=${encodeURIComponent(action)}`, {
@@ -29,6 +30,7 @@ export const createStaffFn = ({ data }: { data: unknown }) => request<CreatedSta
 export const listStaffFn = () => request<StaffList>('listStaff')
 export const getStaffQueueFn = () => request<StaffQueue>('queue')
 export const getPrimaryApplicationQueueFn = () => request<PrimaryApplicationQueue>('primaryApplications')
+export const getDocumentReviewQueueFn = () => request<DocumentReviewQueue>('documentReviews')
 export const listStudentsFn = () => request<StudentList>('students')
 export const updateStaffFn = ({ data }: { data: unknown }) => request<UpdatedStaff>('updateStaff', data)
 export const listPartnersFn = () => request<PartnerList>('partners')
@@ -41,3 +43,10 @@ export const saveUniversityFn = (data: unknown) => request('saveUniversity', dat
 export const saveCourseFn = (data: unknown) => request('saveCourse', data)
 export const setCourseFeeFn = (data: unknown) => request('setCourseFee', data)
 export const deleteCatalogEntityFn = (data: unknown) => request('deleteCatalogEntity', data)
+export type CatalogImportJob = { id:string; entityType:string; fileName:string; totalRows:number; processedRows:number; createdRows:number; updatedRows:number; skippedRows:number; failedRows:number; status:string; createdAt:string; completedAt:string|null }
+export type CatalogImportError = { rowNumber:number; message:string; rowData:Record<string,string> }
+export const createCourseImportJobFn = (data:{fileName:string;totalRows:number}) => request<CatalogImportJob>('createCourseImportJob',data)
+export const processCourseImportBatchFn = (data:{jobId:string;startRow:number;rows:Record<string,string>[]}) => request<CatalogImportJob>('processCourseImportBatch',data)
+export const readCatalogImportJobFn = (jobId:string) => request<CatalogImportJob>('readCatalogImportJob',{jobId})
+export const listCatalogImportJobsFn = () => request<CatalogImportJob[]>('catalogImportJobs')
+export const listCatalogImportErrorsFn = (jobId:string) => request<CatalogImportError[]>('catalogImportErrors',{jobId})

@@ -8,6 +8,7 @@ import type { applicationUpdateSchema, createApplicationSchema } from './workflo
 const dateOnly = (date: Date | null) => date?.toISOString().slice(0, 10) ?? null
 
 export async function createApplication(userId: string, input: z.infer<typeof createApplicationSchema>) {
+  await assertRequiredDocumentsVerified(userId)
   const shortlisted = await prisma.studentShortlist.findUnique({
     where: { userId_universityId: { userId, universityId: input.universityId } },
     select: { universityId: true },
@@ -61,6 +62,7 @@ export async function createApplicationForStudent(
 ) {
   if (actor.accountType === 'PARTNER') await assertPartnerCanAccessStudent(actor.id, input.studentId)
   else if (actor.accountType !== 'ADMIN') throw new Error('FORBIDDEN')
+  await assertRequiredDocumentsVerified(input.studentId)
   const duplicate = await prisma.application.findFirst({
     where: { studentId: input.studentId, universityId: input.universityId, program: input.program },
     select: { id: true },
@@ -174,4 +176,69 @@ export async function setTaskCompleted(userId: string, taskId: string, completed
   })
   if (!result.count) throw new Error('Task not found.')
   return prisma.task.findUniqueOrThrow({ where: { id: taskId } })
+}
+
+const requiredDocumentNames: Record<string, string> = {
+  passport: 'Passport',
+  'passport-photo': 'Passport-size photograph',
+  cv: 'CV or résumé',
+  aadhaar: 'Aadhaar',
+}
+
+async function assertRequiredDocumentsVerified(userId: string) {
+  const names = Object.values(requiredDocumentNames)
+  const verified = await prisma.document.count({
+    where: { userId, name: { in: names }, status: 'VERIFIED' },
+  })
+  if (verified !== names.length) {
+    throw new Error('All required documents must be verified before an application can be created.')
+  }
+}
+
+let documentFilesReady:Promise<void>|undefined
+function ensureDocumentFiles(){documentFilesReady??=(async()=>{await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS document_files (document_id UUID PRIMARY KEY REFERENCES documents(id) ON DELETE CASCADE,file_name TEXT NOT NULL,mime_type TEXT NOT NULL,size_bytes INTEGER NOT NULL,file_data BYTEA NOT NULL,updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`)})();return documentFilesReady}
+
+export async function uploadRequiredDocument(userId:string,documentType:string,file:File) {
+  const name=requiredDocumentNames[documentType]
+  if(!name) throw new Error('Unknown required document type.')
+  if(file.size>10*1024*1024) throw new Error('Files must be 10 MB or smaller.')
+  await ensureDocumentFiles()
+  const bytes=Buffer.from(await file.arrayBuffer())
+  const existing=await prisma.document.findFirst({where:{userId,name}})
+  const document=existing?await prisma.document.update({where:{id:existing.id},data:{status:'PENDING',note:'Uploaded and awaiting verification.',storageKey:`db:${existing.id}`,verifiedBy:null}}):await prisma.document.create({data:{userId,name,status:'PENDING',note:'Uploaded and awaiting verification.'}})
+  await prisma.$executeRaw(Prisma.sql`INSERT INTO document_files(document_id,file_name,mime_type,size_bytes,file_data) VALUES(${document.id}::uuid,${file.name},${file.type||'application/octet-stream'},${file.size},${bytes}) ON CONFLICT(document_id) DO UPDATE SET file_name=EXCLUDED.file_name,mime_type=EXCLUDED.mime_type,size_bytes=EXCLUDED.size_bytes,file_data=EXCLUDED.file_data,updated_at=NOW()`)
+  if(!document.storageKey) await prisma.document.update({where:{id:document.id},data:{storageKey:`db:${document.id}`}})
+  return {...document,fileName:file.name,size:file.size}
+}
+
+export async function readDocumentFile(
+  documentId: string,
+  actor: { id: string; accountType: 'ADMIN' | 'PARTNER' | 'STUDENT' },
+) {
+  await ensureDocumentFiles()
+  const [file] = await prisma.$queryRaw<Array<{ userId: string; fileName: string; mimeType: string; fileData: Uint8Array }>>(Prisma.sql`
+    SELECT d.user_id AS "userId", f.file_name AS "fileName", f.mime_type AS "mimeType", f.file_data AS "fileData"
+    FROM document_files f
+    JOIN documents d ON d.id = f.document_id
+    WHERE f.document_id = ${documentId}::uuid
+  `)
+  if(!file) throw new Error('Document file not found.')
+  if (actor.accountType === 'STUDENT' && file.userId !== actor.id) throw new Error('FORBIDDEN')
+  if (actor.accountType === 'PARTNER') await assertPartnerCanAccessStudent(actor.id, file.userId)
+  return file
+}
+
+export async function reviewDocument(
+  actor: { id: string; accountType: 'ADMIN' | 'PARTNER' | 'STUDENT' },
+  documentId: string,
+  status: 'VERIFIED' | 'NEEDED',
+  note: string,
+) {
+  const current = await prisma.document.findUnique({ where: { id: documentId }, select: { userId: true } })
+  if (!current) throw new Error('Document not found.')
+  if (actor.accountType === 'PARTNER') await assertPartnerCanAccessStudent(actor.id, current.userId)
+  else if (actor.accountType !== 'ADMIN') throw new Error('FORBIDDEN')
+  const document=await prisma.document.update({where:{id:documentId},data:{status,note:note||(status==='VERIFIED'?'Verified by staff.':'A replacement file is required.'),verifiedBy:actor.accountType==='PARTNER'&&status==='VERIFIED'?actor.id:null}})
+  await prisma.auditLog.create({data:{actorId:actor.id,action:status==='VERIFIED'?'DOCUMENT_VERIFIED':'DOCUMENT_REJECTED',entityType:'document',entityId:documentId,metadata:{note}}})
+  return document
 }

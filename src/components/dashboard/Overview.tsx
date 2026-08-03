@@ -3,7 +3,7 @@ import {
   Check, ArrowRight, ArrowUpRight, Send, ClipboardList, FileCheck, Trophy,
   CalendarClock, Phone, MessageSquare, Sparkles, Flag, Compass,
 } from 'lucide-react'
-import { JOURNEY, DOCUMENTS, ADVISOR, daysUntil, fmtDate } from '@/data/dashboard'
+import { JOURNEY, ADVISOR, daysUntil, fmtDate } from '@/data/dashboard'
 import type { Application, Deadline, Reco, StudentProfile, Task } from '@/data/dashboard'
 import { Panel, PanelTitle, StatusChip, Bar, ProgressRing, UniMark, fadeUp } from './bits'
 import { cn } from '@/lib/utils'
@@ -15,6 +15,7 @@ interface Props {
   recommendations: Reco[]
   deadlines: Deadline[]
   tasks: Task[]
+  requiredDocumentCount: number
   onToggleTask: (id: string) => void
   onNavigate: (t: TabId) => void
 }
@@ -26,11 +27,10 @@ function greeting() {
   return 'Good evening'
 }
 
-export default function Overview({ student, applications, recommendations, deadlines, tasks, onToggleTask, onNavigate }: Props) {
+export default function Overview({ student, applications, recommendations, deadlines, tasks, requiredDocumentCount, onToggleTask, onNavigate }: Props) {
   const hasOffer = applications.some((a) => a.status === 'offer')
   const nextApp = applications.filter((a) => a.deadline).sort((a, b) => a.deadline!.localeCompare(b.deadline!))[0]
   const nextDeadlines = [...deadlines].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3)
-  const verified = DOCUMENTS.filter((d) => d.status === 'verified').length
   const openTasks = tasks.filter((t) => !t.done).length
   const offers = applications.filter((a) => a.status === 'offer').length
 
@@ -43,7 +43,7 @@ export default function Overview({ student, applications, recommendations, deadl
   const stats = [
     { icon: Send, label: 'Active applications', value: String(applications.length), note: hasOffer ? `${offers} offer in hand` : 'In progress', tint: 'text-amber-300 bg-amber-400/10 border-amber-400/20' },
     { icon: ClipboardList, label: 'Tasks open', value: String(openTasks), note: 'Keep the streak going', tint: 'text-sky-300 bg-sky-400/10 border-sky-400/20' },
-    { icon: FileCheck, label: 'Documents verified', value: `${verified}/${DOCUMENTS.length}`, note: 'IELTS still needed', tint: 'text-emerald-300 bg-emerald-400/10 border-emerald-400/20' },
+    { icon: FileCheck, label: 'Required documents', value: `${requiredDocumentCount}/4`, note: requiredDocumentCount===4?'Ready for applications':'Upload before applying', tint: 'text-emerald-300 bg-emerald-400/10 border-emerald-400/20' },
     { icon: Trophy, label: 'Offers', value: String(offers), note: hasOffer ? 'Celebrate, then decide' : 'They’re coming', tint: 'text-violet-300 bg-violet-400/10 border-violet-400/20' },
   ]
 
@@ -73,7 +73,7 @@ export default function Overview({ student, applications, recommendations, deadl
                   const current = i === student.journeyStep
                   return (
                     <div key={j} className={cn('flex items-center', i < JOURNEY.length - 1 && 'flex-1')}>
-                      <div className="flex flex-col items-center gap-2">
+                      <button type="button" onClick={() => j === 'Upload docs' && onNavigate('documents')} className={cn('flex flex-col items-center gap-2',j === 'Upload docs'&&'cursor-pointer')}>
                         <div
                           className={cn(
                             'w-8 h-8 rounded-full flex items-center justify-center border text-[11px] font-bold transition-all',
@@ -89,7 +89,7 @@ export default function Overview({ student, applications, recommendations, deadl
                         <span className={cn('text-[10px] font-medium whitespace-nowrap', current ? 'text-amber-200' : done ? 'text-white/60' : 'text-white/25')}>
                           {j}
                         </span>
-                      </div>
+                      </button>
                       {i < JOURNEY.length - 1 && (
                         <div className="flex-1 h-px mx-2 -mt-5 bg-white/10 relative overflow-hidden">
                           <motion.div
@@ -365,4 +365,3 @@ export default function Overview({ student, applications, recommendations, deadl
     </div>
   )
 }
-

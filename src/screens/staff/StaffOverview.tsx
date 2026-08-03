@@ -2,8 +2,8 @@
 
 import { Link } from '@/lib/navigation'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { ArrowRight, CheckCircle2, Clock3, FileSearch, GraduationCap, Plane, Sparkles, TrendingUp, Users } from 'lucide-react'
-import { staffQueueQuery } from '@/features/admin/admin.queries'
+import { ArrowRight, CheckCircle2, Clock3, FileCheck2, FileSearch, GraduationCap, Plane, Sparkles, TrendingUp, Users } from 'lucide-react'
+import { documentReviewQueueQuery, staffQueueQuery, staffStudentsQuery } from '@/features/admin/admin.queries'
 import { cn } from '@/lib/utils'
 
 function statusLabel(value: string) {
@@ -12,7 +12,9 @@ function statusLabel(value: string) {
 
 export default function StaffOverview() {
   const { data: queue } = useSuspenseQuery(staffQueueQuery)
-  const uniqueStudents = new Set(queue.map((item) => item.studentId)).size
+  const { data: documentReviews } = useSuspenseQuery(documentReviewQueueQuery)
+  const { data: students } = useSuspenseQuery(staffStudentsQuery)
+  const activeStudents = students.filter(student => student.active).length
   const underReview = queue.filter((item) => item.status === 'UNDER_REVIEW').length
   const offers = queue.filter((item) => item.status === 'OFFER').length
   const visaActive = queue.filter((item) => !['NOT_STARTED', 'APPROVED'].includes(item.visaStatus)).length
@@ -20,7 +22,7 @@ export default function StaffOverview() {
   const priority = [...queue].sort((a, b) => a.progress - b.progress).slice(0, 5)
 
   const stats = [
-    { label: 'Active students', value: uniqueStudents, note: `${queue.length} total applications`, icon: Users, tone: 'text-indigo-300 bg-indigo-400/10 border-indigo-400/20' },
+    { label: 'Active students', value: activeStudents, note: `${students.length} total students`, icon: Users, tone: 'text-indigo-300 bg-indigo-400/10 border-indigo-400/20' },
     { label: 'Under review', value: underReview, note: 'Awaiting decisions', icon: FileSearch, tone: 'text-sky-300 bg-sky-400/10 border-sky-400/20' },
     { label: 'Offers received', value: offers, note: 'Positive outcomes', icon: GraduationCap, tone: 'text-emerald-300 bg-emerald-400/10 border-emerald-400/20' },
     { label: 'Visa in progress', value: visaActive, note: 'Cases being prepared', icon: Plane, tone: 'text-amber-300 bg-amber-400/10 border-amber-400/20' },
@@ -38,6 +40,14 @@ export default function StaffOverview() {
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => <div key={stat.label} className="staff-card rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5"><div className={cn('grid size-10 place-items-center rounded-xl border', stat.tone)}><stat.icon className="size-4.5" /></div><p className="mt-4 font-display text-3xl">{stat.value}</p><p className="mt-1 text-xs font-semibold text-white/65">{stat.label}</p><p className="mt-1 text-[10.5px] text-white/30">{stat.note}</p></div>)}
+      </section>
+
+      <section className="staff-card overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.025]">
+        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-5 sm:px-6"><div><div className="flex items-center gap-2"><FileCheck2 className="size-4 text-amber-300"/><p className="text-[10px] font-bold uppercase tracking-[.2em] text-white/35">Document verification</p></div><h3 className="mt-1 font-display text-xl">Students with uploaded documents</h3></div><Link href="/staff/students" className="flex items-center gap-1.5 text-xs font-semibold text-amber-300">View all students <ArrowRight className="size-3.5"/></Link></div>
+        <div className="divide-y divide-white/[.055] px-3 pb-3 sm:px-4">
+          {documentReviews.slice(0,6).map(student=><Link key={student.studentId} href={`/staff/students/${student.studentId}`} className="group grid gap-3 rounded-xl px-3 py-4 transition hover:bg-white/[.03] sm:grid-cols-[1.2fr_.8fr_.8fr_auto] sm:items-center"><div className="flex min-w-0 items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-400/10 text-xs font-bold text-amber-300">{student.studentName.split(/\s+/).map(part=>part[0]).slice(0,2).join('')}</span><div className="min-w-0"><p className="truncate text-sm font-semibold transition group-hover:text-amber-300">{student.studentName}</p><p className="mt-0.5 truncate text-[10.5px] text-white/32">{student.email}</p></div></div><div><p className="text-xs font-semibold">{student.uploaded} uploaded</p><p className="mt-0.5 text-[10px] text-white/32">{student.verified} verified</p></div><span className={cn('w-fit rounded-full border px-2.5 py-1 text-[10px] font-semibold',student.pending?'border-amber-400/25 bg-amber-400/[.08] text-amber-300':student.needsAction?'border-rose-400/25 bg-rose-400/[.08] text-rose-300':'border-emerald-400/25 bg-emerald-400/[.08] text-emerald-300')}>{student.pending?`${student.pending} awaiting review`:student.needsAction?`${student.needsAction} need replacement`:'Verification complete'}</span><span className="flex items-center gap-1 text-[10px] font-semibold text-white/35 transition group-hover:text-amber-300">Open profile <ArrowRight className="size-3.5"/></span></Link>)}
+          {!documentReviews.length&&<div className="py-14 text-center"><FileCheck2 className="mx-auto size-7 text-white/25"/><p className="mt-3 text-sm font-semibold">No documents uploaded yet</p><p className="mt-1 text-xs text-white/35">Students will appear here after their first upload.</p></div>}
+        </div>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[1.5fr_.75fr]">

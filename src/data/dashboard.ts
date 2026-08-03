@@ -84,7 +84,7 @@ export const STUDENT: StudentProfile = {
   journeyStep: 2, // 0-based index into JOURNEY
 }
 
-export const JOURNEY = ['Profile', 'Shortlist', 'Applications', 'Visa', 'Enroll']
+export const JOURNEY = ['Profile', 'Shortlist', 'Upload docs', 'Applications', 'Visa', 'Enroll']
 
 export const APPLICATIONS: Application[] = [
   {

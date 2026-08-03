@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { AlertTriangle, ArrowUpDown, Building2, ChevronLeft, ChevronRight, CircleDollarSign, Download, FileSpreadsheet, Filter, Globe2, GraduationCap, LoaderCircle, Pencil, Plus, Search, Trash2, Upload, X } from 'lucide-react'
 import { universityCatalogQuery } from '@/features/admin/admin.queries'
-import { deleteCatalogEntityFn, saveCountryFn, saveCourseFn, saveUniversityFn, setCourseFeeFn } from '@/features/admin/admin.functions'
+import { createCourseImportJobFn, deleteCatalogEntityFn, listCatalogImportErrorsFn, listCatalogImportJobsFn, processCourseImportBatchFn, saveCountryFn, saveCourseFn, saveUniversityFn, setCourseFeeFn, type CatalogImportJob } from '@/features/admin/admin.functions'
 import { cn } from '@/lib/utils'
 import { createXlsx, createXlsxWorkbook, readSpreadsheet, readXlsxWorkbook } from '@/lib/xlsx'
 
@@ -45,9 +45,12 @@ export default function UniversityManagement() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [importProgress, setImportProgress] = useState<ImportProgressState | null>(null)
+  const [importJobs, setImportJobs] = useState<CatalogImportJob[]>([])
   const input = useRef<HTMLInputElement>(null)
   const catalogInput = useRef<HTMLInputElement>(null)
   const refresh = async () => { await client.invalidateQueries({ queryKey: ['staff', 'university-catalog'] }) }
+  const refreshImportJobs = async () => setImportJobs(await listCatalogImportJobsFn())
+  useEffect(() => { refreshImportJobs().catch(()=>undefined) }, [])
   const save = useMutation({
     mutationFn: async () => tab === 'countries' ? saveCountryFn(form) : tab === 'universities' ? saveUniversityFn({ ...form, rankings: parseRankings(String(form?.rankingsText ?? '')) }) : saveCourseFn({ ...form, intakeMonth: splitList(String(form?.intakeMonthText ?? '')) }),
     onSuccess: async () => { await refresh(); setForm(null) },
@@ -90,6 +93,21 @@ export default function UniversityManagement() {
     try {
       const parsed = await readSpreadsheet(file)
       setImportProgress({ label: `Importing ${targetTab}`, current: 0, total: parsed.length })
+      if(targetTab==='courses') {
+        const jobs=await listCatalogImportJobsFn()
+        const resumable=jobs.find(job=>job.status==='PROCESSING'&&job.fileName===file.name&&job.totalRows===parsed.length)
+        let job=resumable??await createCourseImportJobFn({fileName:file.name,totalRows:parsed.length})
+        setImportProgress({label:resumable?'Resuming course import':'Importing courses',current:job.processedRows,total:job.totalRows})
+        for(let offset=job.processedRows;offset<parsed.length;offset+=250) {
+          job=await processCourseImportBatchFn({jobId:job.id,startRow:offset+2,rows:parsed.slice(offset,offset+250)})
+          setImportProgress({label:`Courses: ${job.createdRows.toLocaleString()} created, ${job.updatedRows.toLocaleString()} updated, ${job.failedRows.toLocaleString()} failed`,current:job.processedRows,total:job.totalRows})
+        }
+        await Promise.all([refresh(),refreshImportJobs()])
+        setNotice(`Course import completed: ${job.createdRows} created, ${job.updatedRows} updated, and ${job.failedRows} failed.`)
+        if(input.current) input.current.value=''
+        setImportProgress(null)
+        return
+      }
       let imported = 0
       const courseMap = new Map(data.courses.map(course => [`${course.universityId}|${course.code.toLowerCase()}`, course]))
       for (const [index, row] of parsed.entries()) {
@@ -166,6 +184,7 @@ export default function UniversityManagement() {
     <section className="catalog-card overflow-hidden rounded-3xl border border-white/[.07] bg-white/[.025]">
       <div className="flex flex-col gap-3 border-b border-white/[.06] p-4 lg:flex-row lg:items-center sm:p-5"><div className="catalog-tabs flex gap-1 rounded-xl bg-black/20 p-1">{(['countries','universities','courses'] as Tab[]).map(value => <button key={value} onClick={() => changeTab(value)} className={cn('catalog-tab rounded-lg px-4 py-2 text-xs font-semibold capitalize', tab === value ? 'catalog-tab-active bg-white/10 text-amber-300' : 'text-white/40')}>{value}</button>)}</div><div className="relative lg:ml-auto lg:w-72"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/30" /><input value={search} onChange={e => setSearch(e.target.value)} placeholder={`Search ${tab}`} className="field pl-9" /></div><button onClick={()=>setFilterOpen(true)} className={cn('action justify-center', activeFilterCount && 'border-amber-300/30 text-amber-300')}><Filter className="size-4" /> Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}</button></div>
       {notice && <p className="mx-5 mt-4 rounded-xl border border-amber-300/15 bg-amber-300/[.06] px-4 py-3 text-xs text-amber-200">{notice}</p>}
+      {importJobs.length>0 && <ImportHistory jobs={importJobs} downloadErrors={downloadImportErrors} />}
       <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left"><thead><tr className="text-[9px] uppercase tracking-wider text-white/30">{tableHeaders(tab).map(header => <th key={header.label} className="px-5 py-4">{header.key ? <button onClick={()=>toggleSort(header.key!)} className={cn('inline-flex items-center gap-1.5 transition hover:text-amber-300', sort.key === header.key && 'text-amber-300')}><span>{header.label}</span><ArrowUpDown className="size-3" /></button> : header.label}</th>)}<th className="px-5 py-4 text-right">Actions</th></tr></thead><tbody>{paginated.map((row: any) => <CatalogRow key={row.id} tab={tab} row={row} onEdit={() => setForm({ ...row, rankingsText: row.rankings?.map((r:any)=>`${r.name} | ${r.value}`).join('\n') ?? '', intakeMonthText: row.intakeMonth?.join(', ') ?? '' })} onFee={() => { setFeeCourse(row.id); setFee({ amount: row.fees?.[0]?.amount ?? '', currencyCode: row.fees?.[0]?.currencyCode ?? 'USD', effectiveFrom: new Date().toISOString().slice(0,10) }) }} onDelete={() => { remove.reset(); setDeleteTarget({ entity: singular[tab], id: row.id, name: row.name }) }} />)}</tbody></table></div>
       {!filtered.length && <div className="p-12 text-center"><FileSpreadsheet className="mx-auto size-8 text-white/15" /><p className="mt-3 text-sm text-white/35">No {tab} found.</p></div>}
       {filtered.length > 0 && <TablePagination page={page} pageCount={pageCount} pageSize={pageSize} total={filtered.length} setPage={setPage} setPageSize={setPageSize} />}
@@ -198,6 +217,9 @@ function sortValue(row: any, key: string) {
   if (key === 'intakeMonth') return row.intakeMonth?.join(', ') ?? ''
   if (key === 'fee') return String(row.fees?.[0]?.amount ?? row.tuitionFee ?? '')
   return String(row[key] ?? '')
+}
+function ImportHistory({jobs,downloadErrors}:{jobs:CatalogImportJob[];downloadErrors:(job:CatalogImportJob)=>void}) {
+  return <div className="mx-5 mt-4 rounded-2xl border border-white/[.07] bg-white/[.02] p-4"><div className="flex items-center gap-2"><FileSpreadsheet className="size-4 text-amber-300"/><h3 className="text-xs font-semibold">Recent course imports</h3></div><div className="mt-3 space-y-2">{jobs.slice(0,5).map(job=><div key={job.id} className="flex flex-col gap-2 rounded-xl border border-white/[.05] px-3 py-2.5 text-[10px] text-white/40 sm:flex-row sm:items-center"><span className="min-w-0 flex-1 truncate font-semibold text-white/65">{job.fileName}</span><span>{job.processedRows.toLocaleString()}/{job.totalRows.toLocaleString()} processed</span><span className="text-emerald-300">{job.createdRows.toLocaleString()} created</span><span className="text-sky-300">{job.updatedRows.toLocaleString()} updated</span><span className={job.failedRows?'text-rose-300':'text-white/35'}>{job.failedRows.toLocaleString()} failed</span>{job.failedRows>0&&<button onClick={()=>downloadErrors(job)} className="font-semibold text-amber-300 hover:text-amber-200">Download errors</button>}</div>)}</div></div>
 }
 function TablePagination({ page, pageCount, pageSize, total, setPage, setPageSize }: { page:number; pageCount:number; pageSize:number; total:number; setPage:(page:number)=>void; setPageSize:(size:number)=>void }) {
   const first=(page-1)*pageSize+1, last=Math.min(page*pageSize,total)
@@ -233,6 +255,13 @@ async function downloadTemplate(tab: Tab) {
 }
 async function downloadCatalogTemplate() { download(await createXlsxWorkbook((['countries','universities','courses'] as Tab[]).map(tab=>({name:tab[0].toUpperCase()+tab.slice(1),rows:[columns[tab],samples[tab]]}))),'full-university-catalog-template.xlsx') }
 function download(blob:Blob,name:string) { const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000) }
+async function downloadImportErrors(job:CatalogImportJob) {
+  const errors=await listCatalogImportErrorsFn(job.id)
+  const headers=['rowNumber','message',...Array.from(new Set(errors.flatMap(error=>Object.keys(error.rowData))))]
+  const csv=[headers, ...errors.map(error=>headers.map(header=>header==='rowNumber'?String(error.rowNumber):header==='message'?error.message:error.rowData[header]??''))].map(row=>row.map(csvCell).join(',')).join('\r\n')
+  download(new Blob([csv],{type:'text/csv;charset=utf-8'}),`${job.fileName.replace(/\.[^.]+$/,'')}-errors.csv`)
+}
+function csvCell(value:string) { return /[",\r\n]/.test(value)?`"${value.replace(/"/g,'""')}"`:value }
 function splitList(value: string) { return String(value ?? '').split(/[,;\n]/).map(item=>item.trim()).filter(Boolean) }
 function parseRankings(value: string) {
   return String(value ?? '')

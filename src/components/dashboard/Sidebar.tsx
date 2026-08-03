@@ -10,8 +10,8 @@ export type TabId = 'overview' | 'applications' | 'universities' | 'documents' |
 export const TABS: { id: TabId; label: string; icon: React.ElementType; group: 'workspace' | 'support' }[] = [
   { id: 'overview', label: 'Home', icon: LayoutDashboard, group: 'workspace' },
   { id: 'universities', label: 'Discover', icon: Building2, group: 'workspace' },
-  { id: 'applications', label: 'Applications', icon: Send, group: 'workspace' },
   { id: 'documents', label: 'Documents', icon: FolderOpen, group: 'workspace' },
+  { id: 'applications', label: 'Applications', icon: Send, group: 'workspace' },
   { id: 'deadlines', label: 'Calendar', icon: CalendarDays, group: 'workspace' },
   { id: 'messages', label: 'Messages', icon: MessageSquare, group: 'support' },
   { id: 'settings', label: 'Profile & settings', icon: Settings, group: 'support' },
