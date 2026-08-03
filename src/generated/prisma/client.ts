@@ -87,6 +87,26 @@ export type StudentProfile = Prisma.StudentProfileModel
  */
 export type University = Prisma.UniversityModel
 /**
+ * Model UniversityRanking
+ * 
+ */
+export type UniversityRanking = Prisma.UniversityRankingModel
+/**
+ * Model Country
+ * 
+ */
+export type Country = Prisma.CountryModel
+/**
+ * Model Course
+ * 
+ */
+export type Course = Prisma.CourseModel
+/**
+ * Model CourseFee
+ * 
+ */
+export type CourseFee = Prisma.CourseFeeModel
+/**
  * Model StudentShortlist
  * 
  */

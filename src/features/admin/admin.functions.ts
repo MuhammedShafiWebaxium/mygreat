@@ -2,6 +2,7 @@
 
 import type { createStaffUser, listAssignmentOptions, listStaffUsers, listStudentUsers, readPrimaryApplicationQueue, readStaffQueue, updateStaffUser } from './admin.server'
 import type { listPartnerApplications, reviewPartner } from '@/features/partners/partner.server'
+import type { Catalog } from '@/features/university-management/university.server'
 
 type StaffList = Awaited<ReturnType<typeof listStaffUsers>>
 type StudentList = Awaited<ReturnType<typeof listStudentUsers>>
@@ -34,3 +35,9 @@ export const listPartnersFn = () => request<PartnerList>('partners')
 export const reviewPartnerFn = ({ data }: { data: unknown }) => request<ReviewedPartner>('reviewPartner', data)
 export const getAssignmentOptionsFn = () => request<AssignmentOptions>('assignmentOptions')
 export const assignStudentFn = ({ data }: { data: unknown }) => request<{ id: string; assignedPartnerCompanyId: string | null }>('assignStudent', data)
+export const listUniversityCatalogFn = () => request<Catalog>('universityCatalog')
+export const saveCountryFn = (data: unknown) => request('saveCountry', data)
+export const saveUniversityFn = (data: unknown) => request('saveUniversity', data)
+export const saveCourseFn = (data: unknown) => request('saveCourse', data)
+export const setCourseFeeFn = (data: unknown) => request('setCourseFee', data)
+export const deleteCatalogEntityFn = (data: unknown) => request('deleteCatalogEntity', data)

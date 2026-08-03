@@ -5,11 +5,17 @@ import { apiError } from '@/lib/api'
 import { listPartnerApplications, reviewPartner } from '@/features/partners/partner.server'
 import { partnerReviewSchema } from '@/features/partners/partner.schema'
 import { assignStudentSchema } from '@/features/workflow/workflow.schema'
+import { countrySchema, courseSchema, deleteSchema, feeSchema, universitySchema } from '@/features/university-management/university.schema'
+import { deleteEntity, listCatalog, saveCountry, saveCourse, saveUniversity, setCourseFee } from '@/features/university-management/university.server'
 
 export async function GET(request: Request) {
   try {
     const user = await requireUser()
     const action = new URL(request.url).searchParams.get('action')
+    if (action === 'universityCatalog') {
+      assertRole(user.role, ['SUPER_ADMIN'])
+      return Response.json(await listCatalog())
+    }
     if (action === 'listStaff') {
       assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN'])
       return Response.json(await listStaffUsers(user))
@@ -37,6 +43,11 @@ export async function POST(request: Request) {
     const user = await requireUser()
     const action = new URL(request.url).searchParams.get('action')
     const body = await request.json()
+    if (action === 'saveCountry') { assertRole(user.role, ['SUPER_ADMIN']); return Response.json(await saveCountry(user.id, countrySchema.parse(body))) }
+    if (action === 'saveUniversity') { assertRole(user.role, ['SUPER_ADMIN']); return Response.json(await saveUniversity(user.id, universitySchema.parse(body))) }
+    if (action === 'saveCourse') { assertRole(user.role, ['SUPER_ADMIN']); return Response.json(await saveCourse(user.id, courseSchema.parse(body))) }
+    if (action === 'setCourseFee') { assertRole(user.role, ['SUPER_ADMIN']); return Response.json(await setCourseFee(user.id, feeSchema.parse(body))) }
+    if (action === 'deleteCatalogEntity') { assertRole(user.role, ['SUPER_ADMIN']); const parsed = deleteSchema.parse(body); return Response.json(await deleteEntity(user.id, parsed.entity, parsed.id)) }
     if (action === 'createStaff') {
       assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN'])
       return Response.json(await createStaffUser(user, createStaffSchema.parse(body)))

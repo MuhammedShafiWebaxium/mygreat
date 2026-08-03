@@ -40,6 +40,7 @@ export type UniversityMinAggregateOutputType = {
   city: string | null
   countryId: string | null
   rank: number | null
+  website: string | null
   tuition: string | null
   acceptance: string | null
   knownFor: string | null
@@ -54,6 +55,7 @@ export type UniversityMaxAggregateOutputType = {
   city: string | null
   countryId: string | null
   rank: number | null
+  website: string | null
   tuition: string | null
   acceptance: string | null
   knownFor: string | null
@@ -68,6 +70,7 @@ export type UniversityCountAggregateOutputType = {
   city: number
   countryId: number
   rank: number
+  website: number
   tuition: number
   acceptance: number
   knownFor: number
@@ -92,6 +95,7 @@ export type UniversityMinAggregateInputType = {
   city?: true
   countryId?: true
   rank?: true
+  website?: true
   tuition?: true
   acceptance?: true
   knownFor?: true
@@ -106,6 +110,7 @@ export type UniversityMaxAggregateInputType = {
   city?: true
   countryId?: true
   rank?: true
+  website?: true
   tuition?: true
   acceptance?: true
   knownFor?: true
@@ -120,6 +125,7 @@ export type UniversityCountAggregateInputType = {
   city?: true
   countryId?: true
   rank?: true
+  website?: true
   tuition?: true
   acceptance?: true
   knownFor?: true
@@ -221,6 +227,7 @@ export type UniversityGroupByOutputType = {
   city: string
   countryId: string
   rank: number
+  website: string | null
   tuition: string
   acceptance: string
   knownFor: string
@@ -256,8 +263,9 @@ export type UniversityWhereInput = {
   id?: Prisma.StringFilter<"University"> | string
   name?: Prisma.StringFilter<"University"> | string
   city?: Prisma.StringFilter<"University"> | string
-  countryId?: Prisma.StringFilter<"University"> | string
+  countryId?: Prisma.UuidFilter<"University"> | string
   rank?: Prisma.IntFilter<"University"> | number
+  website?: Prisma.StringNullableFilter<"University"> | string | null
   tuition?: Prisma.StringFilter<"University"> | string
   acceptance?: Prisma.StringFilter<"University"> | string
   knownFor?: Prisma.StringFilter<"University"> | string
@@ -266,6 +274,9 @@ export type UniversityWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"University"> | Date | string
   shortlists?: Prisma.StudentShortlistListRelationFilter
   applications?: Prisma.ApplicationListRelationFilter
+  country?: Prisma.XOR<Prisma.CountryScalarRelationFilter, Prisma.CountryWhereInput>
+  courses?: Prisma.CourseListRelationFilter
+  rankings?: Prisma.UniversityRankingListRelationFilter
 }
 
 export type UniversityOrderByWithRelationInput = {
@@ -274,6 +285,7 @@ export type UniversityOrderByWithRelationInput = {
   city?: Prisma.SortOrder
   countryId?: Prisma.SortOrder
   rank?: Prisma.SortOrder
+  website?: Prisma.SortOrderInput | Prisma.SortOrder
   tuition?: Prisma.SortOrder
   acceptance?: Prisma.SortOrder
   knownFor?: Prisma.SortOrder
@@ -282,6 +294,9 @@ export type UniversityOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   shortlists?: Prisma.StudentShortlistOrderByRelationAggregateInput
   applications?: Prisma.ApplicationOrderByRelationAggregateInput
+  country?: Prisma.CountryOrderByWithRelationInput
+  courses?: Prisma.CourseOrderByRelationAggregateInput
+  rankings?: Prisma.UniversityRankingOrderByRelationAggregateInput
 }
 
 export type UniversityWhereUniqueInput = Prisma.AtLeast<{
@@ -291,8 +306,9 @@ export type UniversityWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.UniversityWhereInput | Prisma.UniversityWhereInput[]
   name?: Prisma.StringFilter<"University"> | string
   city?: Prisma.StringFilter<"University"> | string
-  countryId?: Prisma.StringFilter<"University"> | string
+  countryId?: Prisma.UuidFilter<"University"> | string
   rank?: Prisma.IntFilter<"University"> | number
+  website?: Prisma.StringNullableFilter<"University"> | string | null
   tuition?: Prisma.StringFilter<"University"> | string
   acceptance?: Prisma.StringFilter<"University"> | string
   knownFor?: Prisma.StringFilter<"University"> | string
@@ -301,6 +317,9 @@ export type UniversityWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"University"> | Date | string
   shortlists?: Prisma.StudentShortlistListRelationFilter
   applications?: Prisma.ApplicationListRelationFilter
+  country?: Prisma.XOR<Prisma.CountryScalarRelationFilter, Prisma.CountryWhereInput>
+  courses?: Prisma.CourseListRelationFilter
+  rankings?: Prisma.UniversityRankingListRelationFilter
 }, "id">
 
 export type UniversityOrderByWithAggregationInput = {
@@ -309,6 +328,7 @@ export type UniversityOrderByWithAggregationInput = {
   city?: Prisma.SortOrder
   countryId?: Prisma.SortOrder
   rank?: Prisma.SortOrder
+  website?: Prisma.SortOrderInput | Prisma.SortOrder
   tuition?: Prisma.SortOrder
   acceptance?: Prisma.SortOrder
   knownFor?: Prisma.SortOrder
@@ -329,8 +349,9 @@ export type UniversityScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"University"> | string
   name?: Prisma.StringWithAggregatesFilter<"University"> | string
   city?: Prisma.StringWithAggregatesFilter<"University"> | string
-  countryId?: Prisma.StringWithAggregatesFilter<"University"> | string
+  countryId?: Prisma.UuidWithAggregatesFilter<"University"> | string
   rank?: Prisma.IntWithAggregatesFilter<"University"> | number
+  website?: Prisma.StringNullableWithAggregatesFilter<"University"> | string | null
   tuition?: Prisma.StringWithAggregatesFilter<"University"> | string
   acceptance?: Prisma.StringWithAggregatesFilter<"University"> | string
   knownFor?: Prisma.StringWithAggregatesFilter<"University"> | string
@@ -340,11 +361,11 @@ export type UniversityScalarWhereWithAggregatesInput = {
 }
 
 export type UniversityCreateInput = {
-  id: string
+  id?: string
   name: string
   city: string
-  countryId: string
-  rank: number
+  rank?: number
+  website?: string | null
   tuition: string
   acceptance: string
   knownFor: string
@@ -353,14 +374,18 @@ export type UniversityCreateInput = {
   updatedAt?: Date | string
   shortlists?: Prisma.StudentShortlistCreateNestedManyWithoutUniversityInput
   applications?: Prisma.ApplicationCreateNestedManyWithoutUniversityInput
+  country: Prisma.CountryCreateNestedOneWithoutUniversitiesInput
+  courses?: Prisma.CourseCreateNestedManyWithoutUniversityInput
+  rankings?: Prisma.UniversityRankingCreateNestedManyWithoutUniversityInput
 }
 
 export type UniversityUncheckedCreateInput = {
-  id: string
+  id?: string
   name: string
   city: string
   countryId: string
-  rank: number
+  rank?: number
+  website?: string | null
   tuition: string
   acceptance: string
   knownFor: string
@@ -369,14 +394,16 @@ export type UniversityUncheckedCreateInput = {
   updatedAt?: Date | string
   shortlists?: Prisma.StudentShortlistUncheckedCreateNestedManyWithoutUniversityInput
   applications?: Prisma.ApplicationUncheckedCreateNestedManyWithoutUniversityInput
+  courses?: Prisma.CourseUncheckedCreateNestedManyWithoutUniversityInput
+  rankings?: Prisma.UniversityRankingUncheckedCreateNestedManyWithoutUniversityInput
 }
 
 export type UniversityUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
-  countryId?: Prisma.StringFieldUpdateOperationsInput | string
   rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tuition?: Prisma.StringFieldUpdateOperationsInput | string
   acceptance?: Prisma.StringFieldUpdateOperationsInput | string
   knownFor?: Prisma.StringFieldUpdateOperationsInput | string
@@ -385,6 +412,9 @@ export type UniversityUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shortlists?: Prisma.StudentShortlistUpdateManyWithoutUniversityNestedInput
   applications?: Prisma.ApplicationUpdateManyWithoutUniversityNestedInput
+  country?: Prisma.CountryUpdateOneRequiredWithoutUniversitiesNestedInput
+  courses?: Prisma.CourseUpdateManyWithoutUniversityNestedInput
+  rankings?: Prisma.UniversityRankingUpdateManyWithoutUniversityNestedInput
 }
 
 export type UniversityUncheckedUpdateInput = {
@@ -393,6 +423,7 @@ export type UniversityUncheckedUpdateInput = {
   city?: Prisma.StringFieldUpdateOperationsInput | string
   countryId?: Prisma.StringFieldUpdateOperationsInput | string
   rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tuition?: Prisma.StringFieldUpdateOperationsInput | string
   acceptance?: Prisma.StringFieldUpdateOperationsInput | string
   knownFor?: Prisma.StringFieldUpdateOperationsInput | string
@@ -401,14 +432,17 @@ export type UniversityUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shortlists?: Prisma.StudentShortlistUncheckedUpdateManyWithoutUniversityNestedInput
   applications?: Prisma.ApplicationUncheckedUpdateManyWithoutUniversityNestedInput
+  courses?: Prisma.CourseUncheckedUpdateManyWithoutUniversityNestedInput
+  rankings?: Prisma.UniversityRankingUncheckedUpdateManyWithoutUniversityNestedInput
 }
 
 export type UniversityCreateManyInput = {
-  id: string
+  id?: string
   name: string
   city: string
   countryId: string
-  rank: number
+  rank?: number
+  website?: string | null
   tuition: string
   acceptance: string
   knownFor: string
@@ -421,8 +455,8 @@ export type UniversityUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
-  countryId?: Prisma.StringFieldUpdateOperationsInput | string
   rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tuition?: Prisma.StringFieldUpdateOperationsInput | string
   acceptance?: Prisma.StringFieldUpdateOperationsInput | string
   knownFor?: Prisma.StringFieldUpdateOperationsInput | string
@@ -437,6 +471,7 @@ export type UniversityUncheckedUpdateManyInput = {
   city?: Prisma.StringFieldUpdateOperationsInput | string
   countryId?: Prisma.StringFieldUpdateOperationsInput | string
   rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tuition?: Prisma.StringFieldUpdateOperationsInput | string
   acceptance?: Prisma.StringFieldUpdateOperationsInput | string
   knownFor?: Prisma.StringFieldUpdateOperationsInput | string
@@ -451,6 +486,7 @@ export type UniversityCountOrderByAggregateInput = {
   city?: Prisma.SortOrder
   countryId?: Prisma.SortOrder
   rank?: Prisma.SortOrder
+  website?: Prisma.SortOrder
   tuition?: Prisma.SortOrder
   acceptance?: Prisma.SortOrder
   knownFor?: Prisma.SortOrder
@@ -469,6 +505,7 @@ export type UniversityMaxOrderByAggregateInput = {
   city?: Prisma.SortOrder
   countryId?: Prisma.SortOrder
   rank?: Prisma.SortOrder
+  website?: Prisma.SortOrder
   tuition?: Prisma.SortOrder
   acceptance?: Prisma.SortOrder
   knownFor?: Prisma.SortOrder
@@ -483,6 +520,7 @@ export type UniversityMinOrderByAggregateInput = {
   city?: Prisma.SortOrder
   countryId?: Prisma.SortOrder
   rank?: Prisma.SortOrder
+  website?: Prisma.SortOrder
   tuition?: Prisma.SortOrder
   acceptance?: Prisma.SortOrder
   knownFor?: Prisma.SortOrder
@@ -500,12 +538,92 @@ export type UniversityScalarRelationFilter = {
   isNot?: Prisma.UniversityWhereInput
 }
 
+export type UniversityListRelationFilter = {
+  every?: Prisma.UniversityWhereInput
+  some?: Prisma.UniversityWhereInput
+  none?: Prisma.UniversityWhereInput
+}
+
+export type UniversityOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type UniversityCreateNestedOneWithoutRankingsInput = {
+  create?: Prisma.XOR<Prisma.UniversityCreateWithoutRankingsInput, Prisma.UniversityUncheckedCreateWithoutRankingsInput>
+  connectOrCreate?: Prisma.UniversityCreateOrConnectWithoutRankingsInput
+  connect?: Prisma.UniversityWhereUniqueInput
+}
+
+export type UniversityUpdateOneRequiredWithoutRankingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UniversityCreateWithoutRankingsInput, Prisma.UniversityUncheckedCreateWithoutRankingsInput>
+  connectOrCreate?: Prisma.UniversityCreateOrConnectWithoutRankingsInput
+  upsert?: Prisma.UniversityUpsertWithoutRankingsInput
+  connect?: Prisma.UniversityWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UniversityUpdateToOneWithWhereWithoutRankingsInput, Prisma.UniversityUpdateWithoutRankingsInput>, Prisma.UniversityUncheckedUpdateWithoutRankingsInput>
+}
+
+export type UniversityCreateNestedManyWithoutCountryInput = {
+  create?: Prisma.XOR<Prisma.UniversityCreateWithoutCountryInput, Prisma.UniversityUncheckedCreateWithoutCountryInput> | Prisma.UniversityCreateWithoutCountryInput[] | Prisma.UniversityUncheckedCreateWithoutCountryInput[]
+  connectOrCreate?: Prisma.UniversityCreateOrConnectWithoutCountryInput | Prisma.UniversityCreateOrConnectWithoutCountryInput[]
+  createMany?: Prisma.UniversityCreateManyCountryInputEnvelope
+  connect?: Prisma.UniversityWhereUniqueInput | Prisma.UniversityWhereUniqueInput[]
+}
+
+export type UniversityUncheckedCreateNestedManyWithoutCountryInput = {
+  create?: Prisma.XOR<Prisma.UniversityCreateWithoutCountryInput, Prisma.UniversityUncheckedCreateWithoutCountryInput> | Prisma.UniversityCreateWithoutCountryInput[] | Prisma.UniversityUncheckedCreateWithoutCountryInput[]
+  connectOrCreate?: Prisma.UniversityCreateOrConnectWithoutCountryInput | Prisma.UniversityCreateOrConnectWithoutCountryInput[]
+  createMany?: Prisma.UniversityCreateManyCountryInputEnvelope
+  connect?: Prisma.UniversityWhereUniqueInput | Prisma.UniversityWhereUniqueInput[]
+}
+
+export type UniversityUpdateManyWithoutCountryNestedInput = {
+  create?: Prisma.XOR<Prisma.UniversityCreateWithoutCountryInput, Prisma.UniversityUncheckedCreateWithoutCountryInput> | Prisma.UniversityCreateWithoutCountryInput[] | Prisma.UniversityUncheckedCreateWithoutCountryInput[]
+  connectOrCreate?: Prisma.UniversityCreateOrConnectWithoutCountryInput | Prisma.UniversityCreateOrConnectWithoutCountryInput[]
+  upsert?: Prisma.UniversityUpsertWithWhereUniqueWithoutCountryInput | Prisma.UniversityUpsertWithWhereUniqueWithoutCountryInput[]
+  createMany?: Prisma.UniversityCreateManyCountryInputEnvelope
+  set?: Prisma.UniversityWhereUniqueInput | Prisma.UniversityWhereUniqueInput[]
+  disconnect?: Prisma.UniversityWhereUniqueInput | Prisma.UniversityWhereUniqueInput[]
+  delete?: Prisma.UniversityWhereUniqueInput | Prisma.UniversityWhereUniqueInput[]
+  connect?: Prisma.UniversityWhereUniqueInput | Prisma.UniversityWhereUniqueInput[]
+  update?: Prisma.UniversityUpdateWithWhereUniqueWithoutCountryInput | Prisma.UniversityUpdateWithWhereUniqueWithoutCountryInput[]
+  updateMany?: Prisma.UniversityUpdateManyWithWhereWithoutCountryInput | Prisma.UniversityUpdateManyWithWhereWithoutCountryInput[]
+  deleteMany?: Prisma.UniversityScalarWhereInput | Prisma.UniversityScalarWhereInput[]
+}
+
+export type UniversityUncheckedUpdateManyWithoutCountryNestedInput = {
+  create?: Prisma.XOR<Prisma.UniversityCreateWithoutCountryInput, Prisma.UniversityUncheckedCreateWithoutCountryInput> | Prisma.UniversityCreateWithoutCountryInput[] | Prisma.UniversityUncheckedCreateWithoutCountryInput[]
+  connectOrCreate?: Prisma.UniversityCreateOrConnectWithoutCountryInput | Prisma.UniversityCreateOrConnectWithoutCountryInput[]
+  upsert?: Prisma.UniversityUpsertWithWhereUniqueWithoutCountryInput | Prisma.UniversityUpsertWithWhereUniqueWithoutCountryInput[]
+  createMany?: Prisma.UniversityCreateManyCountryInputEnvelope
+  set?: Prisma.UniversityWhereUniqueInput | Prisma.UniversityWhereUniqueInput[]
+  disconnect?: Prisma.UniversityWhereUniqueInput | Prisma.UniversityWhereUniqueInput[]
+  delete?: Prisma.UniversityWhereUniqueInput | Prisma.UniversityWhereUniqueInput[]
+  connect?: Prisma.UniversityWhereUniqueInput | Prisma.UniversityWhereUniqueInput[]
+  update?: Prisma.UniversityUpdateWithWhereUniqueWithoutCountryInput | Prisma.UniversityUpdateWithWhereUniqueWithoutCountryInput[]
+  updateMany?: Prisma.UniversityUpdateManyWithWhereWithoutCountryInput | Prisma.UniversityUpdateManyWithWhereWithoutCountryInput[]
+  deleteMany?: Prisma.UniversityScalarWhereInput | Prisma.UniversityScalarWhereInput[]
+}
+
+export type UniversityCreateNestedOneWithoutCoursesInput = {
+  create?: Prisma.XOR<Prisma.UniversityCreateWithoutCoursesInput, Prisma.UniversityUncheckedCreateWithoutCoursesInput>
+  connectOrCreate?: Prisma.UniversityCreateOrConnectWithoutCoursesInput
+  connect?: Prisma.UniversityWhereUniqueInput
+}
+
+export type UniversityUpdateOneRequiredWithoutCoursesNestedInput = {
+  create?: Prisma.XOR<Prisma.UniversityCreateWithoutCoursesInput, Prisma.UniversityUncheckedCreateWithoutCoursesInput>
+  connectOrCreate?: Prisma.UniversityCreateOrConnectWithoutCoursesInput
+  upsert?: Prisma.UniversityUpsertWithoutCoursesInput
+  connect?: Prisma.UniversityWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UniversityUpdateToOneWithWhereWithoutCoursesInput, Prisma.UniversityUpdateWithoutCoursesInput>, Prisma.UniversityUncheckedUpdateWithoutCoursesInput>
 }
 
 export type UniversityCreateNestedOneWithoutShortlistsInput = {
@@ -536,12 +654,268 @@ export type UniversityUpdateOneRequiredWithoutApplicationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UniversityUpdateToOneWithWhereWithoutApplicationsInput, Prisma.UniversityUpdateWithoutApplicationsInput>, Prisma.UniversityUncheckedUpdateWithoutApplicationsInput>
 }
 
-export type UniversityCreateWithoutShortlistsInput = {
-  id: string
+export type UniversityCreateWithoutRankingsInput = {
+  id?: string
+  name: string
+  city: string
+  rank?: number
+  website?: string | null
+  tuition: string
+  acceptance: string
+  knownFor: string
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shortlists?: Prisma.StudentShortlistCreateNestedManyWithoutUniversityInput
+  applications?: Prisma.ApplicationCreateNestedManyWithoutUniversityInput
+  country: Prisma.CountryCreateNestedOneWithoutUniversitiesInput
+  courses?: Prisma.CourseCreateNestedManyWithoutUniversityInput
+}
+
+export type UniversityUncheckedCreateWithoutRankingsInput = {
+  id?: string
   name: string
   city: string
   countryId: string
-  rank: number
+  rank?: number
+  website?: string | null
+  tuition: string
+  acceptance: string
+  knownFor: string
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shortlists?: Prisma.StudentShortlistUncheckedCreateNestedManyWithoutUniversityInput
+  applications?: Prisma.ApplicationUncheckedCreateNestedManyWithoutUniversityInput
+  courses?: Prisma.CourseUncheckedCreateNestedManyWithoutUniversityInput
+}
+
+export type UniversityCreateOrConnectWithoutRankingsInput = {
+  where: Prisma.UniversityWhereUniqueInput
+  create: Prisma.XOR<Prisma.UniversityCreateWithoutRankingsInput, Prisma.UniversityUncheckedCreateWithoutRankingsInput>
+}
+
+export type UniversityUpsertWithoutRankingsInput = {
+  update: Prisma.XOR<Prisma.UniversityUpdateWithoutRankingsInput, Prisma.UniversityUncheckedUpdateWithoutRankingsInput>
+  create: Prisma.XOR<Prisma.UniversityCreateWithoutRankingsInput, Prisma.UniversityUncheckedCreateWithoutRankingsInput>
+  where?: Prisma.UniversityWhereInput
+}
+
+export type UniversityUpdateToOneWithWhereWithoutRankingsInput = {
+  where?: Prisma.UniversityWhereInput
+  data: Prisma.XOR<Prisma.UniversityUpdateWithoutRankingsInput, Prisma.UniversityUncheckedUpdateWithoutRankingsInput>
+}
+
+export type UniversityUpdateWithoutRankingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tuition?: Prisma.StringFieldUpdateOperationsInput | string
+  acceptance?: Prisma.StringFieldUpdateOperationsInput | string
+  knownFor?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shortlists?: Prisma.StudentShortlistUpdateManyWithoutUniversityNestedInput
+  applications?: Prisma.ApplicationUpdateManyWithoutUniversityNestedInput
+  country?: Prisma.CountryUpdateOneRequiredWithoutUniversitiesNestedInput
+  courses?: Prisma.CourseUpdateManyWithoutUniversityNestedInput
+}
+
+export type UniversityUncheckedUpdateWithoutRankingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  countryId?: Prisma.StringFieldUpdateOperationsInput | string
+  rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tuition?: Prisma.StringFieldUpdateOperationsInput | string
+  acceptance?: Prisma.StringFieldUpdateOperationsInput | string
+  knownFor?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shortlists?: Prisma.StudentShortlistUncheckedUpdateManyWithoutUniversityNestedInput
+  applications?: Prisma.ApplicationUncheckedUpdateManyWithoutUniversityNestedInput
+  courses?: Prisma.CourseUncheckedUpdateManyWithoutUniversityNestedInput
+}
+
+export type UniversityCreateWithoutCountryInput = {
+  id?: string
+  name: string
+  city: string
+  rank?: number
+  website?: string | null
+  tuition: string
+  acceptance: string
+  knownFor: string
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shortlists?: Prisma.StudentShortlistCreateNestedManyWithoutUniversityInput
+  applications?: Prisma.ApplicationCreateNestedManyWithoutUniversityInput
+  courses?: Prisma.CourseCreateNestedManyWithoutUniversityInput
+  rankings?: Prisma.UniversityRankingCreateNestedManyWithoutUniversityInput
+}
+
+export type UniversityUncheckedCreateWithoutCountryInput = {
+  id?: string
+  name: string
+  city: string
+  rank?: number
+  website?: string | null
+  tuition: string
+  acceptance: string
+  knownFor: string
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shortlists?: Prisma.StudentShortlistUncheckedCreateNestedManyWithoutUniversityInput
+  applications?: Prisma.ApplicationUncheckedCreateNestedManyWithoutUniversityInput
+  courses?: Prisma.CourseUncheckedCreateNestedManyWithoutUniversityInput
+  rankings?: Prisma.UniversityRankingUncheckedCreateNestedManyWithoutUniversityInput
+}
+
+export type UniversityCreateOrConnectWithoutCountryInput = {
+  where: Prisma.UniversityWhereUniqueInput
+  create: Prisma.XOR<Prisma.UniversityCreateWithoutCountryInput, Prisma.UniversityUncheckedCreateWithoutCountryInput>
+}
+
+export type UniversityCreateManyCountryInputEnvelope = {
+  data: Prisma.UniversityCreateManyCountryInput | Prisma.UniversityCreateManyCountryInput[]
+  skipDuplicates?: boolean
+}
+
+export type UniversityUpsertWithWhereUniqueWithoutCountryInput = {
+  where: Prisma.UniversityWhereUniqueInput
+  update: Prisma.XOR<Prisma.UniversityUpdateWithoutCountryInput, Prisma.UniversityUncheckedUpdateWithoutCountryInput>
+  create: Prisma.XOR<Prisma.UniversityCreateWithoutCountryInput, Prisma.UniversityUncheckedCreateWithoutCountryInput>
+}
+
+export type UniversityUpdateWithWhereUniqueWithoutCountryInput = {
+  where: Prisma.UniversityWhereUniqueInput
+  data: Prisma.XOR<Prisma.UniversityUpdateWithoutCountryInput, Prisma.UniversityUncheckedUpdateWithoutCountryInput>
+}
+
+export type UniversityUpdateManyWithWhereWithoutCountryInput = {
+  where: Prisma.UniversityScalarWhereInput
+  data: Prisma.XOR<Prisma.UniversityUpdateManyMutationInput, Prisma.UniversityUncheckedUpdateManyWithoutCountryInput>
+}
+
+export type UniversityScalarWhereInput = {
+  AND?: Prisma.UniversityScalarWhereInput | Prisma.UniversityScalarWhereInput[]
+  OR?: Prisma.UniversityScalarWhereInput[]
+  NOT?: Prisma.UniversityScalarWhereInput | Prisma.UniversityScalarWhereInput[]
+  id?: Prisma.StringFilter<"University"> | string
+  name?: Prisma.StringFilter<"University"> | string
+  city?: Prisma.StringFilter<"University"> | string
+  countryId?: Prisma.UuidFilter<"University"> | string
+  rank?: Prisma.IntFilter<"University"> | number
+  website?: Prisma.StringNullableFilter<"University"> | string | null
+  tuition?: Prisma.StringFilter<"University"> | string
+  acceptance?: Prisma.StringFilter<"University"> | string
+  knownFor?: Prisma.StringFilter<"University"> | string
+  active?: Prisma.BoolFilter<"University"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"University"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"University"> | Date | string
+}
+
+export type UniversityCreateWithoutCoursesInput = {
+  id?: string
+  name: string
+  city: string
+  rank?: number
+  website?: string | null
+  tuition: string
+  acceptance: string
+  knownFor: string
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shortlists?: Prisma.StudentShortlistCreateNestedManyWithoutUniversityInput
+  applications?: Prisma.ApplicationCreateNestedManyWithoutUniversityInput
+  country: Prisma.CountryCreateNestedOneWithoutUniversitiesInput
+  rankings?: Prisma.UniversityRankingCreateNestedManyWithoutUniversityInput
+}
+
+export type UniversityUncheckedCreateWithoutCoursesInput = {
+  id?: string
+  name: string
+  city: string
+  countryId: string
+  rank?: number
+  website?: string | null
+  tuition: string
+  acceptance: string
+  knownFor: string
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shortlists?: Prisma.StudentShortlistUncheckedCreateNestedManyWithoutUniversityInput
+  applications?: Prisma.ApplicationUncheckedCreateNestedManyWithoutUniversityInput
+  rankings?: Prisma.UniversityRankingUncheckedCreateNestedManyWithoutUniversityInput
+}
+
+export type UniversityCreateOrConnectWithoutCoursesInput = {
+  where: Prisma.UniversityWhereUniqueInput
+  create: Prisma.XOR<Prisma.UniversityCreateWithoutCoursesInput, Prisma.UniversityUncheckedCreateWithoutCoursesInput>
+}
+
+export type UniversityUpsertWithoutCoursesInput = {
+  update: Prisma.XOR<Prisma.UniversityUpdateWithoutCoursesInput, Prisma.UniversityUncheckedUpdateWithoutCoursesInput>
+  create: Prisma.XOR<Prisma.UniversityCreateWithoutCoursesInput, Prisma.UniversityUncheckedCreateWithoutCoursesInput>
+  where?: Prisma.UniversityWhereInput
+}
+
+export type UniversityUpdateToOneWithWhereWithoutCoursesInput = {
+  where?: Prisma.UniversityWhereInput
+  data: Prisma.XOR<Prisma.UniversityUpdateWithoutCoursesInput, Prisma.UniversityUncheckedUpdateWithoutCoursesInput>
+}
+
+export type UniversityUpdateWithoutCoursesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tuition?: Prisma.StringFieldUpdateOperationsInput | string
+  acceptance?: Prisma.StringFieldUpdateOperationsInput | string
+  knownFor?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shortlists?: Prisma.StudentShortlistUpdateManyWithoutUniversityNestedInput
+  applications?: Prisma.ApplicationUpdateManyWithoutUniversityNestedInput
+  country?: Prisma.CountryUpdateOneRequiredWithoutUniversitiesNestedInput
+  rankings?: Prisma.UniversityRankingUpdateManyWithoutUniversityNestedInput
+}
+
+export type UniversityUncheckedUpdateWithoutCoursesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  countryId?: Prisma.StringFieldUpdateOperationsInput | string
+  rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tuition?: Prisma.StringFieldUpdateOperationsInput | string
+  acceptance?: Prisma.StringFieldUpdateOperationsInput | string
+  knownFor?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shortlists?: Prisma.StudentShortlistUncheckedUpdateManyWithoutUniversityNestedInput
+  applications?: Prisma.ApplicationUncheckedUpdateManyWithoutUniversityNestedInput
+  rankings?: Prisma.UniversityRankingUncheckedUpdateManyWithoutUniversityNestedInput
+}
+
+export type UniversityCreateWithoutShortlistsInput = {
+  id?: string
+  name: string
+  city: string
+  rank?: number
+  website?: string | null
   tuition: string
   acceptance: string
   knownFor: string
@@ -549,14 +923,18 @@ export type UniversityCreateWithoutShortlistsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   applications?: Prisma.ApplicationCreateNestedManyWithoutUniversityInput
+  country: Prisma.CountryCreateNestedOneWithoutUniversitiesInput
+  courses?: Prisma.CourseCreateNestedManyWithoutUniversityInput
+  rankings?: Prisma.UniversityRankingCreateNestedManyWithoutUniversityInput
 }
 
 export type UniversityUncheckedCreateWithoutShortlistsInput = {
-  id: string
+  id?: string
   name: string
   city: string
   countryId: string
-  rank: number
+  rank?: number
+  website?: string | null
   tuition: string
   acceptance: string
   knownFor: string
@@ -564,6 +942,8 @@ export type UniversityUncheckedCreateWithoutShortlistsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   applications?: Prisma.ApplicationUncheckedCreateNestedManyWithoutUniversityInput
+  courses?: Prisma.CourseUncheckedCreateNestedManyWithoutUniversityInput
+  rankings?: Prisma.UniversityRankingUncheckedCreateNestedManyWithoutUniversityInput
 }
 
 export type UniversityCreateOrConnectWithoutShortlistsInput = {
@@ -586,8 +966,8 @@ export type UniversityUpdateWithoutShortlistsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
-  countryId?: Prisma.StringFieldUpdateOperationsInput | string
   rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tuition?: Prisma.StringFieldUpdateOperationsInput | string
   acceptance?: Prisma.StringFieldUpdateOperationsInput | string
   knownFor?: Prisma.StringFieldUpdateOperationsInput | string
@@ -595,6 +975,9 @@ export type UniversityUpdateWithoutShortlistsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applications?: Prisma.ApplicationUpdateManyWithoutUniversityNestedInput
+  country?: Prisma.CountryUpdateOneRequiredWithoutUniversitiesNestedInput
+  courses?: Prisma.CourseUpdateManyWithoutUniversityNestedInput
+  rankings?: Prisma.UniversityRankingUpdateManyWithoutUniversityNestedInput
 }
 
 export type UniversityUncheckedUpdateWithoutShortlistsInput = {
@@ -603,6 +986,7 @@ export type UniversityUncheckedUpdateWithoutShortlistsInput = {
   city?: Prisma.StringFieldUpdateOperationsInput | string
   countryId?: Prisma.StringFieldUpdateOperationsInput | string
   rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tuition?: Prisma.StringFieldUpdateOperationsInput | string
   acceptance?: Prisma.StringFieldUpdateOperationsInput | string
   knownFor?: Prisma.StringFieldUpdateOperationsInput | string
@@ -610,14 +994,16 @@ export type UniversityUncheckedUpdateWithoutShortlistsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applications?: Prisma.ApplicationUncheckedUpdateManyWithoutUniversityNestedInput
+  courses?: Prisma.CourseUncheckedUpdateManyWithoutUniversityNestedInput
+  rankings?: Prisma.UniversityRankingUncheckedUpdateManyWithoutUniversityNestedInput
 }
 
 export type UniversityCreateWithoutApplicationsInput = {
-  id: string
+  id?: string
   name: string
   city: string
-  countryId: string
-  rank: number
+  rank?: number
+  website?: string | null
   tuition: string
   acceptance: string
   knownFor: string
@@ -625,14 +1011,18 @@ export type UniversityCreateWithoutApplicationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   shortlists?: Prisma.StudentShortlistCreateNestedManyWithoutUniversityInput
+  country: Prisma.CountryCreateNestedOneWithoutUniversitiesInput
+  courses?: Prisma.CourseCreateNestedManyWithoutUniversityInput
+  rankings?: Prisma.UniversityRankingCreateNestedManyWithoutUniversityInput
 }
 
 export type UniversityUncheckedCreateWithoutApplicationsInput = {
-  id: string
+  id?: string
   name: string
   city: string
   countryId: string
-  rank: number
+  rank?: number
+  website?: string | null
   tuition: string
   acceptance: string
   knownFor: string
@@ -640,6 +1030,8 @@ export type UniversityUncheckedCreateWithoutApplicationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   shortlists?: Prisma.StudentShortlistUncheckedCreateNestedManyWithoutUniversityInput
+  courses?: Prisma.CourseUncheckedCreateNestedManyWithoutUniversityInput
+  rankings?: Prisma.UniversityRankingUncheckedCreateNestedManyWithoutUniversityInput
 }
 
 export type UniversityCreateOrConnectWithoutApplicationsInput = {
@@ -662,8 +1054,8 @@ export type UniversityUpdateWithoutApplicationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   city?: Prisma.StringFieldUpdateOperationsInput | string
-  countryId?: Prisma.StringFieldUpdateOperationsInput | string
   rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tuition?: Prisma.StringFieldUpdateOperationsInput | string
   acceptance?: Prisma.StringFieldUpdateOperationsInput | string
   knownFor?: Prisma.StringFieldUpdateOperationsInput | string
@@ -671,6 +1063,9 @@ export type UniversityUpdateWithoutApplicationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shortlists?: Prisma.StudentShortlistUpdateManyWithoutUniversityNestedInput
+  country?: Prisma.CountryUpdateOneRequiredWithoutUniversitiesNestedInput
+  courses?: Prisma.CourseUpdateManyWithoutUniversityNestedInput
+  rankings?: Prisma.UniversityRankingUpdateManyWithoutUniversityNestedInput
 }
 
 export type UniversityUncheckedUpdateWithoutApplicationsInput = {
@@ -679,6 +1074,7 @@ export type UniversityUncheckedUpdateWithoutApplicationsInput = {
   city?: Prisma.StringFieldUpdateOperationsInput | string
   countryId?: Prisma.StringFieldUpdateOperationsInput | string
   rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tuition?: Prisma.StringFieldUpdateOperationsInput | string
   acceptance?: Prisma.StringFieldUpdateOperationsInput | string
   knownFor?: Prisma.StringFieldUpdateOperationsInput | string
@@ -686,6 +1082,72 @@ export type UniversityUncheckedUpdateWithoutApplicationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shortlists?: Prisma.StudentShortlistUncheckedUpdateManyWithoutUniversityNestedInput
+  courses?: Prisma.CourseUncheckedUpdateManyWithoutUniversityNestedInput
+  rankings?: Prisma.UniversityRankingUncheckedUpdateManyWithoutUniversityNestedInput
+}
+
+export type UniversityCreateManyCountryInput = {
+  id?: string
+  name: string
+  city: string
+  rank?: number
+  website?: string | null
+  tuition: string
+  acceptance: string
+  knownFor: string
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type UniversityUpdateWithoutCountryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tuition?: Prisma.StringFieldUpdateOperationsInput | string
+  acceptance?: Prisma.StringFieldUpdateOperationsInput | string
+  knownFor?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shortlists?: Prisma.StudentShortlistUpdateManyWithoutUniversityNestedInput
+  applications?: Prisma.ApplicationUpdateManyWithoutUniversityNestedInput
+  courses?: Prisma.CourseUpdateManyWithoutUniversityNestedInput
+  rankings?: Prisma.UniversityRankingUpdateManyWithoutUniversityNestedInput
+}
+
+export type UniversityUncheckedUpdateWithoutCountryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tuition?: Prisma.StringFieldUpdateOperationsInput | string
+  acceptance?: Prisma.StringFieldUpdateOperationsInput | string
+  knownFor?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shortlists?: Prisma.StudentShortlistUncheckedUpdateManyWithoutUniversityNestedInput
+  applications?: Prisma.ApplicationUncheckedUpdateManyWithoutUniversityNestedInput
+  courses?: Prisma.CourseUncheckedUpdateManyWithoutUniversityNestedInput
+  rankings?: Prisma.UniversityRankingUncheckedUpdateManyWithoutUniversityNestedInput
+}
+
+export type UniversityUncheckedUpdateManyWithoutCountryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  rank?: Prisma.IntFieldUpdateOperationsInput | number
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tuition?: Prisma.StringFieldUpdateOperationsInput | string
+  acceptance?: Prisma.StringFieldUpdateOperationsInput | string
+  knownFor?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -696,11 +1158,15 @@ export type UniversityUncheckedUpdateWithoutApplicationsInput = {
 export type UniversityCountOutputType = {
   shortlists: number
   applications: number
+  courses: number
+  rankings: number
 }
 
 export type UniversityCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shortlists?: boolean | UniversityCountOutputTypeCountShortlistsArgs
   applications?: boolean | UniversityCountOutputTypeCountApplicationsArgs
+  courses?: boolean | UniversityCountOutputTypeCountCoursesArgs
+  rankings?: boolean | UniversityCountOutputTypeCountRankingsArgs
 }
 
 /**
@@ -727,6 +1193,20 @@ export type UniversityCountOutputTypeCountApplicationsArgs<ExtArgs extends runti
   where?: Prisma.ApplicationWhereInput
 }
 
+/**
+ * UniversityCountOutputType without action
+ */
+export type UniversityCountOutputTypeCountCoursesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CourseWhereInput
+}
+
+/**
+ * UniversityCountOutputType without action
+ */
+export type UniversityCountOutputTypeCountRankingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UniversityRankingWhereInput
+}
+
 
 export type UniversitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -734,6 +1214,7 @@ export type UniversitySelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   city?: boolean
   countryId?: boolean
   rank?: boolean
+  website?: boolean
   tuition?: boolean
   acceptance?: boolean
   knownFor?: boolean
@@ -742,6 +1223,9 @@ export type UniversitySelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   updatedAt?: boolean
   shortlists?: boolean | Prisma.University$shortlistsArgs<ExtArgs>
   applications?: boolean | Prisma.University$applicationsArgs<ExtArgs>
+  country?: boolean | Prisma.CountryDefaultArgs<ExtArgs>
+  courses?: boolean | Prisma.University$coursesArgs<ExtArgs>
+  rankings?: boolean | Prisma.University$rankingsArgs<ExtArgs>
   _count?: boolean | Prisma.UniversityCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["university"]>
 
@@ -751,12 +1235,14 @@ export type UniversitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   city?: boolean
   countryId?: boolean
   rank?: boolean
+  website?: boolean
   tuition?: boolean
   acceptance?: boolean
   knownFor?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  country?: boolean | Prisma.CountryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["university"]>
 
 export type UniversitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -765,12 +1251,14 @@ export type UniversitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   city?: boolean
   countryId?: boolean
   rank?: boolean
+  website?: boolean
   tuition?: boolean
   acceptance?: boolean
   knownFor?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  country?: boolean | Prisma.CountryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["university"]>
 
 export type UniversitySelectScalar = {
@@ -779,6 +1267,7 @@ export type UniversitySelectScalar = {
   city?: boolean
   countryId?: boolean
   rank?: boolean
+  website?: boolean
   tuition?: boolean
   acceptance?: boolean
   knownFor?: boolean
@@ -787,20 +1276,30 @@ export type UniversitySelectScalar = {
   updatedAt?: boolean
 }
 
-export type UniversityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "city" | "countryId" | "rank" | "tuition" | "acceptance" | "knownFor" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["university"]>
+export type UniversityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "city" | "countryId" | "rank" | "website" | "tuition" | "acceptance" | "knownFor" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["university"]>
 export type UniversityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shortlists?: boolean | Prisma.University$shortlistsArgs<ExtArgs>
   applications?: boolean | Prisma.University$applicationsArgs<ExtArgs>
+  country?: boolean | Prisma.CountryDefaultArgs<ExtArgs>
+  courses?: boolean | Prisma.University$coursesArgs<ExtArgs>
+  rankings?: boolean | Prisma.University$rankingsArgs<ExtArgs>
   _count?: boolean | Prisma.UniversityCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type UniversityIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type UniversityIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type UniversityIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  country?: boolean | Prisma.CountryDefaultArgs<ExtArgs>
+}
+export type UniversityIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  country?: boolean | Prisma.CountryDefaultArgs<ExtArgs>
+}
 
 export type $UniversityPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "University"
   objects: {
     shortlists: Prisma.$StudentShortlistPayload<ExtArgs>[]
     applications: Prisma.$ApplicationPayload<ExtArgs>[]
+    country: Prisma.$CountryPayload<ExtArgs>
+    courses: Prisma.$CoursePayload<ExtArgs>[]
+    rankings: Prisma.$UniversityRankingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -808,6 +1307,7 @@ export type $UniversityPayload<ExtArgs extends runtime.Types.Extensions.Internal
     city: string
     countryId: string
     rank: number
+    website: string | null
     tuition: string
     acceptance: string
     knownFor: string
@@ -1210,6 +1710,9 @@ export interface Prisma__UniversityClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   shortlists<T extends Prisma.University$shortlistsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.University$shortlistsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StudentShortlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   applications<T extends Prisma.University$applicationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.University$applicationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  country<T extends Prisma.CountryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CountryDefaultArgs<ExtArgs>>): Prisma.Prisma__CountryClient<runtime.Types.Result.GetResult<Prisma.$CountryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  courses<T extends Prisma.University$coursesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.University$coursesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CoursePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  rankings<T extends Prisma.University$rankingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.University$rankingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UniversityRankingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1244,6 +1747,7 @@ export interface UniversityFieldRefs {
   readonly city: Prisma.FieldRef<"University", 'String'>
   readonly countryId: Prisma.FieldRef<"University", 'String'>
   readonly rank: Prisma.FieldRef<"University", 'Int'>
+  readonly website: Prisma.FieldRef<"University", 'String'>
   readonly tuition: Prisma.FieldRef<"University", 'String'>
   readonly acceptance: Prisma.FieldRef<"University", 'String'>
   readonly knownFor: Prisma.FieldRef<"University", 'String'>
@@ -1504,6 +2008,10 @@ export type UniversityCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    */
   data: Prisma.UniversityCreateManyInput | Prisma.UniversityCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UniversityIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1574,6 +2082,10 @@ export type UniversityUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * Limit how many Universities to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UniversityIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1688,6 +2200,54 @@ export type University$applicationsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.ApplicationScalarFieldEnum | Prisma.ApplicationScalarFieldEnum[]
+}
+
+/**
+ * University.courses
+ */
+export type University$coursesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Course
+   */
+  select?: Prisma.CourseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Course
+   */
+  omit?: Prisma.CourseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CourseInclude<ExtArgs> | null
+  where?: Prisma.CourseWhereInput
+  orderBy?: Prisma.CourseOrderByWithRelationInput | Prisma.CourseOrderByWithRelationInput[]
+  cursor?: Prisma.CourseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CourseScalarFieldEnum | Prisma.CourseScalarFieldEnum[]
+}
+
+/**
+ * University.rankings
+ */
+export type University$rankingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UniversityRanking
+   */
+  select?: Prisma.UniversityRankingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UniversityRanking
+   */
+  omit?: Prisma.UniversityRankingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UniversityRankingInclude<ExtArgs> | null
+  where?: Prisma.UniversityRankingWhereInput
+  orderBy?: Prisma.UniversityRankingOrderByWithRelationInput | Prisma.UniversityRankingOrderByWithRelationInput[]
+  cursor?: Prisma.UniversityRankingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UniversityRankingScalarFieldEnum | Prisma.UniversityRankingScalarFieldEnum[]
 }
 
 /**

@@ -60,6 +60,10 @@ export const ModelName = {
   AdminSession: 'AdminSession',
   StudentProfile: 'StudentProfile',
   University: 'University',
+  UniversityRanking: 'UniversityRanking',
+  Country: 'Country',
+  Course: 'Course',
+  CourseFee: 'CourseFee',
   StudentShortlist: 'StudentShortlist',
   Application: 'Application',
   Task: 'Task',
@@ -219,6 +223,7 @@ export const UniversityScalarFieldEnum = {
   city: 'city',
   countryId: 'countryId',
   rank: 'rank',
+  website: 'website',
   tuition: 'tuition',
   acceptance: 'acceptance',
   knownFor: 'knownFor',
@@ -228,6 +233,79 @@ export const UniversityScalarFieldEnum = {
 } as const
 
 export type UniversityScalarFieldEnum = (typeof UniversityScalarFieldEnum)[keyof typeof UniversityScalarFieldEnum]
+
+
+export const UniversityRankingScalarFieldEnum = {
+  id: 'id',
+  universityId: 'universityId',
+  name: 'name',
+  value: 'value',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UniversityRankingScalarFieldEnum = (typeof UniversityRankingScalarFieldEnum)[keyof typeof UniversityRankingScalarFieldEnum]
+
+
+export const CountryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  currencyCode: 'currencyCode',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CountryScalarFieldEnum = (typeof CountryScalarFieldEnum)[keyof typeof CountryScalarFieldEnum]
+
+
+export const CourseScalarFieldEnum = {
+  id: 'id',
+  universityId: 'universityId',
+  name: 'name',
+  code: 'code',
+  level: 'level',
+  durationMonths: 'durationMonths',
+  campus: 'campus',
+  intakeMonth: 'intakeMonth',
+  intakeYear: 'intakeYear',
+  tuitionFee: 'tuitionFee',
+  ranking: 'ranking',
+  ielts: 'ielts',
+  ieltsMin: 'ieltsMin',
+  toefl: 'toefl',
+  toeflMin: 'toeflMin',
+  pte: 'pte',
+  pteMin: 'pteMin',
+  applicationDeadline: 'applicationDeadline',
+  scholarshipAvailable: 'scholarshipAvailable',
+  requirements: 'requirements',
+  backlogRange: 'backlogRange',
+  remarks: 'remarks',
+  applicationMode: 'applicationMode',
+  englishProficiency: 'englishProficiency',
+  entryRequirements: 'entryRequirements',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CourseScalarFieldEnum = (typeof CourseScalarFieldEnum)[keyof typeof CourseScalarFieldEnum]
+
+
+export const CourseFeeScalarFieldEnum = {
+  id: 'id',
+  courseId: 'courseId',
+  amount: 'amount',
+  currencyCode: 'currencyCode',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type CourseFeeScalarFieldEnum = (typeof CourseFeeScalarFieldEnum)[keyof typeof CourseFeeScalarFieldEnum]
 
 
 export const StudentShortlistScalarFieldEnum = {
@@ -244,6 +322,10 @@ export const ApplicationScalarFieldEnum = {
   studentId: 'studentId',
   universityId: 'universityId',
   program: 'program',
+  courseId: 'courseId',
+  quotedFeeAmount: 'quotedFeeAmount',
+  quotedFeeCurrency: 'quotedFeeCurrency',
+  feeQuotedAt: 'feeQuotedAt',
   status: 'status',
   visaStatus: 'visaStatus',
   progress: 'progress',

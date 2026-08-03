@@ -25,6 +25,7 @@ import { Route as StaffApplicationsRouteImport } from './routes/staff.applicatio
 import { Route as StaffPartnersRouteImport } from './routes/staff.partners'
 import { Route as StaffStudentsRouteImport } from './routes/staff.students'
 import { Route as StaffTeamRouteImport } from './routes/staff.team'
+import { Route as StaffUniversitiesRouteImport } from './routes/staff.universities'
 import { Route as StaffVisasRouteImport } from './routes/staff.visas'
 import { Route as ApiAuthAccountRouteImport } from './routes/api.auth.account'
 import { Route as ApiAuthLoginRouteImport } from './routes/api.auth.login'
@@ -115,6 +116,11 @@ const StaffTeamRoute = StaffTeamRouteImport.update({
   path: '/team',
   getParentRoute: () => StaffRoute,
 } as any)
+const StaffUniversitiesRoute = StaffUniversitiesRouteImport.update({
+  id: '/universities',
+  path: '/universities',
+  getParentRoute: () => StaffRoute,
+} as any)
 const StaffVisasRoute = StaffVisasRouteImport.update({
   id: '/visas',
   path: '/visas',
@@ -178,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/staff/partners': typeof StaffPartnersRouteWithChildren
   '/staff/students': typeof StaffStudentsRouteWithChildren
   '/staff/team': typeof StaffTeamRoute
+  '/staff/universities': typeof StaffUniversitiesRoute
   '/staff/visas': typeof StaffVisasRoute
   '/staff/': typeof StaffIndexRoute
   '/api/auth/account': typeof ApiAuthAccountRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/staff/partners': typeof StaffPartnersRouteWithChildren
   '/staff/students': typeof StaffStudentsRouteWithChildren
   '/staff/team': typeof StaffTeamRoute
+  '/staff/universities': typeof StaffUniversitiesRoute
   '/staff/visas': typeof StaffVisasRoute
   '/staff': typeof StaffIndexRoute
   '/api/auth/account': typeof ApiAuthAccountRoute
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/staff/partners': typeof StaffPartnersRouteWithChildren
   '/staff/students': typeof StaffStudentsRouteWithChildren
   '/staff/team': typeof StaffTeamRoute
+  '/staff/universities': typeof StaffUniversitiesRoute
   '/staff/visas': typeof StaffVisasRoute
   '/staff/': typeof StaffIndexRoute
   '/api/auth/account': typeof ApiAuthAccountRoute
@@ -261,6 +270,7 @@ export interface FileRouteTypes {
     | '/staff/partners'
     | '/staff/students'
     | '/staff/team'
+    | '/staff/universities'
     | '/staff/visas'
     | '/staff/'
     | '/api/auth/account'
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/staff/partners'
     | '/staff/students'
     | '/staff/team'
+    | '/staff/universities'
     | '/staff/visas'
     | '/staff'
     | '/api/auth/account'
@@ -314,6 +325,7 @@ export interface FileRouteTypes {
     | '/staff/partners'
     | '/staff/students'
     | '/staff/team'
+    | '/staff/universities'
     | '/staff/visas'
     | '/staff/'
     | '/api/auth/account'
@@ -459,6 +471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffTeamRouteImport
       parentRoute: typeof StaffRoute
     }
+    '/staff/universities': {
+      id: '/staff/universities'
+      path: '/universities'
+      fullPath: '/staff/universities'
+      preLoaderRoute: typeof StaffUniversitiesRouteImport
+      parentRoute: typeof StaffRoute
+    }
     '/staff/visas': {
       id: '/staff/visas'
       path: '/visas'
@@ -564,6 +583,7 @@ interface StaffRouteChildren {
   StaffPartnersRoute: typeof StaffPartnersRouteWithChildren
   StaffStudentsRoute: typeof StaffStudentsRouteWithChildren
   StaffTeamRoute: typeof StaffTeamRoute
+  StaffUniversitiesRoute: typeof StaffUniversitiesRoute
   StaffVisasRoute: typeof StaffVisasRoute
   StaffIndexRoute: typeof StaffIndexRoute
 }
@@ -573,6 +593,7 @@ const StaffRouteChildren: StaffRouteChildren = {
   StaffPartnersRoute: StaffPartnersRouteWithChildren,
   StaffStudentsRoute: StaffStudentsRouteWithChildren,
   StaffTeamRoute: StaffTeamRoute,
+  StaffUniversitiesRoute: StaffUniversitiesRoute,
   StaffVisasRoute: StaffVisasRoute,
   StaffIndexRoute: StaffIndexRoute,
 }

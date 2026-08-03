@@ -3,7 +3,7 @@
 import { Link } from '@/lib/navigation'
 import { usePathname, useRouter } from '@/lib/navigation'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { BarChart3, BriefcaseBusiness, Building2, ChevronRight, Compass, FileText, LayoutDashboard, LogOut, Menu, Plane, ShieldCheck, Users, X } from 'lucide-react'
+import { BarChart3, BriefcaseBusiness, Building2, ChevronRight, Compass, FileText, GraduationCap, LayoutDashboard, LogOut, Menu, Plane, ShieldCheck, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { currentUserQuery } from '@/features/auth/auth.queries'
 import { logoutFn } from '@/features/auth/auth.functions'
@@ -31,6 +31,7 @@ const pageMeta = {
   '/staff/visas': { title: 'Visa dashboard', description: 'Track visa preparation, filing, and decisions.' },
   '/staff/team': { title: 'Team management', description: 'Manage staff access, roles, and operational coverage.' },
   '/staff/partners': { title: 'Partner reviews', description: 'Review and approve study abroad partner registrations.' },
+  '/staff/universities': { title: 'University management', description: 'Manage countries, universities, courses, and effective-dated fees.' },
 }
 
 export default function Staff({ children }: { children: React.ReactNode }) {
@@ -57,6 +58,7 @@ export default function Staff({ children }: { children: React.ReactNode }) {
     { to: '/staff/students' as const, label: 'Students', icon: BriefcaseBusiness },
     { to: '/staff/applications' as const, label: 'Applications', icon: FileText },
     { to: '/staff/visas' as const, label: 'Visas', icon: Plane },
+    ...(user?.role === 'SUPER_ADMIN' ? [{ to: '/staff/universities' as const, label: 'Universities', icon: GraduationCap }] : []),
     ...(['SUPER_ADMIN', 'PARTNER_ADMIN'].includes(user?.role ?? '') ? [{ to: '/staff/team' as const, label: 'Team management', icon: Users }] : []),
     ...(user?.accountType === 'ADMIN' ? [{ to: '/staff/partners' as const, label: user.role === 'SUPER_ADMIN' ? 'Partner reviews' : 'Partners', icon: Building2 }] : []),
   ]

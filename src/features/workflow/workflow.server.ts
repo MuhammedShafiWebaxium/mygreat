@@ -13,7 +13,7 @@ export async function createApplication(userId: string, input: z.infer<typeof cr
     select: { universityId: true },
   })
   if (!shortlisted) throw new Error('Add the university to your shortlist first.')
-  return prisma.application.create({
+  const application = await prisma.application.create({
     data: {
       studentId: userId,
       universityId: input.universityId,
@@ -21,6 +21,24 @@ export async function createApplication(userId: string, input: z.infer<typeof cr
       applicationDeadline: input.deadline ? new Date(`${input.deadline}T00:00:00.000Z`) : null,
     },
   })
+  await snapshotCourseFee(application.id, input.universityId, input.program)
+  return application
+}
+
+async function snapshotCourseFee(applicationId: string, universityId: string, program: string) {
+  await prisma.$executeRaw(Prisma.sql`
+    UPDATE applications a SET
+      course_id = priced.course_id, quoted_fee_amount = priced.amount,
+      quoted_fee_currency = priced.currency_code, fee_quoted_at = NOW()
+    FROM (
+      SELECT c.id AS course_id, f.amount, f.currency_code
+      FROM courses c JOIN course_fees f ON f.course_id = c.id
+      WHERE c.university_id = ${universityId} AND LOWER(c.name) = LOWER(${program})
+        AND c.active = TRUE AND f.effective_from <= NOW()
+        AND (f.effective_to IS NULL OR f.effective_to > NOW())
+      ORDER BY f.effective_from DESC LIMIT 1
+    ) priced WHERE a.id = ${applicationId}::uuid
+  `)
 }
 
 async function assertPartnerCanAccessStudent(actorId: string, studentId: string) {
@@ -59,6 +77,14 @@ export async function createApplicationForStudent(
         visaExecutiveId: actor.role === 'VISA_EXECUTIVE' ? actor.id : null,
       },
     })
+    await tx.$executeRaw(Prisma.sql`
+      UPDATE applications a SET course_id=priced.course_id, quoted_fee_amount=priced.amount,
+        quoted_fee_currency=priced.currency_code, fee_quoted_at=NOW()
+      FROM (SELECT c.id course_id, f.amount, f.currency_code FROM courses c JOIN course_fees f ON f.course_id=c.id
+        WHERE c.university_id=${input.universityId} AND LOWER(c.name)=LOWER(${input.program}) AND c.active=TRUE
+          AND f.effective_from<=NOW() AND (f.effective_to IS NULL OR f.effective_to>NOW()) ORDER BY f.effective_from DESC LIMIT 1) priced
+      WHERE a.id=${created.id}::uuid
+    `)
     await tx.auditLog.create({
       data: {
         actorId: actor.id, action: 'APPLICATION_CREATED', entityType: 'application',
