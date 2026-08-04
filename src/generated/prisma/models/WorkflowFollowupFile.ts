@@ -447,10 +447,6 @@ export type WorkflowFollowupFileUncheckedUpdateManyWithoutFollowupNestedInput = 
   deleteMany?: Prisma.WorkflowFollowupFileScalarWhereInput | Prisma.WorkflowFollowupFileScalarWhereInput[]
 }
 
-export type BytesFieldUpdateOperationsInput = {
-  set?: runtime.Bytes
-}
-
 export type WorkflowFollowupFileCreateWithoutFollowupInput = {
   id?: string
   fileName: string

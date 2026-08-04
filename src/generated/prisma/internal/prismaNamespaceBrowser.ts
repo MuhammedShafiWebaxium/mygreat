@@ -67,6 +67,7 @@ export const ModelName = {
   StudentShortlist: 'StudentShortlist',
   Application: 'Application',
   VisaAttempt: 'VisaAttempt',
+  ApplicationOfferLetter: 'ApplicationOfferLetter',
   WorkflowFollowup: 'WorkflowFollowup',
   WorkflowFollowupFile: 'WorkflowFollowupFile',
   WorkflowApprovalRequest: 'WorkflowApprovalRequest',
@@ -336,6 +337,7 @@ export const ApplicationScalarFieldEnum = {
   nextAction: 'nextAction',
   isPriority: 'isPriority',
   applicationStage: 'applicationStage',
+  offerType: 'offerType',
   applicationDeadline: 'applicationDeadline',
   admissionsExecutiveId: 'admissionsExecutiveId',
   visaExecutiveId: 'visaExecutiveId',
@@ -359,6 +361,23 @@ export const VisaAttemptScalarFieldEnum = {
 } as const
 
 export type VisaAttemptScalarFieldEnum = (typeof VisaAttemptScalarFieldEnum)[keyof typeof VisaAttemptScalarFieldEnum]
+
+
+export const ApplicationOfferLetterScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  offerType: 'offerType',
+  fileName: 'fileName',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  fileData: 'fileData',
+  uploadedById: 'uploadedById',
+  uploadedByName: 'uploadedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApplicationOfferLetterScalarFieldEnum = (typeof ApplicationOfferLetterScalarFieldEnum)[keyof typeof ApplicationOfferLetterScalarFieldEnum]
 
 
 export const WorkflowFollowupScalarFieldEnum = {

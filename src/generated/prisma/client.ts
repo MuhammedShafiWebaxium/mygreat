@@ -122,6 +122,11 @@ export type Application = Prisma.ApplicationModel
  */
 export type VisaAttempt = Prisma.VisaAttemptModel
 /**
+ * Model ApplicationOfferLetter
+ * 
+ */
+export type ApplicationOfferLetter = Prisma.ApplicationOfferLetterModel
+/**
  * Model WorkflowFollowup
  * Immutable event history for application and visa workflow actions.
  */

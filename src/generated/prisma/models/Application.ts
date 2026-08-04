@@ -49,6 +49,7 @@ export type ApplicationMinAggregateOutputType = {
   nextAction: string | null
   isPriority: boolean | null
   applicationStage: $Enums.ApplicationStatus | null
+  offerType: $Enums.OfferType | null
   applicationDeadline: Date | null
   admissionsExecutiveId: string | null
   visaExecutiveId: string | null
@@ -70,6 +71,7 @@ export type ApplicationMaxAggregateOutputType = {
   nextAction: string | null
   isPriority: boolean | null
   applicationStage: $Enums.ApplicationStatus | null
+  offerType: $Enums.OfferType | null
   applicationDeadline: Date | null
   admissionsExecutiveId: string | null
   visaExecutiveId: string | null
@@ -91,6 +93,7 @@ export type ApplicationCountAggregateOutputType = {
   nextAction: number
   isPriority: number
   applicationStage: number
+  offerType: number
   applicationDeadline: number
   admissionsExecutiveId: number
   visaExecutiveId: number
@@ -124,6 +127,7 @@ export type ApplicationMinAggregateInputType = {
   nextAction?: true
   isPriority?: true
   applicationStage?: true
+  offerType?: true
   applicationDeadline?: true
   admissionsExecutiveId?: true
   visaExecutiveId?: true
@@ -145,6 +149,7 @@ export type ApplicationMaxAggregateInputType = {
   nextAction?: true
   isPriority?: true
   applicationStage?: true
+  offerType?: true
   applicationDeadline?: true
   admissionsExecutiveId?: true
   visaExecutiveId?: true
@@ -166,6 +171,7 @@ export type ApplicationCountAggregateInputType = {
   nextAction?: true
   isPriority?: true
   applicationStage?: true
+  offerType?: true
   applicationDeadline?: true
   admissionsExecutiveId?: true
   visaExecutiveId?: true
@@ -274,6 +280,7 @@ export type ApplicationGroupByOutputType = {
   nextAction: string
   isPriority: boolean
   applicationStage: $Enums.ApplicationStatus
+  offerType: $Enums.OfferType | null
   applicationDeadline: Date | null
   admissionsExecutiveId: string | null
   visaExecutiveId: string | null
@@ -318,6 +325,7 @@ export type ApplicationWhereInput = {
   nextAction?: Prisma.StringFilter<"Application"> | string
   isPriority?: Prisma.BoolFilter<"Application"> | boolean
   applicationStage?: Prisma.EnumApplicationStatusFilter<"Application"> | $Enums.ApplicationStatus
+  offerType?: Prisma.EnumOfferTypeNullableFilter<"Application"> | $Enums.OfferType | null
   applicationDeadline?: Prisma.DateTimeNullableFilter<"Application"> | Date | string | null
   admissionsExecutiveId?: Prisma.UuidNullableFilter<"Application"> | string | null
   visaExecutiveId?: Prisma.UuidNullableFilter<"Application"> | string | null
@@ -335,6 +343,7 @@ export type ApplicationWhereInput = {
   visaAttempts?: Prisma.VisaAttemptListRelationFilter
   workflowFollowups?: Prisma.WorkflowFollowupListRelationFilter
   workflowApprovals?: Prisma.WorkflowApprovalRequestListRelationFilter
+  offerLetter?: Prisma.XOR<Prisma.ApplicationOfferLetterNullableScalarRelationFilter, Prisma.ApplicationOfferLetterWhereInput> | null
 }
 
 export type ApplicationOrderByWithRelationInput = {
@@ -350,6 +359,7 @@ export type ApplicationOrderByWithRelationInput = {
   nextAction?: Prisma.SortOrder
   isPriority?: Prisma.SortOrder
   applicationStage?: Prisma.SortOrder
+  offerType?: Prisma.SortOrderInput | Prisma.SortOrder
   applicationDeadline?: Prisma.SortOrderInput | Prisma.SortOrder
   admissionsExecutiveId?: Prisma.SortOrderInput | Prisma.SortOrder
   visaExecutiveId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -367,6 +377,7 @@ export type ApplicationOrderByWithRelationInput = {
   visaAttempts?: Prisma.VisaAttemptOrderByRelationAggregateInput
   workflowFollowups?: Prisma.WorkflowFollowupOrderByRelationAggregateInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestOrderByRelationAggregateInput
+  offerLetter?: Prisma.ApplicationOfferLetterOrderByWithRelationInput
 }
 
 export type ApplicationWhereUniqueInput = Prisma.AtLeast<{
@@ -385,6 +396,7 @@ export type ApplicationWhereUniqueInput = Prisma.AtLeast<{
   nextAction?: Prisma.StringFilter<"Application"> | string
   isPriority?: Prisma.BoolFilter<"Application"> | boolean
   applicationStage?: Prisma.EnumApplicationStatusFilter<"Application"> | $Enums.ApplicationStatus
+  offerType?: Prisma.EnumOfferTypeNullableFilter<"Application"> | $Enums.OfferType | null
   applicationDeadline?: Prisma.DateTimeNullableFilter<"Application"> | Date | string | null
   admissionsExecutiveId?: Prisma.UuidNullableFilter<"Application"> | string | null
   visaExecutiveId?: Prisma.UuidNullableFilter<"Application"> | string | null
@@ -402,6 +414,7 @@ export type ApplicationWhereUniqueInput = Prisma.AtLeast<{
   visaAttempts?: Prisma.VisaAttemptListRelationFilter
   workflowFollowups?: Prisma.WorkflowFollowupListRelationFilter
   workflowApprovals?: Prisma.WorkflowApprovalRequestListRelationFilter
+  offerLetter?: Prisma.XOR<Prisma.ApplicationOfferLetterNullableScalarRelationFilter, Prisma.ApplicationOfferLetterWhereInput> | null
 }, "id">
 
 export type ApplicationOrderByWithAggregationInput = {
@@ -417,6 +430,7 @@ export type ApplicationOrderByWithAggregationInput = {
   nextAction?: Prisma.SortOrder
   isPriority?: Prisma.SortOrder
   applicationStage?: Prisma.SortOrder
+  offerType?: Prisma.SortOrderInput | Prisma.SortOrder
   applicationDeadline?: Prisma.SortOrderInput | Prisma.SortOrder
   admissionsExecutiveId?: Prisma.SortOrderInput | Prisma.SortOrder
   visaExecutiveId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -446,6 +460,7 @@ export type ApplicationScalarWhereWithAggregatesInput = {
   nextAction?: Prisma.StringWithAggregatesFilter<"Application"> | string
   isPriority?: Prisma.BoolWithAggregatesFilter<"Application"> | boolean
   applicationStage?: Prisma.EnumApplicationStatusWithAggregatesFilter<"Application"> | $Enums.ApplicationStatus
+  offerType?: Prisma.EnumOfferTypeNullableWithAggregatesFilter<"Application"> | $Enums.OfferType | null
   applicationDeadline?: Prisma.DateTimeNullableWithAggregatesFilter<"Application"> | Date | string | null
   admissionsExecutiveId?: Prisma.UuidNullableWithAggregatesFilter<"Application"> | string | null
   visaExecutiveId?: Prisma.UuidNullableWithAggregatesFilter<"Application"> | string | null
@@ -464,6 +479,7 @@ export type ApplicationCreateInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -479,6 +495,7 @@ export type ApplicationCreateInput = {
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateInput = {
@@ -494,6 +511,7 @@ export type ApplicationUncheckedCreateInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -506,6 +524,7 @@ export type ApplicationUncheckedCreateInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUpdateInput = {
@@ -518,6 +537,7 @@ export type ApplicationUpdateInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -533,6 +553,7 @@ export type ApplicationUpdateInput = {
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateInput = {
@@ -548,6 +569,7 @@ export type ApplicationUncheckedUpdateInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -560,6 +582,7 @@ export type ApplicationUncheckedUpdateInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationCreateManyInput = {
@@ -575,6 +598,7 @@ export type ApplicationCreateManyInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -593,6 +617,7 @@ export type ApplicationUpdateManyMutationInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -612,6 +637,7 @@ export type ApplicationUncheckedUpdateManyInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -643,6 +669,7 @@ export type ApplicationCountOrderByAggregateInput = {
   nextAction?: Prisma.SortOrder
   isPriority?: Prisma.SortOrder
   applicationStage?: Prisma.SortOrder
+  offerType?: Prisma.SortOrder
   applicationDeadline?: Prisma.SortOrder
   admissionsExecutiveId?: Prisma.SortOrder
   visaExecutiveId?: Prisma.SortOrder
@@ -669,6 +696,7 @@ export type ApplicationMaxOrderByAggregateInput = {
   nextAction?: Prisma.SortOrder
   isPriority?: Prisma.SortOrder
   applicationStage?: Prisma.SortOrder
+  offerType?: Prisma.SortOrder
   applicationDeadline?: Prisma.SortOrder
   admissionsExecutiveId?: Prisma.SortOrder
   visaExecutiveId?: Prisma.SortOrder
@@ -690,6 +718,7 @@ export type ApplicationMinOrderByAggregateInput = {
   nextAction?: Prisma.SortOrder
   isPriority?: Prisma.SortOrder
   applicationStage?: Prisma.SortOrder
+  offerType?: Prisma.SortOrder
   applicationDeadline?: Prisma.SortOrder
   admissionsExecutiveId?: Prisma.SortOrder
   visaExecutiveId?: Prisma.SortOrder
@@ -927,6 +956,10 @@ export type EnumApplicationStatusFieldUpdateOperationsInput = {
   set?: $Enums.ApplicationStatus
 }
 
+export type NullableEnumOfferTypeFieldUpdateOperationsInput = {
+  set?: $Enums.OfferType | null
+}
+
 export type ApplicationCreateNestedOneWithoutVisaAttemptsInput = {
   create?: Prisma.XOR<Prisma.ApplicationCreateWithoutVisaAttemptsInput, Prisma.ApplicationUncheckedCreateWithoutVisaAttemptsInput>
   connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutVisaAttemptsInput
@@ -939,6 +972,20 @@ export type ApplicationUpdateOneRequiredWithoutVisaAttemptsNestedInput = {
   upsert?: Prisma.ApplicationUpsertWithoutVisaAttemptsInput
   connect?: Prisma.ApplicationWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ApplicationUpdateToOneWithWhereWithoutVisaAttemptsInput, Prisma.ApplicationUpdateWithoutVisaAttemptsInput>, Prisma.ApplicationUncheckedUpdateWithoutVisaAttemptsInput>
+}
+
+export type ApplicationCreateNestedOneWithoutOfferLetterInput = {
+  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutOfferLetterInput, Prisma.ApplicationUncheckedCreateWithoutOfferLetterInput>
+  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutOfferLetterInput
+  connect?: Prisma.ApplicationWhereUniqueInput
+}
+
+export type ApplicationUpdateOneRequiredWithoutOfferLetterNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutOfferLetterInput, Prisma.ApplicationUncheckedCreateWithoutOfferLetterInput>
+  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutOfferLetterInput
+  upsert?: Prisma.ApplicationUpsertWithoutOfferLetterInput
+  connect?: Prisma.ApplicationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ApplicationUpdateToOneWithWhereWithoutOfferLetterInput, Prisma.ApplicationUpdateWithoutOfferLetterInput>, Prisma.ApplicationUncheckedUpdateWithoutOfferLetterInput>
 }
 
 export type ApplicationCreateNestedOneWithoutWorkflowFollowupsInput = {
@@ -1027,6 +1074,7 @@ export type ApplicationCreateWithoutStudentInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -1041,6 +1089,7 @@ export type ApplicationCreateWithoutStudentInput = {
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutStudentInput = {
@@ -1055,6 +1104,7 @@ export type ApplicationUncheckedCreateWithoutStudentInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -1067,6 +1117,7 @@ export type ApplicationUncheckedCreateWithoutStudentInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutStudentInput = {
@@ -1111,6 +1162,7 @@ export type ApplicationScalarWhereInput = {
   nextAction?: Prisma.StringFilter<"Application"> | string
   isPriority?: Prisma.BoolFilter<"Application"> | boolean
   applicationStage?: Prisma.EnumApplicationStatusFilter<"Application"> | $Enums.ApplicationStatus
+  offerType?: Prisma.EnumOfferTypeNullableFilter<"Application"> | $Enums.OfferType | null
   applicationDeadline?: Prisma.DateTimeNullableFilter<"Application"> | Date | string | null
   admissionsExecutiveId?: Prisma.UuidNullableFilter<"Application"> | string | null
   visaExecutiveId?: Prisma.UuidNullableFilter<"Application"> | string | null
@@ -1129,6 +1181,7 @@ export type ApplicationCreateWithoutAdmissionsExecutiveInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -1143,6 +1196,7 @@ export type ApplicationCreateWithoutAdmissionsExecutiveInput = {
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput = {
@@ -1158,6 +1212,7 @@ export type ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   visaExecutiveId?: string | null
   submittedAt?: Date | string | null
@@ -1169,6 +1224,7 @@ export type ApplicationUncheckedCreateWithoutAdmissionsExecutiveInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutAdmissionsExecutiveInput = {
@@ -1191,6 +1247,7 @@ export type ApplicationCreateWithoutVisaExecutiveInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -1205,6 +1262,7 @@ export type ApplicationCreateWithoutVisaExecutiveInput = {
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutVisaExecutiveInput = {
@@ -1220,6 +1278,7 @@ export type ApplicationUncheckedCreateWithoutVisaExecutiveInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   submittedAt?: Date | string | null
@@ -1231,6 +1290,7 @@ export type ApplicationUncheckedCreateWithoutVisaExecutiveInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutVisaExecutiveInput = {
@@ -1285,6 +1345,7 @@ export type ApplicationCreateWithoutUniversityInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -1299,6 +1360,7 @@ export type ApplicationCreateWithoutUniversityInput = {
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutUniversityInput = {
@@ -1313,6 +1375,7 @@ export type ApplicationUncheckedCreateWithoutUniversityInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -1325,6 +1388,7 @@ export type ApplicationUncheckedCreateWithoutUniversityInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutUniversityInput = {
@@ -1363,6 +1427,7 @@ export type ApplicationCreateWithoutCourseInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -1377,6 +1442,7 @@ export type ApplicationCreateWithoutCourseInput = {
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutCourseInput = {
@@ -1391,6 +1457,7 @@ export type ApplicationUncheckedCreateWithoutCourseInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -1403,6 +1470,7 @@ export type ApplicationUncheckedCreateWithoutCourseInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutCourseInput = {
@@ -1441,6 +1509,7 @@ export type ApplicationCreateWithoutVisaAttemptsInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -1455,6 +1524,7 @@ export type ApplicationCreateWithoutVisaAttemptsInput = {
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutVisaAttemptsInput = {
@@ -1470,6 +1540,7 @@ export type ApplicationUncheckedCreateWithoutVisaAttemptsInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -1481,6 +1552,7 @@ export type ApplicationUncheckedCreateWithoutVisaAttemptsInput = {
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutVisaAttemptsInput = {
@@ -1509,6 +1581,7 @@ export type ApplicationUpdateWithoutVisaAttemptsInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1523,6 +1596,7 @@ export type ApplicationUpdateWithoutVisaAttemptsInput = {
   deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutVisaAttemptsInput = {
@@ -1538,6 +1612,7 @@ export type ApplicationUncheckedUpdateWithoutVisaAttemptsInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1547,6 +1622,135 @@ export type ApplicationUncheckedUpdateWithoutVisaAttemptsInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutApplicationNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutApplicationNestedInput
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutApplicationNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
+  workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
+}
+
+export type ApplicationCreateWithoutOfferLetterInput = {
+  id?: string
+  program: string
+  quotedFeeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  quotedFeeCurrency?: string | null
+  feeQuotedAt?: Date | string | null
+  progress?: number
+  nextAction?: string
+  isPriority?: boolean
+  applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
+  applicationDeadline?: Date | string | null
+  submittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  student: Prisma.StudentCreateNestedOneWithoutApplicationsInput
+  university: Prisma.UniversityCreateNestedOneWithoutApplicationsInput
+  course?: Prisma.CourseCreateNestedOneWithoutApplicationsInput
+  admissionsExecutive?: Prisma.PartnerCreateNestedOneWithoutAdmissionsAssignmentsInput
+  visaExecutive?: Prisma.PartnerCreateNestedOneWithoutVisaAssignmentsInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutApplicationInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutApplicationInput
+  deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
+  visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
+  workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+}
+
+export type ApplicationUncheckedCreateWithoutOfferLetterInput = {
+  id?: string
+  studentId: string
+  universityId: string
+  program: string
+  courseId?: string | null
+  quotedFeeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  quotedFeeCurrency?: string | null
+  feeQuotedAt?: Date | string | null
+  progress?: number
+  nextAction?: string
+  isPriority?: boolean
+  applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
+  applicationDeadline?: Date | string | null
+  admissionsExecutiveId?: string | null
+  visaExecutiveId?: string | null
+  submittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutApplicationInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutApplicationInput
+  deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutApplicationInput
+  visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
+  workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+}
+
+export type ApplicationCreateOrConnectWithoutOfferLetterInput = {
+  where: Prisma.ApplicationWhereUniqueInput
+  create: Prisma.XOR<Prisma.ApplicationCreateWithoutOfferLetterInput, Prisma.ApplicationUncheckedCreateWithoutOfferLetterInput>
+}
+
+export type ApplicationUpsertWithoutOfferLetterInput = {
+  update: Prisma.XOR<Prisma.ApplicationUpdateWithoutOfferLetterInput, Prisma.ApplicationUncheckedUpdateWithoutOfferLetterInput>
+  create: Prisma.XOR<Prisma.ApplicationCreateWithoutOfferLetterInput, Prisma.ApplicationUncheckedCreateWithoutOfferLetterInput>
+  where?: Prisma.ApplicationWhereInput
+}
+
+export type ApplicationUpdateToOneWithWhereWithoutOfferLetterInput = {
+  where?: Prisma.ApplicationWhereInput
+  data: Prisma.XOR<Prisma.ApplicationUpdateWithoutOfferLetterInput, Prisma.ApplicationUncheckedUpdateWithoutOfferLetterInput>
+}
+
+export type ApplicationUpdateWithoutOfferLetterInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  program?: Prisma.StringFieldUpdateOperationsInput | string
+  quotedFeeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  quotedFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeQuotedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  progress?: Prisma.IntFieldUpdateOperationsInput | number
+  nextAction?: Prisma.StringFieldUpdateOperationsInput | string
+  isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
+  applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  student?: Prisma.StudentUpdateOneRequiredWithoutApplicationsNestedInput
+  university?: Prisma.UniversityUpdateOneRequiredWithoutApplicationsNestedInput
+  course?: Prisma.CourseUpdateOneWithoutApplicationsNestedInput
+  admissionsExecutive?: Prisma.PartnerUpdateOneWithoutAdmissionsAssignmentsNestedInput
+  visaExecutive?: Prisma.PartnerUpdateOneWithoutVisaAssignmentsNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutApplicationNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutApplicationNestedInput
+  deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
+  visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
+  workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+}
+
+export type ApplicationUncheckedUpdateWithoutOfferLetterInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  universityId?: Prisma.StringFieldUpdateOperationsInput | string
+  program?: Prisma.StringFieldUpdateOperationsInput | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotedFeeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  quotedFeeCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  feeQuotedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  progress?: Prisma.IntFieldUpdateOperationsInput | number
+  nextAction?: Prisma.StringFieldUpdateOperationsInput | string
+  isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
+  applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutApplicationNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutApplicationNestedInput
+  deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutApplicationNestedInput
+  visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
 }
@@ -1561,6 +1765,7 @@ export type ApplicationCreateWithoutWorkflowFollowupsInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -1575,6 +1780,7 @@ export type ApplicationCreateWithoutWorkflowFollowupsInput = {
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutWorkflowFollowupsInput = {
@@ -1590,6 +1796,7 @@ export type ApplicationUncheckedCreateWithoutWorkflowFollowupsInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -1601,6 +1808,7 @@ export type ApplicationUncheckedCreateWithoutWorkflowFollowupsInput = {
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutApplicationInput
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutWorkflowFollowupsInput = {
@@ -1629,6 +1837,7 @@ export type ApplicationUpdateWithoutWorkflowFollowupsInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1643,6 +1852,7 @@ export type ApplicationUpdateWithoutWorkflowFollowupsInput = {
   deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutWorkflowFollowupsInput = {
@@ -1658,6 +1868,7 @@ export type ApplicationUncheckedUpdateWithoutWorkflowFollowupsInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1669,6 +1880,7 @@ export type ApplicationUncheckedUpdateWithoutWorkflowFollowupsInput = {
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutApplicationNestedInput
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationCreateWithoutWorkflowApprovalsInput = {
@@ -1681,6 +1893,7 @@ export type ApplicationCreateWithoutWorkflowApprovalsInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -1695,6 +1908,7 @@ export type ApplicationCreateWithoutWorkflowApprovalsInput = {
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutApplicationInput
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutWorkflowApprovalsInput = {
@@ -1710,6 +1924,7 @@ export type ApplicationUncheckedCreateWithoutWorkflowApprovalsInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -1721,6 +1936,7 @@ export type ApplicationUncheckedCreateWithoutWorkflowApprovalsInput = {
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutApplicationInput
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutWorkflowApprovalsInput = {
@@ -1749,6 +1965,7 @@ export type ApplicationUpdateWithoutWorkflowApprovalsInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1763,6 +1980,7 @@ export type ApplicationUpdateWithoutWorkflowApprovalsInput = {
   deadlines?: Prisma.DeadlineUpdateManyWithoutApplicationNestedInput
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutWorkflowApprovalsInput = {
@@ -1778,6 +1996,7 @@ export type ApplicationUncheckedUpdateWithoutWorkflowApprovalsInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1789,6 +2008,7 @@ export type ApplicationUncheckedUpdateWithoutWorkflowApprovalsInput = {
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutApplicationNestedInput
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationCreateWithoutTasksInput = {
@@ -1801,6 +2021,7 @@ export type ApplicationCreateWithoutTasksInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -1815,6 +2036,7 @@ export type ApplicationCreateWithoutTasksInput = {
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutTasksInput = {
@@ -1830,6 +2052,7 @@ export type ApplicationUncheckedCreateWithoutTasksInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -1841,6 +2064,7 @@ export type ApplicationUncheckedCreateWithoutTasksInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutTasksInput = {
@@ -1869,6 +2093,7 @@ export type ApplicationUpdateWithoutTasksInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1883,6 +2108,7 @@ export type ApplicationUpdateWithoutTasksInput = {
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutTasksInput = {
@@ -1898,6 +2124,7 @@ export type ApplicationUncheckedUpdateWithoutTasksInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1909,6 +2136,7 @@ export type ApplicationUncheckedUpdateWithoutTasksInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationCreateWithoutDocumentsInput = {
@@ -1921,6 +2149,7 @@ export type ApplicationCreateWithoutDocumentsInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -1935,6 +2164,7 @@ export type ApplicationCreateWithoutDocumentsInput = {
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutDocumentsInput = {
@@ -1950,6 +2180,7 @@ export type ApplicationUncheckedCreateWithoutDocumentsInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -1961,6 +2192,7 @@ export type ApplicationUncheckedCreateWithoutDocumentsInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutDocumentsInput = {
@@ -1989,6 +2221,7 @@ export type ApplicationUpdateWithoutDocumentsInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2003,6 +2236,7 @@ export type ApplicationUpdateWithoutDocumentsInput = {
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutDocumentsInput = {
@@ -2018,6 +2252,7 @@ export type ApplicationUncheckedUpdateWithoutDocumentsInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2029,6 +2264,7 @@ export type ApplicationUncheckedUpdateWithoutDocumentsInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationCreateWithoutDeadlinesInput = {
@@ -2041,6 +2277,7 @@ export type ApplicationCreateWithoutDeadlinesInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -2055,6 +2292,7 @@ export type ApplicationCreateWithoutDeadlinesInput = {
   visaAttempts?: Prisma.VisaAttemptCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutDeadlinesInput = {
@@ -2070,6 +2308,7 @@ export type ApplicationUncheckedCreateWithoutDeadlinesInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -2081,6 +2320,7 @@ export type ApplicationUncheckedCreateWithoutDeadlinesInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedCreateNestedManyWithoutApplicationInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutApplicationInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedCreateNestedManyWithoutApplicationInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedCreateNestedOneWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutDeadlinesInput = {
@@ -2109,6 +2349,7 @@ export type ApplicationUpdateWithoutDeadlinesInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2123,6 +2364,7 @@ export type ApplicationUpdateWithoutDeadlinesInput = {
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutDeadlinesInput = {
@@ -2138,6 +2380,7 @@ export type ApplicationUncheckedUpdateWithoutDeadlinesInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2149,6 +2392,7 @@ export type ApplicationUncheckedUpdateWithoutDeadlinesInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationCreateManyStudentInput = {
@@ -2163,6 +2407,7 @@ export type ApplicationCreateManyStudentInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -2181,6 +2426,7 @@ export type ApplicationUpdateWithoutStudentInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2195,6 +2441,7 @@ export type ApplicationUpdateWithoutStudentInput = {
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutStudentInput = {
@@ -2209,6 +2456,7 @@ export type ApplicationUncheckedUpdateWithoutStudentInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2221,6 +2469,7 @@ export type ApplicationUncheckedUpdateWithoutStudentInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateManyWithoutStudentInput = {
@@ -2235,6 +2484,7 @@ export type ApplicationUncheckedUpdateManyWithoutStudentInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2256,6 +2506,7 @@ export type ApplicationCreateManyAdmissionsExecutiveInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   visaExecutiveId?: string | null
   submittedAt?: Date | string | null
@@ -2276,6 +2527,7 @@ export type ApplicationCreateManyVisaExecutiveInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   submittedAt?: Date | string | null
@@ -2293,6 +2545,7 @@ export type ApplicationUpdateWithoutAdmissionsExecutiveInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2307,6 +2560,7 @@ export type ApplicationUpdateWithoutAdmissionsExecutiveInput = {
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutAdmissionsExecutiveInput = {
@@ -2322,6 +2576,7 @@ export type ApplicationUncheckedUpdateWithoutAdmissionsExecutiveInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2333,6 +2588,7 @@ export type ApplicationUncheckedUpdateWithoutAdmissionsExecutiveInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateManyWithoutAdmissionsExecutiveInput = {
@@ -2348,6 +2604,7 @@ export type ApplicationUncheckedUpdateManyWithoutAdmissionsExecutiveInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2365,6 +2622,7 @@ export type ApplicationUpdateWithoutVisaExecutiveInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2379,6 +2637,7 @@ export type ApplicationUpdateWithoutVisaExecutiveInput = {
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutVisaExecutiveInput = {
@@ -2394,6 +2653,7 @@ export type ApplicationUncheckedUpdateWithoutVisaExecutiveInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2405,6 +2665,7 @@ export type ApplicationUncheckedUpdateWithoutVisaExecutiveInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateManyWithoutVisaExecutiveInput = {
@@ -2420,6 +2681,7 @@ export type ApplicationUncheckedUpdateManyWithoutVisaExecutiveInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2439,6 +2701,7 @@ export type ApplicationCreateManyUniversityInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -2457,6 +2720,7 @@ export type ApplicationUpdateWithoutUniversityInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2471,6 +2735,7 @@ export type ApplicationUpdateWithoutUniversityInput = {
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutUniversityInput = {
@@ -2485,6 +2750,7 @@ export type ApplicationUncheckedUpdateWithoutUniversityInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2497,6 +2763,7 @@ export type ApplicationUncheckedUpdateWithoutUniversityInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateManyWithoutUniversityInput = {
@@ -2511,6 +2778,7 @@ export type ApplicationUncheckedUpdateManyWithoutUniversityInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2531,6 +2799,7 @@ export type ApplicationCreateManyCourseInput = {
   nextAction?: string
   isPriority?: boolean
   applicationStage?: $Enums.ApplicationStatus
+  offerType?: $Enums.OfferType | null
   applicationDeadline?: Date | string | null
   admissionsExecutiveId?: string | null
   visaExecutiveId?: string | null
@@ -2549,6 +2818,7 @@ export type ApplicationUpdateWithoutCourseInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2563,6 +2833,7 @@ export type ApplicationUpdateWithoutCourseInput = {
   visaAttempts?: Prisma.VisaAttemptUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutCourseInput = {
@@ -2577,6 +2848,7 @@ export type ApplicationUncheckedUpdateWithoutCourseInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2589,6 +2861,7 @@ export type ApplicationUncheckedUpdateWithoutCourseInput = {
   visaAttempts?: Prisma.VisaAttemptUncheckedUpdateManyWithoutApplicationNestedInput
   workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutApplicationNestedInput
   workflowApprovals?: Prisma.WorkflowApprovalRequestUncheckedUpdateManyWithoutApplicationNestedInput
+  offerLetter?: Prisma.ApplicationOfferLetterUncheckedUpdateOneWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateManyWithoutCourseInput = {
@@ -2603,6 +2876,7 @@ export type ApplicationUncheckedUpdateManyWithoutCourseInput = {
   nextAction?: Prisma.StringFieldUpdateOperationsInput | string
   isPriority?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationStage?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  offerType?: Prisma.NullableEnumOfferTypeFieldUpdateOperationsInput | $Enums.OfferType | null
   applicationDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   admissionsExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visaExecutiveId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2700,6 +2974,7 @@ export type ApplicationSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   nextAction?: boolean
   isPriority?: boolean
   applicationStage?: boolean
+  offerType?: boolean
   applicationDeadline?: boolean
   admissionsExecutiveId?: boolean
   visaExecutiveId?: boolean
@@ -2717,6 +2992,7 @@ export type ApplicationSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   visaAttempts?: boolean | Prisma.Application$visaAttemptsArgs<ExtArgs>
   workflowFollowups?: boolean | Prisma.Application$workflowFollowupsArgs<ExtArgs>
   workflowApprovals?: boolean | Prisma.Application$workflowApprovalsArgs<ExtArgs>
+  offerLetter?: boolean | Prisma.Application$offerLetterArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["application"]>
 
@@ -2733,6 +3009,7 @@ export type ApplicationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   nextAction?: boolean
   isPriority?: boolean
   applicationStage?: boolean
+  offerType?: boolean
   applicationDeadline?: boolean
   admissionsExecutiveId?: boolean
   visaExecutiveId?: boolean
@@ -2759,6 +3036,7 @@ export type ApplicationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   nextAction?: boolean
   isPriority?: boolean
   applicationStage?: boolean
+  offerType?: boolean
   applicationDeadline?: boolean
   admissionsExecutiveId?: boolean
   visaExecutiveId?: boolean
@@ -2785,6 +3063,7 @@ export type ApplicationSelectScalar = {
   nextAction?: boolean
   isPriority?: boolean
   applicationStage?: boolean
+  offerType?: boolean
   applicationDeadline?: boolean
   admissionsExecutiveId?: boolean
   visaExecutiveId?: boolean
@@ -2793,7 +3072,7 @@ export type ApplicationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ApplicationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "universityId" | "program" | "courseId" | "quotedFeeAmount" | "quotedFeeCurrency" | "feeQuotedAt" | "progress" | "nextAction" | "isPriority" | "applicationStage" | "applicationDeadline" | "admissionsExecutiveId" | "visaExecutiveId" | "submittedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["application"]>
+export type ApplicationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "universityId" | "program" | "courseId" | "quotedFeeAmount" | "quotedFeeCurrency" | "feeQuotedAt" | "progress" | "nextAction" | "isPriority" | "applicationStage" | "offerType" | "applicationDeadline" | "admissionsExecutiveId" | "visaExecutiveId" | "submittedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["application"]>
 export type ApplicationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
   university?: boolean | Prisma.UniversityDefaultArgs<ExtArgs>
@@ -2806,6 +3085,7 @@ export type ApplicationInclude<ExtArgs extends runtime.Types.Extensions.Internal
   visaAttempts?: boolean | Prisma.Application$visaAttemptsArgs<ExtArgs>
   workflowFollowups?: boolean | Prisma.Application$workflowFollowupsArgs<ExtArgs>
   workflowApprovals?: boolean | Prisma.Application$workflowApprovalsArgs<ExtArgs>
+  offerLetter?: boolean | Prisma.Application$offerLetterArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ApplicationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2837,6 +3117,7 @@ export type $ApplicationPayload<ExtArgs extends runtime.Types.Extensions.Interna
     visaAttempts: Prisma.$VisaAttemptPayload<ExtArgs>[]
     workflowFollowups: Prisma.$WorkflowFollowupPayload<ExtArgs>[]
     workflowApprovals: Prisma.$WorkflowApprovalRequestPayload<ExtArgs>[]
+    offerLetter: Prisma.$ApplicationOfferLetterPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2851,6 +3132,7 @@ export type $ApplicationPayload<ExtArgs extends runtime.Types.Extensions.Interna
     nextAction: string
     isPriority: boolean
     applicationStage: $Enums.ApplicationStatus
+    offerType: $Enums.OfferType | null
     applicationDeadline: Date | null
     admissionsExecutiveId: string | null
     visaExecutiveId: string | null
@@ -3262,6 +3544,7 @@ export interface Prisma__ApplicationClient<T, Null = never, ExtArgs extends runt
   visaAttempts<T extends Prisma.Application$visaAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$visaAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VisaAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workflowFollowups<T extends Prisma.Application$workflowFollowupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$workflowFollowupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkflowFollowupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workflowApprovals<T extends Prisma.Application$workflowApprovalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$workflowApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkflowApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  offerLetter<T extends Prisma.Application$offerLetterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$offerLetterArgs<ExtArgs>>): Prisma.Prisma__ApplicationOfferLetterClient<runtime.Types.Result.GetResult<Prisma.$ApplicationOfferLetterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3303,6 +3586,7 @@ export interface ApplicationFieldRefs {
   readonly nextAction: Prisma.FieldRef<"Application", 'String'>
   readonly isPriority: Prisma.FieldRef<"Application", 'Boolean'>
   readonly applicationStage: Prisma.FieldRef<"Application", 'ApplicationStatus'>
+  readonly offerType: Prisma.FieldRef<"Application", 'OfferType'>
   readonly applicationDeadline: Prisma.FieldRef<"Application", 'DateTime'>
   readonly admissionsExecutiveId: Prisma.FieldRef<"Application", 'String'>
   readonly visaExecutiveId: Prisma.FieldRef<"Application", 'String'>
@@ -3908,6 +4192,25 @@ export type Application$workflowApprovalsArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.WorkflowApprovalRequestScalarFieldEnum | Prisma.WorkflowApprovalRequestScalarFieldEnum[]
+}
+
+/**
+ * Application.offerLetter
+ */
+export type Application$offerLetterArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApplicationOfferLetter
+   */
+  select?: Prisma.ApplicationOfferLetterSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApplicationOfferLetter
+   */
+  omit?: Prisma.ApplicationOfferLetterOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApplicationOfferLetterInclude<ExtArgs> | null
+  where?: Prisma.ApplicationOfferLetterWhereInput
 }
 
 /**

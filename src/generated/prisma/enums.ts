@@ -47,10 +47,19 @@ export const ApplicationStatus = {
   APPLICATION_ACCEPTED: 'APPLICATION_ACCEPTED',
   APPLICATION_FOLLOW_UP: 'APPLICATION_FOLLOW_UP',
   CONDITIONAL_OFFER_RECEIVED: 'CONDITIONAL_OFFER_RECEIVED',
+  UNCONDITIONAL_OFFER_RECEIVED: 'UNCONDITIONAL_OFFER_RECEIVED',
   MOVE_TO_VISA: 'MOVE_TO_VISA'
 } as const
 
 export type ApplicationStatus = (typeof ApplicationStatus)[keyof typeof ApplicationStatus]
+
+
+export const OfferType = {
+  CONDITIONAL: 'CONDITIONAL',
+  UNCONDITIONAL: 'UNCONDITIONAL'
+} as const
+
+export type OfferType = (typeof OfferType)[keyof typeof OfferType]
 
 
 export const VisaStatus = {
@@ -63,7 +72,6 @@ export const VisaStatus = {
   VISA_LEVEL_2_VERIFICATION: 'VISA_LEVEL_2_VERIFICATION',
   VISA_SUBMISSION: 'VISA_SUBMISSION',
   VISA_APPROVED: 'VISA_APPROVED',
-  VISA_REJECTED: 'VISA_REJECTED',
   VISA_REAPPLY_OR_APPEAL: 'VISA_REAPPLY_OR_APPEAL',
   VISA_GRANTED: 'VISA_GRANTED'
 } as const

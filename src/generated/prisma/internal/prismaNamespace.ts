@@ -413,6 +413,7 @@ export const ModelName = {
   StudentShortlist: 'StudentShortlist',
   Application: 'Application',
   VisaAttempt: 'VisaAttempt',
+  ApplicationOfferLetter: 'ApplicationOfferLetter',
   WorkflowFollowup: 'WorkflowFollowup',
   WorkflowFollowupFile: 'WorkflowFollowupFile',
   WorkflowApprovalRequest: 'WorkflowApprovalRequest',
@@ -438,7 +439,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "student" | "partner" | "partnerCompany" | "admin" | "studentSession" | "partnerSession" | "adminSession" | "studentProfile" | "university" | "universityRanking" | "country" | "course" | "courseFee" | "studentShortlist" | "application" | "visaAttempt" | "workflowFollowup" | "workflowFollowupFile" | "workflowApprovalRequest" | "task" | "document" | "deadline" | "notification" | "auditLog" | "catalogImportJob" | "catalogImportError"
+    modelProps: "student" | "partner" | "partnerCompany" | "admin" | "studentSession" | "partnerSession" | "adminSession" | "studentProfile" | "university" | "universityRanking" | "country" | "course" | "courseFee" | "studentShortlist" | "application" | "visaAttempt" | "applicationOfferLetter" | "workflowFollowup" | "workflowFollowupFile" | "workflowApprovalRequest" | "task" | "document" | "deadline" | "notification" | "auditLog" | "catalogImportJob" | "catalogImportError"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1626,6 +1627,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ApplicationOfferLetter: {
+      payload: Prisma.$ApplicationOfferLetterPayload<ExtArgs>
+      fields: Prisma.ApplicationOfferLetterFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ApplicationOfferLetterFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ApplicationOfferLetterFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload>
+        }
+        findFirst: {
+          args: Prisma.ApplicationOfferLetterFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ApplicationOfferLetterFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload>
+        }
+        findMany: {
+          args: Prisma.ApplicationOfferLetterFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload>[]
+        }
+        create: {
+          args: Prisma.ApplicationOfferLetterCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload>
+        }
+        createMany: {
+          args: Prisma.ApplicationOfferLetterCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ApplicationOfferLetterCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload>[]
+        }
+        delete: {
+          args: Prisma.ApplicationOfferLetterDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload>
+        }
+        update: {
+          args: Prisma.ApplicationOfferLetterUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload>
+        }
+        deleteMany: {
+          args: Prisma.ApplicationOfferLetterDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ApplicationOfferLetterUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ApplicationOfferLetterUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload>[]
+        }
+        upsert: {
+          args: Prisma.ApplicationOfferLetterUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApplicationOfferLetterPayload>
+        }
+        aggregate: {
+          args: Prisma.ApplicationOfferLetterAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateApplicationOfferLetter>
+        }
+        groupBy: {
+          args: Prisma.ApplicationOfferLetterGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ApplicationOfferLetterGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ApplicationOfferLetterCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ApplicationOfferLetterCountAggregateOutputType> | number
+        }
+      }
+    }
     WorkflowFollowup: {
       payload: Prisma.$WorkflowFollowupPayload<ExtArgs>
       fields: Prisma.WorkflowFollowupFieldRefs
@@ -2646,6 +2721,7 @@ export const ApplicationScalarFieldEnum = {
   nextAction: 'nextAction',
   isPriority: 'isPriority',
   applicationStage: 'applicationStage',
+  offerType: 'offerType',
   applicationDeadline: 'applicationDeadline',
   admissionsExecutiveId: 'admissionsExecutiveId',
   visaExecutiveId: 'visaExecutiveId',
@@ -2669,6 +2745,23 @@ export const VisaAttemptScalarFieldEnum = {
 } as const
 
 export type VisaAttemptScalarFieldEnum = (typeof VisaAttemptScalarFieldEnum)[keyof typeof VisaAttemptScalarFieldEnum]
+
+
+export const ApplicationOfferLetterScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  offerType: 'offerType',
+  fileName: 'fileName',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  fileData: 'fileData',
+  uploadedById: 'uploadedById',
+  uploadedByName: 'uploadedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApplicationOfferLetterScalarFieldEnum = (typeof ApplicationOfferLetterScalarFieldEnum)[keyof typeof ApplicationOfferLetterScalarFieldEnum]
 
 
 export const WorkflowFollowupScalarFieldEnum = {
@@ -3019,6 +3112,20 @@ export type ListEnumApplicationStatusFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
+ * Reference to a field of type 'OfferType'
+ */
+export type EnumOfferTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OfferType'>
+    
+
+
+/**
+ * Reference to a field of type 'OfferType[]'
+ */
+export type ListEnumOfferTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OfferType[]'>
+    
+
+
+/**
  * Reference to a field of type 'VisaStatus'
  */
 export type EnumVisaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VisaStatus'>
@@ -3268,6 +3375,7 @@ export type GlobalOmitConfig = {
   studentShortlist?: Prisma.StudentShortlistOmit
   application?: Prisma.ApplicationOmit
   visaAttempt?: Prisma.VisaAttemptOmit
+  applicationOfferLetter?: Prisma.ApplicationOfferLetterOmit
   workflowFollowup?: Prisma.WorkflowFollowupOmit
   workflowFollowupFile?: Prisma.WorkflowFollowupFileOmit
   workflowApprovalRequest?: Prisma.WorkflowApprovalRequestOmit
