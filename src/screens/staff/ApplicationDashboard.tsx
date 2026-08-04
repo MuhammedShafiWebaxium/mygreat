@@ -1,14 +1,16 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
-import { FilePlus2, Plus, Search, X } from 'lucide-react'
+import { Check, ChevronsUpDown, FilePlus2, Plus, Search, X } from 'lucide-react'
 import { assignmentOptionsQuery, primaryApplicationQueueQuery, staffStudentsQuery } from '@/features/admin/admin.queries'
 import { Link } from '@/lib/navigation'
 import { currentUserQuery } from '@/features/auth/auth.queries'
 import { staffCreateApplicationFn } from '@/features/workflow/workflow.functions'
 import { STAFF_PAGE_SIZE, StaffPagination } from '@/components/staff/StaffPagination'
+import { getUniversityProgramsFn } from '@/features/admin/admin.functions'
+import { cn } from '@/lib/utils'
 
 const title = (value: string) => value.replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase())
 
@@ -22,7 +24,13 @@ export default function ApplicationDashboard() {
   const [page, setPage] = useState(1)
   const [message, setMessage] = useState('')
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [openSelect, setOpenSelect] = useState<'university' | 'program' | null>(null)
   const [draft, setDraft] = useState({ studentId: '', universityId: '', program: '' })
+  const { data: programs = [], isFetching: programsLoading } = useQuery({
+    queryKey: ['staff', 'university-programs', draft.universityId],
+    queryFn: () => getUniversityProgramsFn(draft.universityId),
+    enabled: Boolean(draft.universityId),
+  })
   const refresh = async () => {
     await Promise.all([queryClient.invalidateQueries({ queryKey: ['staff', 'queue'] }),queryClient.invalidateQueries({ queryKey: ['staff', 'primary-applications'] })])
   }
@@ -74,8 +82,8 @@ export default function ApplicationDashboard() {
             <form onSubmit={(event) => { event.preventDefault(); create.mutate() }} className="flex flex-1 flex-col overflow-y-auto p-6">
               <div className="space-y-5">
                 <label className="block"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.16em] text-white/35">Student</span><select value={draft.studentId} onChange={(event) => setDraft({ ...draft, studentId: event.target.value })} className="w-full rounded-xl border border-white/10 bg-[#0c1122] px-3 py-3 text-sm"><option value="">Select student</option>{students.map((student) => <option key={student.id} value={student.id}>{student.name}</option>)}</select></label>
-                <label className="block"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.16em] text-white/35">University</span><select value={draft.universityId} onChange={(event) => setDraft({ ...draft, universityId: event.target.value })} className="w-full rounded-xl border border-white/10 bg-[#0c1122] px-3 py-3 text-sm"><option value="">Select university</option>{options.universities.map((university) => <option key={university.id} value={university.id}>{university.name}</option>)}</select></label>
-                <label className="block"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.16em] text-white/35">Program</span><input value={draft.program} onChange={(event) => setDraft({ ...draft, program: event.target.value })} placeholder="e.g. MSc Data Science" className="w-full rounded-xl border border-white/10 bg-white/[.035] px-3 py-3 text-sm outline-none" /></label>
+                <SearchableSelect label="University" placeholder="Search and select university" value={draft.universityId} options={options.universities.map((university) => ({ value: university.id, label: university.name, detail: university.city }))} onChange={(universityId) => setDraft({ ...draft, universityId, program: '' })} open={openSelect === 'university'} onOpenChange={(open) => setOpenSelect(open ? 'university' : null)} />
+                <SearchableSelect label="Program" placeholder={!draft.universityId ? 'Select a university first' : programsLoading ? 'Loading programs…' : 'Search and select program'} value={draft.program} options={programs.map((program) => ({ value: program.name, label: program.name, detail: program.level }))} onChange={(program) => setDraft({ ...draft, program })} disabled={!draft.universityId || programsLoading} emptyMessage="No active programs found for this university." open={openSelect === 'program'} onOpenChange={(open) => setOpenSelect(open ? 'program' : null)} />
               </div>
               {create.error && <p className="mt-4 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-xs text-rose-300">{create.error.message}</p>}
               <div className="mt-auto flex gap-3 border-t border-white/[.08] pt-5"><button type="button" onClick={() => setDrawerOpen(false)} className="flex-1 rounded-xl border border-white/10 px-4 py-3 text-xs font-semibold text-white/60">Cancel</button><button disabled={!draft.studentId || !draft.universityId || draft.program.trim().length < 2 || create.isPending} className="flex-[1.4] rounded-xl bg-amber-400 px-4 py-3 text-xs font-bold text-[#10172a] disabled:opacity-40">{create.isPending ? 'Creating…' : 'Create application'}</button></div>
@@ -85,4 +93,11 @@ export default function ApplicationDashboard() {
       )}
     </AnimatePresence>
   </div>
+}
+
+function SearchableSelect({ label, placeholder, value, options, onChange, open, onOpenChange, disabled = false, emptyMessage = 'No results found.' }: { label: string; placeholder: string; value: string; options: Array<{ value: string; label: string; detail?: string | null }>; onChange: (value: string) => void; open: boolean; onOpenChange: (open: boolean) => void; disabled?: boolean; emptyMessage?: string }) {
+  const [query, setQuery] = useState('')
+  const selected = options.find((option) => option.value === value)
+  const filtered = useMemo(() => { const term = query.trim().toLowerCase(); return options.filter((option) => !term || `${option.label} ${option.detail ?? ''}`.toLowerCase().includes(term)).slice(0, 100) }, [options, query])
+  return <div className="staff-searchable-select relative"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.16em] text-white/35">{label}</span><button type="button" disabled={disabled} aria-expanded={open} onClick={() => { onOpenChange(!open); setQuery('') }} className="staff-searchable-trigger flex w-full items-center gap-3 rounded-xl border border-white/10 bg-[#0c1122] px-3 py-3 text-left text-sm outline-none transition hover:border-amber-400/30 disabled:cursor-not-allowed disabled:opacity-45"><span className={cn('min-w-0 flex-1 truncate', !selected && 'text-white/35')}>{selected?.label ?? placeholder}</span><ChevronsUpDown className="size-4 shrink-0 text-white/35" /></button>{open && !disabled && <div className="staff-searchable-menu absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#0b1020] shadow-2xl"><div className="staff-searchable-search relative border-b border-white/[.07] p-2"><Search className="absolute left-5 top-1/2 size-3.5 -translate-y-1/2 text-white/30"/><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${label.toLowerCase()}…`} className="w-full rounded-xl border border-white/10 bg-white/[.04] py-2.5 pl-9 pr-3 text-xs outline-none focus:border-amber-400/40" /></div><div className="scrollbar-thin max-h-64 overflow-y-auto p-2">{filtered.length ? filtered.map((option) => <button type="button" key={option.value} onClick={() => { onChange(option.value); onOpenChange(false); setQuery('') }} className={cn('staff-searchable-option flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/[.05]', value === option.value && 'staff-searchable-option-selected bg-amber-400/[.08]')}><span className="min-w-0 flex-1"><span className="block truncate text-xs font-semibold">{option.label}</span>{option.detail && <span className="mt-0.5 block truncate text-[9px] text-white/35">{option.detail}</span>}</span>{value === option.value && <Check className="size-3.5 text-amber-300" />}</button>) : <p className="px-3 py-8 text-center text-xs text-white/35">{emptyMessage}</p>}</div></div>}</div>
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import type { createStaffUser, listAssignmentOptions, listStaffUsers, listStudentUsers, readDocumentReviewQueue, readPrimaryApplicationQueue, readStaffQueue, updateStaffUser } from './admin.server'
+import type { createStaffUser, listAssignmentOptions, listStaffUsers, listStudentUsers, listUniversityPrograms, readDocumentReviewQueue, readPrimaryApplicationQueue, readStaffQueue, updateStaffUser } from './admin.server'
 import type { listPartnerApplications, reviewPartner } from '@/features/partners/partner.server'
 import type { Catalog } from '@/features/university-management/university.server'
 
@@ -12,6 +12,7 @@ type UpdatedStaff = Awaited<ReturnType<typeof updateStaffUser>>
 type PartnerList = Awaited<ReturnType<typeof listPartnerApplications>>
 type ReviewedPartner = Awaited<ReturnType<typeof reviewPartner>>
 type AssignmentOptions = Awaited<ReturnType<typeof listAssignmentOptions>>
+type UniversityPrograms = Awaited<ReturnType<typeof listUniversityPrograms>>
 type PrimaryApplicationQueue = Awaited<ReturnType<typeof readPrimaryApplicationQueue>>
 type DocumentReviewQueue = Awaited<ReturnType<typeof readDocumentReviewQueue>>
 
@@ -36,6 +37,12 @@ export const updateStaffFn = ({ data }: { data: unknown }) => request<UpdatedSta
 export const listPartnersFn = () => request<PartnerList>('partners')
 export const reviewPartnerFn = ({ data }: { data: unknown }) => request<ReviewedPartner>('reviewPartner', data)
 export const getAssignmentOptionsFn = () => request<AssignmentOptions>('assignmentOptions')
+export const getUniversityProgramsFn = async (universityId: string) => {
+  const response = await fetch(`/api/admin?action=universityPrograms&universityId=${encodeURIComponent(universityId)}`)
+  const body = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(body.error || 'Unable to load university programs.')
+  return body as UniversityPrograms
+}
 export const assignStudentFn = ({ data }: { data: unknown }) => request<{ id: string; assignedPartnerCompanyId: string | null }>('assignStudent', data)
 export const listUniversityCatalogFn = () => request<Catalog>('universityCatalog')
 export const saveCountryFn = (data: unknown) => request('saveCountry', data)

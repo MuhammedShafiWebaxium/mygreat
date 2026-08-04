@@ -216,6 +216,15 @@ export async function listAssignmentOptions(actor: { role: UserRole }) {
   return { companies, universities }
 }
 
+export async function listUniversityPrograms(universityId: string) {
+  const courses = await prisma.course.findMany({
+    where: { universityId, active: true },
+    select: { name: true, level: true },
+    orderBy: [{ name: 'asc' }, { level: 'asc' }],
+  })
+  return [...new Map(courses.map((course) => [course.name.trim().toLowerCase(), course])).values()]
+}
+
 export async function assignStudentToPartner(
   actorId: string,
   input: { studentId: string; partnerCompanyId: string | null },

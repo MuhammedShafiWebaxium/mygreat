@@ -1,6 +1,6 @@
 import { assertRole, requireUser } from '@/features/auth/authorization.server'
 import { createStaffSchema, updateStaffSchema } from '@/features/auth/auth.schema'
-import { assignStudentToPartner, createStaffUser, listAssignmentOptions, listStaffUsers, listStudentUsers, readDocumentReviewQueue, readPrimaryApplicationQueue, readStaffQueue, updateStaffUser } from '@/features/admin/admin.server'
+import { assignStudentToPartner, createStaffUser, listAssignmentOptions, listStaffUsers, listStudentUsers, listUniversityPrograms, readDocumentReviewQueue, readPrimaryApplicationQueue, readStaffQueue, updateStaffUser } from '@/features/admin/admin.server'
 import { apiError } from '@/lib/api'
 import { listPartnerApplications, reviewPartner } from '@/features/partners/partner.server'
 import { partnerReviewSchema } from '@/features/partners/partner.schema'
@@ -29,6 +29,12 @@ export async function GET(request: Request) {
     if (action === 'assignmentOptions') {
       assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN', 'ADMISSIONS_EXECUTIVE', 'VISA_EXECUTIVE'])
       return Response.json(await listAssignmentOptions(user))
+    }
+    if (action === 'universityPrograms') {
+      assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN', 'ADMISSIONS_EXECUTIVE', 'VISA_EXECUTIVE'])
+      const universityId = new URL(request.url).searchParams.get('universityId')
+      if (!universityId) return Response.json({ error: 'University is required.' }, { status: 400 })
+      return Response.json(await listUniversityPrograms(universityId))
     }
     assertRole(user.role, ['SUPER_ADMIN', 'MARKETING_EXECUTIVE', 'FINANCE_EXECUTIVE', 'SUPPORT_EXECUTIVE', 'PARTNER_ADMIN', 'ADMISSIONS_EXECUTIVE', 'VISA_EXECUTIVE', 'RECEPTION_EXECUTIVE'])
     if (action === 'students') return Response.json(await listStudentUsers(user))
