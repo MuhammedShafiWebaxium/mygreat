@@ -31,6 +31,8 @@ export const workflowCaseActionSchema = z.object({
   assignedStaffName: z.string().trim().max(120).nullable().optional(),
   reapplyMode: z.enum(['APPEAL', 'NEW_ATTEMPT']).optional(),
   restartStage: z.string().trim().max(80).optional(),
+  rejectionType: z.enum(['UNIVERSITY_FINAL', 'OFFICER_CORRECTION', 'STUDENT_ACTION']).optional(),
+  requiredDocumentIds: z.array(z.enum(['passport','passport-photo','cv','aadhaar','10th-certificate','12th-certificate'])).max(6).optional(),
 })
 
 export const priorityApplicationSchema=z.object({applicationId:z.uuid()})

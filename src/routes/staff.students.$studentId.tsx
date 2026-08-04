@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import {
   AlertCircle,
   ArrowLeft,
@@ -255,17 +255,18 @@ function RequiredDocuments({
 
 function StudentDetail() {
   const student = Route.useLoaderData()
+  const router = useRouter()
   const country = student.profile?.destinationCountry as Country | null
   const review = async (documentId: string, status: 'VERIFIED' | 'NEEDED') => {
     await reviewDocumentFn({ documentId, status })
-    window.location.reload()
+    await router.invalidate({ sync: true })
   }
   const [priorityBusy, setPriorityBusy] = useState('')
   const selectPriority = async (applicationId: string) => {
     try {
       setPriorityBusy(applicationId)
       await setPriorityApplicationFn(applicationId)
-      window.location.reload()
+      await router.invalidate({ sync: true })
     } finally {
       setPriorityBusy('')
     }

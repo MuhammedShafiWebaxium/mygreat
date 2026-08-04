@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowLeft,
   ArrowRight,
+  AlertTriangle,
   Check,
   Clock3,
   Download,
@@ -11,6 +12,7 @@ import {
   Flag,
   MessageSquarePlus,
   Plane,
+  RefreshCw,
   ShieldCheck,
   Upload,
 } from 'lucide-react'
@@ -23,6 +25,7 @@ import {
   uploadSopFileFn,
 } from '@/features/workflow/workflow.functions'
 import { cn } from '@/lib/utils'
+import { REQUIRED_DOCUMENTS, type RequiredDocumentId } from '@/lib/local-documents'
 const label = (value: string) =>
   value
     .replaceAll('_', ' ')
@@ -32,7 +35,6 @@ const decisionStages = new Set([
   'SOP_APPROVED',
   'SOP_CORRECTION_REQUIRED',
   'APPLICATION_ACCEPTED',
-  'APPLICATION_REJECTED',
   'VISA_APPROVED',
   'VISA_REAPPLY_OR_APPEAL',
 ])
@@ -56,6 +58,8 @@ export default function WorkflowCaseDetail({
     [expected, setExpected] = useState(''),
     [expectedEnd, setExpectedEnd] = useState(''),
     [nextFollowUp, setNextFollowUp] = useState('')
+  const [rejectionType, setRejectionType] = useState<'UNIVERSITY_FINAL' | 'OFFICER_CORRECTION' | 'STUDENT_ACTION' | ''>('')
+  const [requiredDocumentIds, setRequiredDocumentIds] = useState<RequiredDocumentId[]>([])
   const query = useQuery({
     queryKey: ['workflow-case', applicationId, workflowType, visaAttemptId],
     queryFn: () =>
@@ -74,6 +78,8 @@ export default function WorkflowCaseDetail({
             : data.currentStage,
       )
       setOfferType(data.offerType || '')
+      setRejectionType('')
+      setRequiredDocumentIds([])
       if (workflowType === 'VISA' && !visaAttemptId && data.selectedVisaAttempt)
         setVisaAttemptId(data.selectedVisaAttempt.id)
     }
@@ -118,6 +124,8 @@ export default function WorkflowCaseDetail({
         nextFollowUpAt: nextFollowUp
           ? new Date(nextFollowUp).toISOString()
           : null,
+        rejectionType: target === 'APPLICATION_REJECTED' ? rejectionType || undefined : undefined,
+        requiredDocumentIds: target === 'APPLICATION_REJECTED' && rejectionType === 'STUDENT_ACTION' ? requiredDocumentIds : undefined,
       })
     },
     onSuccess: async (result: any) => {
@@ -127,6 +135,8 @@ export default function WorkflowCaseDetail({
       setExpectedEnd('')
       setNextFollowUp('')
       setSopFile(null)
+      setRejectionType('')
+      setRequiredDocumentIds([])
       if (result.selectedVisaAttempt)
         setVisaAttemptId(result.selectedVisaAttempt.id)
       await refresh()
@@ -137,7 +147,8 @@ export default function WorkflowCaseDetail({
     onSuccess: refresh,
   })
   const sopUpload = useMutation({
-    mutationFn: () => uploadSopFileFn(applicationId, sopFile!, note),
+    mutationFn: (file: File) => uploadSopFileFn(applicationId, file, note || 'SOP file replaced from Related documents.'),
+    onSuccess: async () => { setSopFile(null); await refresh() },
   })
   if (query.isLoading)
     return <div className="h-96 animate-pulse rounded-3xl bg-white/[.03]" />
@@ -340,7 +351,7 @@ export default function WorkflowCaseDetail({
         </div>
       </section>
       <div className="grid gap-5 xl:grid-cols-[.9fr_1.1fr]">
-        <section className="staff-card rounded-3xl border border-white/[.07] p-5">
+        {data.currentStage === 'APPLICATION_REJECTED_BY_UNIVERSITY' ? <section className="staff-card rounded-3xl border border-rose-400/25 bg-rose-400/[.055] p-6"><div className="flex items-start gap-4"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-rose-400/10 text-rose-300"><AlertTriangle className="size-5"/></span><div><p className="text-[9px] font-bold uppercase tracking-[.18em] text-rose-300">Application closed</p><h3 className="mt-1 font-display text-xl">Final rejection by university</h3><p className="mt-2 text-xs leading-5 text-white/45">This application cannot receive further follow-ups. The student has been notified of the university’s final decision.</p></div></div></section> : <section className="staff-card rounded-3xl border border-white/[.07] p-5">
           <div className="flex items-center gap-2">
             <MessageSquarePlus className="size-4 text-amber-300" />
             <h3 className="font-display text-xl">Add follow-up</h3>
@@ -367,6 +378,11 @@ export default function WorkflowCaseDetail({
                 ))}
               </select>
             </label>
+            {workflowType === 'APPLICATION' && target === 'APPLICATION_REJECTED' && <div className="rounded-2xl border border-rose-400/20 bg-rose-400/[.035] p-4"><div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 size-4 shrink-0 text-rose-300"/><div><p className="text-xs font-bold">Why was the application rejected?</p><p className="mt-1 text-[9px] leading-4 text-white/40">Choose carefully. A final university rejection permanently closes this application.</p></div></div><div className="mt-4 space-y-2">{([
+              ['UNIVERSITY_FINAL','Final rejection by university','The application cannot proceed and no more follow-ups will be allowed.'],
+              ['OFFICER_CORRECTION','Application officer correction','Staff will correct the issue and resubmit using the existing workflow.'],
+              ['STUDENT_ACTION','Urgent student action required','Select documents the student must replace before staff can resubmit.'],
+            ] as const).map(([value,title,description])=><button type="button" key={value} onClick={()=>{setRejectionType(value);if(value!=='STUDENT_ACTION')setRequiredDocumentIds([])}} className={cn('w-full rounded-xl border p-3 text-left transition',rejectionType===value?'border-rose-400/45 bg-rose-400/10':'border-white/10 hover:border-white/20')}><div className="flex items-start gap-3"><span className={cn('mt-0.5 grid size-4 shrink-0 place-items-center rounded-full border',rejectionType===value?'border-rose-400 bg-rose-400':'border-white/25')}>{rejectionType===value&&<Check className="size-3 text-slate-950"/>}</span><span><span className="block text-[10px] font-bold">{title}</span><span className="mt-1 block text-[9px] leading-4 text-white/40">{description}</span></span></div></button>)}</div>{rejectionType==='STUDENT_ACTION'&&<div className="mt-4 border-t border-rose-400/15 pt-4"><p className="text-[9px] font-bold uppercase tracking-[.15em] text-rose-300">Documents requiring urgent replacement</p><div className="mt-2 grid gap-2 sm:grid-cols-2">{REQUIRED_DOCUMENTS.map(document=>{const selected=requiredDocumentIds.includes(document.id);return <button type="button" aria-pressed={selected} key={document.id} onClick={()=>setRequiredDocumentIds(current=>current.includes(document.id)?current.filter(id=>id!==document.id):[...current,document.id])} className={cn('flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-[9px] transition',selected?'border-rose-400/40 bg-rose-400/10':'border-white/10 hover:border-rose-400/25 hover:bg-rose-400/[.035]')}><span className={cn('grid size-4 shrink-0 place-items-center rounded border',selected?'border-rose-400 bg-rose-400':'border-white/20')}>{selected&&<Check className="size-3 text-slate-950"/>}</span><span className="leading-4">{document.name}</span></button>})}</div></div>}</div>}
             {workflowType === 'APPLICATION' &&
               ['APPLICATION_FOLLOW_UP','CONDITIONAL_OFFER_RECEIVED','UNCONDITIONAL_OFFER_RECEIVED','MOVE_TO_VISA'].includes(data.currentStage) && (
                 <div className="rounded-xl border border-white/10 bg-white/[.025] p-3">
@@ -482,6 +498,8 @@ export default function WorkflowCaseDetail({
                   target === 'SOP_VERIFICATION' &&
                   data.currentStage !== 'SOP_VERIFICATION' &&
                   !sopFile) ||
+                (target === 'APPLICATION_REJECTED' && (!rejectionType || !note.trim())) ||
+                (target === 'APPLICATION_REJECTED' && rejectionType === 'STUDENT_ACTION' && requiredDocumentIds.length === 0) ||
                 (!note.trim() &&
                   target === data.currentStage &&
                   offerType === (data.offerType ?? ''))
@@ -496,7 +514,7 @@ export default function WorkflowCaseDetail({
               <p className="text-xs text-rose-300">{followup.error.message}</p>
             )}
           </div>
-        </section>
+        </section>}
         <section className="staff-card rounded-3xl border border-white/[.07] p-5">
           <div className="flex items-center gap-2">
             <Clock3 className="size-4 text-indigo-300" />
@@ -626,7 +644,7 @@ export default function WorkflowCaseDetail({
             {sopFile && (
               <button
                 disabled={sopUpload.isPending}
-                onClick={() => sopUpload.mutate()}
+                onClick={() => sopFile && sopUpload.mutate(sopFile)}
                 className="mt-3 rounded-xl bg-amber-400 px-5 py-3 text-[10px] font-bold text-slate-950"
               >
                 {sopUpload.isPending ? 'Uploading…' : 'Attach SOP file'}
@@ -658,24 +676,21 @@ export default function WorkflowCaseDetail({
       {workflowType === 'APPLICATION' &&
         data.events.some((event: any) => event.attachments?.length) && (
           <section className="staff-card rounded-3xl border border-white/[.07] p-5">
-            <h3 className="font-display text-lg">SOP attachments</h3>
-            <div className="mt-3 space-y-2">
+            <div className="flex items-start justify-between gap-4"><div><h3 className="font-display text-lg">SOP attachment</h3><p className="mt-1 text-[10px] text-white/35">Preview, download, or replace the current statement of purpose.</p></div><ShieldCheck className="size-5 text-amber-300"/></div>
+            <div className="mt-4 space-y-2">
               {data.events
                 .flatMap((event: any) => event.attachments || [])
                 .map((file: any) => (
-                  <a
+                  <div
                     key={file.id}
-                    href={`/api/workflow?workflowFileId=${encodeURIComponent(file.id)}`}
-                    className="flex items-center gap-3 rounded-xl border border-white/[.07] p-3 text-xs hover:border-amber-300/30"
+                    className="rounded-2xl border border-white/[.08] bg-white/[.02] p-4"
                   >
-                    <Download className="size-4 text-amber-300" />
-                    <span className="flex-1 truncate">{file.fileName}</span>
-                    <span className="text-[9px] text-white/35">
-                      {Math.ceil(file.sizeBytes / 1024)} KB
-                    </span>
-                  </a>
+                    <div className="flex items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-400/10 text-amber-300"><FileText className="size-4"/></span><div className="min-w-0 flex-1"><p className="truncate text-xs font-semibold">{file.fileName}</p><p className="mt-1 text-[9px] text-white/35">{Math.ceil(file.sizeBytes / 1024)} KB · {file.mimeType === 'application/pdf' || file.fileName.toLowerCase().endsWith('.pdf') ? 'PDF preview available' : 'Document download'}</p></div></div>
+                    <div className="mt-4 grid grid-cols-3 gap-2"><a target="_blank" rel="noreferrer" href={`/api/workflow?workflowFileId=${encodeURIComponent(file.id)}&preview=1`} className="flex items-center justify-center gap-1.5 rounded-xl border border-sky-300/25 px-3 py-2.5 text-[9px] font-bold text-sky-300"><FileText className="size-3.5"/>View</a><a href={`/api/workflow?workflowFileId=${encodeURIComponent(file.id)}`} className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 px-3 py-2.5 text-[9px] font-bold text-white/60"><Download className="size-3.5"/>Download</a><label className={cn('flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-amber-300/25 px-3 py-2.5 text-[9px] font-bold text-amber-300',sopUpload.isPending&&'pointer-events-none opacity-45')}><RefreshCw className={cn('size-3.5',sopUpload.isPending&&'animate-spin')}/>{sopUpload.isPending?'Replacing…':'Replace'}<input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(event)=>{const replacement=event.target.files?.[0];if(replacement)sopUpload.mutate(replacement);event.target.value='' }}/></label></div>
+                  </div>
                 ))}
             </div>
+            {sopUpload.error&&<p className="mt-3 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-xs text-rose-300">{sopUpload.error.message}</p>}
           </section>
         )}
     </div>

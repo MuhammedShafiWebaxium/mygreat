@@ -741,6 +741,16 @@
   border-color: #fecdd3 !important;
 }
 
+.light-theme .document-center .document-card-danger { background: #fff7f8 !important; border-color: #fda4af !important; }
+.light-theme .document-center .document-replacement-alert { color: #9f1239 !important; background: #fff1f2 !important; border-color: #fecdd3 !important; }
+.light-theme .document-center .document-replacement-alert p { color: #9f1239 !important; }
+.light-theme .document-center .document-upload-button { color: #172033 !important; background: #fbbf24 !important; border-color: #f59e0b !important; }
+.light-theme .document-center .document-upload-button:hover { background: #f59e0b !important; }
+.light-theme .document-center .document-replace-button { color: #475569 !important; background: #fff !important; border-color: #cbd5e1 !important; }
+.light-theme .document-center .document-replace-button:hover { color: #9a4b09 !important; background: #fffaf0 !important; border-color: rgb(217 119 6 / 0.45) !important; }
+.light-theme .document-center .document-replace-danger { color: #9f1239 !important; background: #fff1f2 !important; border-color: #fda4af !important; }
+.light-theme .document-center .document-replace-danger:hover { background: #ffe4e6 !important; }
+
 .staff-workspace.light-theme .catalog-card,
 .staff-workspace.light-theme .catalog-modal {
   background: rgb(255 255 255 / 0.94) !important;

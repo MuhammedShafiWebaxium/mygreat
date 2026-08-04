@@ -9,7 +9,7 @@ import { APPLICATION_WORKFLOW, VISA_WORKFLOW, WORKFLOW_TRANSITIONS, isValidWorkf
 
 const dateOnly = (date: Date | null) => date?.toISOString().slice(0, 10) ?? null
 
-const SUPER_ADMIN_TARGETS=new Set(['SOP_APPROVED','SOP_CORRECTION_REQUIRED','APPLICATION_ACCEPTED','APPLICATION_REJECTED','VISA_APPROVED','VISA_REAPPLY_OR_APPEAL'])
+const SUPER_ADMIN_TARGETS=new Set(['SOP_APPROVED','SOP_CORRECTION_REQUIRED','APPLICATION_ACCEPTED','VISA_APPROVED','VISA_REAPPLY_OR_APPEAL'])
 
 async function assertWorkflowAccess(actor:{id:string;role:UserRole},studentId:string){
   if(actor.role==='SUPER_ADMIN')return
@@ -37,6 +37,8 @@ export async function readWorkflowCase(actor:{id:string;role:UserRole},applicati
     const visited=new Set(followups.map((item:any)=>item.stage))
     if(visited.has('SOP_CORRECTION_REQUIRED')||currentStage==='SOP_CORRECTION_REQUIRED')stages.splice(stages.indexOf('SOP_APPROVED'),0,'SOP_CORRECTION_REQUIRED')
     if(current.offerType==='UNCONDITIONAL')stages[stages.indexOf('CONDITIONAL_OFFER_RECEIVED')]='UNCONDITIONAL_OFFER_RECEIVED'
+    if(currentStage==='APPLICATION_STUDENT_ACTION_REQUIRED')stages.splice(stages.indexOf('APPLICATION_SUBMISSION'),0,currentStage)
+    if(currentStage==='APPLICATION_REJECTED_BY_UNIVERSITY')stages.splice(stages.indexOf('APPLICATION_SUBMISSION')+1,0,currentStage)
   }
   return {...current,workflowType,currentStage,stages,validNextStages:WORKFLOW_TRANSITIONS[currentStage]??[],siblings,visaAttempts,selectedVisaAttempt:visaAttempt,tasks,documents,events,canApprove:actor.role==='SUPER_ADMIN',canChangePriority:['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE'].includes(actor.role)}
 }
@@ -46,6 +48,9 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
   const stage=detail.currentStage as string
   const target=input.targetStage
   if(!isValidWorkflowTransition(stage,target))throw new Error(`Invalid transition from ${stage} to ${target}.`)
+  if(stage==='APPLICATION_REJECTED_BY_UNIVERSITY')throw new Error('This application was finally rejected by the university and is closed to further follow-ups.')
+  if(input.workflowType==='APPLICATION'&&stage==='APPLICATION_SUBMISSION'&&target==='APPLICATION_REJECTED'&&!input.rejectionType)throw new Error('Select the reason the university rejected this application.')
+  if(input.rejectionType==='STUDENT_ACTION'&&!input.requiredDocumentIds?.length)throw new Error('Select at least one document the student must replace.')
   if(SUPER_ADMIN_TARGETS.has(target)&&actor.role!=='SUPER_ADMIN')throw new Error('Only Super Admins can record this decision.')
   if(input.workflowType==='APPLICATION'&&['SOP_APPROVED','SOP_CORRECTION_REQUIRED'].includes(target)){
     if(actor.role!=='SUPER_ADMIN'||!input.approvalRequestId)throw new Error('SOP decisions must be completed from the Super Admin approval queue.')
@@ -62,7 +67,7 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
   if(input.workflowType==='APPLICATION'&&offerType&&!detail.offerLetterId)throw new Error('Upload the offer letter before saving the offer outcome.')
   if(!input.note&&target===stage&&!(input.offerType!==undefined&&input.offerType!==detail.offerType))throw new Error('Add notes for this follow-up.')
   let visaAttemptId=detail.selectedVisaAttempt?.id as string|undefined
-  let persistedTarget=target==='APPLICATION_REJECTED'?'SOP_APPROVED':target==='APPLICATION_ACCEPTED'?'APPLICATION_FOLLOW_UP':target
+  let persistedTarget=target==='APPLICATION_REJECTED'?(input.rejectionType==='UNIVERSITY_FINAL'?'APPLICATION_REJECTED_BY_UNIVERSITY':input.rejectionType==='STUDENT_ACTION'?'APPLICATION_STUDENT_ACTION_REQUIRED':'SOP_APPROVED'):target==='APPLICATION_ACCEPTED'?'APPLICATION_FOLLOW_UP':target
   if(input.workflowType==='APPLICATION'&&['APPLICATION_FOLLOW_UP','CONDITIONAL_OFFER_RECEIVED','UNCONDITIONAL_OFFER_RECEIVED'].includes(stage)&&target===stage&&input.offerType)persistedTarget=input.offerType==='CONDITIONAL'?'CONDITIONAL_OFFER_RECEIVED':'UNCONDITIONAL_OFFER_RECEIVED'
   const recordedOutcome=target==='APPLICATION_REJECTED'?'REJECTED':target==='APPLICATION_ACCEPTED'?'ACCEPTED':input.outcome
   await prisma.$transaction(async tx=>{
@@ -76,10 +81,21 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
     }
     if(input.workflowType==='APPLICATION')await tx.$executeRaw(Prisma.sql`UPDATE applications SET application_stage=${persistedTarget}::application_status,offer_type=COALESCE(${input.offerType??null}::offer_type,offer_type),updated_at=NOW() WHERE id=${input.applicationId}::uuid`)
     else await tx.$executeRaw(Prisma.sql`UPDATE visa_attempts SET current_stage=${persistedTarget}::visa_status,outcome=${input.outcome??null},updated_at=NOW() WHERE id=${visaAttemptId}::uuid`)
-    const applicationSummary:Record<string,{progress:number;nextAction:string}>={SOP_APPROVED:{progress:25,nextAction:'SOP Approved'},APPLICATION_SUBMISSION:{progress:35,nextAction:'Prepare application submission'},APPLICATION_ACCEPTED:{progress:60,nextAction:'Application follow-up'},APPLICATION_FOLLOW_UP:{progress:70,nextAction:'Application follow-up in progress'},CONDITIONAL_OFFER_RECEIVED:{progress:90,nextAction:'Meet conditional offer requirements'},UNCONDITIONAL_OFFER_RECEIVED:{progress:90,nextAction:'Unconditional offer received'},MOVE_TO_VISA:{progress:100,nextAction:'Continue to visa process'}}
+    const applicationSummary:Record<string,{progress:number;nextAction:string}>={SOP_APPROVED:{progress:25,nextAction:'Correct and resubmit application'},APPLICATION_SUBMISSION:{progress:35,nextAction:'Application submitted'},APPLICATION_STUDENT_ACTION_REQUIRED:{progress:35,nextAction:'Urgent: replace requested documents'},APPLICATION_REJECTED_BY_UNIVERSITY:{progress:100,nextAction:'Application closed by university'},APPLICATION_ACCEPTED:{progress:60,nextAction:'Application follow-up'},APPLICATION_FOLLOW_UP:{progress:70,nextAction:'Application follow-up in progress'},CONDITIONAL_OFFER_RECEIVED:{progress:90,nextAction:'Meet conditional offer requirements'},UNCONDITIONAL_OFFER_RECEIVED:{progress:90,nextAction:'Unconditional offer received'},MOVE_TO_VISA:{progress:100,nextAction:'Continue to visa process'}}
     const visaSummary:Record<string,{nextAction:string}>={VISA_DOCUMENT_COLLECTION:{nextAction:'Collect visa documents'},VISA_SLOT_BOOKING:{nextAction:'Book visa appointment'},VISA_SUBMISSION:{nextAction:'Awaiting visa decision'},VISA_REAPPLY_OR_APPEAL:{nextAction:'Choose appeal or reapplication'},VISA_GRANTED:{nextAction:'Visa granted'}}
     const summary=input.workflowType==='APPLICATION'?applicationSummary[persistedTarget]:visaSummary[persistedTarget]
     if(summary)await tx.application.update({where:{id:input.applicationId},data:summary})
+    if(input.workflowType==='APPLICATION'&&input.rejectionType==='STUDENT_ACTION'){
+      for(const documentId of input.requiredDocumentIds??[]){
+        const name=requiredDocumentNames[documentId]
+        if(!name)continue
+        const replacementNote=`URGENT — Application resubmission requires a replacement. ${input.note||'Please upload a corrected document as soon as possible.'}`
+        const changed=await tx.document.updateMany({where:{userId:detail.studentId,name},data:{status:'NEEDED',note:replacementNote,verifiedBy:null}})
+        if(!changed.count)await tx.document.create({data:{userId:detail.studentId,applicationId:input.applicationId,name,status:'NEEDED',note:replacementNote}})
+      }
+      await tx.notification.create({data:{userId:detail.studentId,kind:'DOCUMENT',title:'Urgent action required for your application',description:`${detail.universityName} needs corrected documents before your application can be resubmitted. Open Document center and replace the requested files immediately.`}})
+    }
+    if(input.workflowType==='APPLICATION'&&input.rejectionType==='UNIVERSITY_FINAL')await tx.notification.create({data:{userId:detail.studentId,kind:'SYSTEM',title:`Application rejected by ${detail.universityName}`,description:`The university has issued a final rejection for your ${detail.program} application. This application is now closed and cannot proceed further.`}})
     const [followup]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO workflow_followups(student_id,application_id,visa_attempt_id,workflow_type,stage,outcome,notes,expected_completion_at,expected_completion_end_at,next_follow_up_at,assigned_staff_id,assigned_staff_name,created_by_id,created_by_name) VALUES(${detail.studentId}::uuid,${input.applicationId}::uuid,${visaAttemptId??null}::uuid,${input.workflowType},${persistedTarget},${recordedOutcome??null},${input.note},${input.expectedCompletionAt?new Date(input.expectedCompletionAt):null},${input.expectedCompletionEndAt?new Date(input.expectedCompletionEndAt):null},${input.nextFollowUpAt?new Date(input.nextFollowUpAt):null},${input.assignedStaffId??null}::uuid,${input.assignedStaffName??null},${actor.id}::uuid,${actor.name}) RETURNING id`)
     if(input.workflowType==='APPLICATION'&&stage!=='SOP_VERIFICATION'&&persistedTarget==='SOP_VERIFICATION')await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_approval_requests(student_id,application_id,followup_id,stage,requested_by_id,requested_by_name) VALUES(${detail.studentId}::uuid,${input.applicationId}::uuid,${followup.id}::uuid,'SOP_VERIFICATION',${actor.id}::uuid,${actor.name})`)
     if(input.workflowType==='APPLICATION'&&stage==='SOP_VERIFICATION'&&['SOP_APPROVED','SOP_CORRECTION_REQUIRED'].includes(persistedTarget))await tx.$executeRaw(Prisma.sql`UPDATE workflow_approval_requests SET status=${persistedTarget==='SOP_APPROVED'?'APPROVED':'REJECTED'},reviewed_by_id=${actor.id}::uuid,reviewed_by_name=${actor.name},review_note=${input.note},reviewed_at=NOW() WHERE id=${input.approvalRequestId}::uuid AND status='PENDING'`)
@@ -97,7 +113,7 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
 
 export async function uploadSopFile(actor:{id:string;name:string;role:UserRole},applicationId:string,file:File,note:string){
   const detail=await readWorkflowCase(actor,applicationId,'APPLICATION')
-  if(!['SOP_PREPARATION','SOP_CORRECTION_REQUIRED'].includes(detail.currentStage))throw new Error('SOP files can only be attached during SOP Preparation or correction.')
+  if(['APPLICATION_REJECTED_BY_UNIVERSITY','MOVE_TO_VISA'].includes(detail.currentStage))throw new Error('The SOP cannot be replaced after this application is closed or moved to visa.')
   if(file.size<=0||file.size>10*1024*1024)throw new Error('The SOP file must be between 1 byte and 10 MB.')
   const allowed=new Set(['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
   if(!allowed.has(file.type))throw new Error('Upload a PDF, DOC, or DOCX SOP file.')
