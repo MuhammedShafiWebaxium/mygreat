@@ -66,11 +66,17 @@ export const ModelName = {
   CourseFee: 'CourseFee',
   StudentShortlist: 'StudentShortlist',
   Application: 'Application',
+  VisaAttempt: 'VisaAttempt',
+  WorkflowFollowup: 'WorkflowFollowup',
+  WorkflowFollowupFile: 'WorkflowFollowupFile',
+  WorkflowApprovalRequest: 'WorkflowApprovalRequest',
   Task: 'Task',
   Document: 'Document',
   Deadline: 'Deadline',
   Notification: 'Notification',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  CatalogImportJob: 'CatalogImportJob',
+  CatalogImportError: 'CatalogImportError'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -326,10 +332,10 @@ export const ApplicationScalarFieldEnum = {
   quotedFeeAmount: 'quotedFeeAmount',
   quotedFeeCurrency: 'quotedFeeCurrency',
   feeQuotedAt: 'feeQuotedAt',
-  status: 'status',
-  visaStatus: 'visaStatus',
   progress: 'progress',
   nextAction: 'nextAction',
+  isPriority: 'isPriority',
+  applicationStage: 'applicationStage',
   applicationDeadline: 'applicationDeadline',
   admissionsExecutiveId: 'admissionsExecutiveId',
   visaExecutiveId: 'visaExecutiveId',
@@ -339,6 +345,77 @@ export const ApplicationScalarFieldEnum = {
 } as const
 
 export type ApplicationScalarFieldEnum = (typeof ApplicationScalarFieldEnum)[keyof typeof ApplicationScalarFieldEnum]
+
+
+export const VisaAttemptScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  attemptNumber: 'attemptNumber',
+  isCurrent: 'isCurrent',
+  currentStage: 'currentStage',
+  outcome: 'outcome',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VisaAttemptScalarFieldEnum = (typeof VisaAttemptScalarFieldEnum)[keyof typeof VisaAttemptScalarFieldEnum]
+
+
+export const WorkflowFollowupScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  applicationId: 'applicationId',
+  visaAttemptId: 'visaAttemptId',
+  workflowType: 'workflowType',
+  stage: 'stage',
+  outcome: 'outcome',
+  notes: 'notes',
+  expectedCompletionAt: 'expectedCompletionAt',
+  expectedCompletionEndAt: 'expectedCompletionEndAt',
+  nextFollowUpAt: 'nextFollowUpAt',
+  assignedStaffId: 'assignedStaffId',
+  assignedStaffName: 'assignedStaffName',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  followedUpAt: 'followedUpAt',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkflowFollowupScalarFieldEnum = (typeof WorkflowFollowupScalarFieldEnum)[keyof typeof WorkflowFollowupScalarFieldEnum]
+
+
+export const WorkflowFollowupFileScalarFieldEnum = {
+  id: 'id',
+  followupId: 'followupId',
+  fileName: 'fileName',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  fileData: 'fileData',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkflowFollowupFileScalarFieldEnum = (typeof WorkflowFollowupFileScalarFieldEnum)[keyof typeof WorkflowFollowupFileScalarFieldEnum]
+
+
+export const WorkflowApprovalRequestScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  applicationId: 'applicationId',
+  followupId: 'followupId',
+  workflowType: 'workflowType',
+  visaAttemptId: 'visaAttemptId',
+  stage: 'stage',
+  status: 'status',
+  requestedById: 'requestedById',
+  requestedByName: 'requestedByName',
+  reviewedById: 'reviewedById',
+  reviewedByName: 'reviewedByName',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt',
+  reviewedAt: 'reviewedAt'
+} as const
+
+export type WorkflowApprovalRequestScalarFieldEnum = (typeof WorkflowApprovalRequestScalarFieldEnum)[keyof typeof WorkflowApprovalRequestScalarFieldEnum]
 
 
 export const TaskScalarFieldEnum = {
@@ -411,6 +488,37 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const CatalogImportJobScalarFieldEnum = {
+  id: 'id',
+  actorId: 'actorId',
+  entityType: 'entityType',
+  fileName: 'fileName',
+  totalRows: 'totalRows',
+  processedRows: 'processedRows',
+  createdRows: 'createdRows',
+  updatedRows: 'updatedRows',
+  skippedRows: 'skippedRows',
+  failedRows: 'failedRows',
+  status: 'status',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type CatalogImportJobScalarFieldEnum = (typeof CatalogImportJobScalarFieldEnum)[keyof typeof CatalogImportJobScalarFieldEnum]
+
+
+export const CatalogImportErrorScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  rowNumber: 'rowNumber',
+  message: 'message',
+  rowData: 'rowData',
+  createdAt: 'createdAt'
+} as const
+
+export type CatalogImportErrorScalarFieldEnum = (typeof CatalogImportErrorScalarFieldEnum)[keyof typeof CatalogImportErrorScalarFieldEnum]
 
 
 export const SortOrder = {

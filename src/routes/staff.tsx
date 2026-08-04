@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-import Staff from '@/screens/Staff'
+import Staff from '@/screens/staff/Staff'
 import { ClientOnly } from '@/components/ClientOnly'
 import { getCurrentUserFn } from '@/features/auth/auth.functions'
 

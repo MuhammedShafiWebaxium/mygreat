@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import Home from '@/screens/Home'
+import Onboarding from '@/screens/public/Onboarding'
 import { getCurrentUserFn } from '@/features/auth/auth.functions'
 import { getOnboardingCatalogFn } from '@/features/onboarding/onboarding.functions'
 
@@ -13,4 +13,4 @@ export const Route = createFileRoute('/onboarding')({
   component: OnboardingRoute,
 })
 
-function OnboardingRoute() { return <Home catalog={Route.useLoaderData()} /> }
+function OnboardingRoute() { return <Onboarding catalog={Route.useLoaderData()} /> }

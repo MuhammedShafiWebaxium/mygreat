@@ -41,7 +41,7 @@ export default function Documents({ documents, onChanged }: { documents: ServerD
   return <div className="document-center max-w-5xl space-y-5">
     <motion.div variants={fadeUp} initial="hidden" animate="show">
       <h2 className="font-display text-2xl font-light sm:text-3xl">Required <span className="text-gradient-gold font-medium">documents</span></h2>
-      <p className="mt-1.5 text-sm text-white/45">Upload all four documents before your application can be reviewed.</p>
+      <p className="mt-1.5 text-sm text-white/45">Upload all {REQUIRED_DOCUMENTS.length} documents before your application can be reviewed.</p>
     </motion.div>
 
     {allSubmittedForReview && !allVerified && <motion.section variants={fadeUp} initial="hidden" animate="show" role="status" className="overflow-hidden rounded-3xl border border-amber-400/30 bg-gradient-to-br from-amber-400/[.13] via-amber-300/[.06] to-transparent p-5 shadow-[0_18px_45px_-28px_rgba(245,158,11,.8)] sm:p-6">
@@ -53,7 +53,7 @@ export default function Documents({ documents, onChanged }: { documents: ServerD
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-bold uppercase tracking-[.22em] text-amber-300/75">Verification in progress</p>
           <h3 className="mt-1 font-display text-xl text-white sm:text-2xl">All documents are under review</h3>
-          <p className="mt-1.5 max-w-2xl text-xs leading-5 text-white/50">Your four required documents were uploaded successfully. Our team is checking them now; you’ll see each item change to Verified after approval.</p>
+          <p className="mt-1.5 max-w-2xl text-xs leading-5 text-white/50">Your {REQUIRED_DOCUMENTS.length} required documents were uploaded successfully. Our team is checking them now; you’ll see each item change to Verified after approval.</p>
           <div className="mt-4 flex items-center gap-2 text-[10px] font-semibold sm:gap-3">
             <span className="rounded-full bg-emerald-400/15 px-3 py-1.5 text-emerald-300">Uploaded</span>
             <span className="h-px w-5 bg-amber-400/35"/>
@@ -70,7 +70,7 @@ export default function Documents({ documents, onChanged }: { documents: ServerD
     <Panel className="flex items-center gap-4 p-5">
       <ShieldCheck className="size-6 text-amber-300"/>
       <div className="flex-1">
-        <div className="flex justify-between text-xs"><span>{uploaded}/4 uploaded · {verified}/4 verified</span><span>{Math.round(verificationProgress)}% verified</span></div>
+        <div className="flex justify-between text-xs"><span>{uploaded}/{REQUIRED_DOCUMENTS.length} uploaded · {verified}/{REQUIRED_DOCUMENTS.length} verified</span><span>{Math.round(verificationProgress)}% verified</span></div>
         <Bar value={verificationProgress} className="mt-2"/>
       </div>
     </Panel>

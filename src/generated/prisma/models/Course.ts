@@ -437,7 +437,6 @@ export type CourseOrderByWithRelationInput = {
 
 export type CourseWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  universityId_code?: Prisma.CourseUniversityIdCodeCompoundUniqueInput
   AND?: Prisma.CourseWhereInput | Prisma.CourseWhereInput[]
   OR?: Prisma.CourseWhereInput[]
   NOT?: Prisma.CourseWhereInput | Prisma.CourseWhereInput[]
@@ -471,7 +470,7 @@ export type CourseWhereUniqueInput = Prisma.AtLeast<{
   university?: Prisma.XOR<Prisma.UniversityScalarRelationFilter, Prisma.UniversityWhereInput>
   fees?: Prisma.CourseFeeListRelationFilter
   applications?: Prisma.ApplicationListRelationFilter
-}, "id" | "universityId_code">
+}, "id">
 
 export type CourseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -783,11 +782,6 @@ export type StringNullableListFilter<$PrismaModel = never> = {
   hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
   hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
   isEmpty?: boolean
-}
-
-export type CourseUniversityIdCodeCompoundUniqueInput = {
-  universityId: string
-  code: string
 }
 
 export type CourseCountOrderByAggregateInput = {

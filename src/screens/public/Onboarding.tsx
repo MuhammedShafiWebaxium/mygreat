@@ -35,7 +35,7 @@ const stepVariants = {
   exit: (dir: number) => ({ opacity: 0, x: dir * -48, filter: 'blur(4px)' }),
 }
 
-export default function Home({ catalog }: { catalog:{ countries:Country[]; universities:University[] } }) {
+export default function Onboarding({ catalog }: { catalog:{ countries:Country[]; universities:University[] } }) {
   const theme = useAppStore((state) => state.theme)
   const [step, setStep] = useState(0)
   const [direction, setDirection] = useState(1)

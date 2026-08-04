@@ -7,7 +7,7 @@ import { BadgeCheck, Ban, CheckCircle2, Mail, Pencil, Plus, Search, ShieldCheck,
 import { createStaffFn, updateStaffFn } from '@/features/admin/admin.functions'
 import { currentUserQuery } from '@/features/auth/auth.queries'
 import { staffListQuery } from '@/features/admin/admin.queries'
-import { STAFF_ROLE_LABELS } from '@/screens/Staff'
+import { STAFF_ROLE_LABELS } from '@/screens/staff/Staff'
 import { cn } from '@/lib/utils'
 
 type StaffRole = 'SUPER_ADMIN' | 'MARKETING_EXECUTIVE' | 'FINANCE_EXECUTIVE' | 'SUPPORT_EXECUTIVE' | 'PARTNER_ADMIN' | 'ADMISSIONS_EXECUTIVE' | 'VISA_EXECUTIVE' | 'RECEPTION_EXECUTIVE'

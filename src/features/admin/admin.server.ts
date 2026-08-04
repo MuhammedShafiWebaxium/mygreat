@@ -177,26 +177,27 @@ export async function readStaffQueue(actor: { id: string; role: UserRole }) {
     where, include: { student: { select: { name: true } }, university: { select: { name: true } } },
     orderBy: { student: { name: 'asc' } },
   })
+  const workflowMeta=rows.length?await prisma.$queryRaw<Array<{id:string;isPriority:boolean;visaAttemptCount:number;visaStatus:string|null}>>(Prisma.sql`SELECT a.id,a.is_priority AS "isPriority",COUNT(v.id)::int AS "visaAttemptCount",MAX(v.current_stage::text) FILTER(WHERE v.is_current=TRUE) AS "visaStatus" FROM applications a LEFT JOIN visa_attempts v ON v.application_id=a.id WHERE a.id IN (${Prisma.join(rows.map(row=>Prisma.sql`${row.id}::uuid`))}) GROUP BY a.id,a.is_priority`):[]
+  const metaById=new Map(workflowMeta.map(item=>[item.id,item]))
   return rows.map(({ student, university, ...application }) => ({
     id: application.id, studentId: application.studentId, studentName: student.name,
-    university: university.name, program: application.program, status: application.status,
-    visaStatus: application.visaStatus, progress: application.progress,
+    university: university.name, program: application.program, status: application.applicationStage,
+    visaStatus: metaById.get(application.id)?.visaStatus??null, progress: application.progress,
     nextAction: application.nextAction, createdAt: application.createdAt, updatedAt: application.updatedAt,
+    isPriority:metaById.get(application.id)?.isPriority??false,visaAttemptCount:metaById.get(application.id)?.visaAttemptCount??0,
   }))
 }
 
 export async function readPrimaryApplicationQueue(actor: { id: string; role: UserRole }) {
   const applications = await readStaffQueue(actor)
-  const primaryByStudent = new Map<string, (typeof applications)[number]>()
+  const grouped = new Map<string, (typeof applications)>()
   for (const application of applications) {
-    const current = primaryByStudent.get(application.studentId)
-    if (!current
-      || application.createdAt < current.createdAt
-      || (application.createdAt.getTime() === current.createdAt.getTime() && application.id < current.id)) {
-      primaryByStudent.set(application.studentId, application)
-    }
+    grouped.set(application.studentId,[...(grouped.get(application.studentId)??[]),application])
   }
-  return [...primaryByStudent.values()].sort((a, b) => a.studentName.localeCompare(b.studentName))
+  return [...grouped.values()].map(group=>{
+    const priority=group.find(item=>item.isPriority)
+    return priority?{...priority,applicationCount:group.length,priorityMissing:false}:{...group[0],id:null,university:'Priority application not selected',program:'Select a priority application from the student profile',applicationCount:group.length,priorityMissing:true,visaStatus:null,visaAttemptCount:0}
+  }).sort((a,b)=>a.studentName.localeCompare(b.studentName))
 }
 
 export async function listAssignmentOptions(actor: { role: UserRole }) {
@@ -276,12 +277,15 @@ export async function readStudentProfileForStaff(
     },
   })
   if (!student) throw new Error('Student not found.')
+  const priorities=student.applications.length?await prisma.$queryRaw<Array<{id:string;isPriority:boolean}>>(Prisma.sql`SELECT id,is_priority AS "isPriority" FROM applications WHERE student_id=${studentId}::uuid`):[]
+  const priorityById=new Map(priorities.map(item=>[item.id,item.isPriority]))
   return {
     ...student,
     profile: student.profile ? { ...student.profile, gpa: student.profile.gpa === null ? null : Number(student.profile.gpa) } : null,
     applications: student.applications.map(({ university, ...application }) => ({
       ...application,
       quotedFeeAmount: application.quotedFeeAmount === null ? null : application.quotedFeeAmount.toString(),
+      isPriority:priorityById.get(application.id)??false,
       university,
     })),
   }

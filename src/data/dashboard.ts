@@ -21,7 +21,7 @@ export interface Application {
   deadline?: string
   deadlineLabel?: string
   stages: Stage[]
-  visaStatus?: 'not-started' | 'documents-pending' | 'ready-to-file' | 'filed' | 'approved' | 'rejected'
+  visaStatus?: string
 }
 
 export interface Task {
@@ -176,9 +176,11 @@ export interface Reco {
   id: string
   name: string
   city: string
+  countryId?: string
   rank: number
   tuition: string
   acceptance: string
+  knownFor?: string
   match: number
   initials: string
 }

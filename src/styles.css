@@ -455,6 +455,133 @@
   border-color: #e4e8f0 !important;
 }
 
+.student-dashboard.light-theme .university-compare-tray {
+  background: rgb(255 255 255 / 0.96) !important;
+  border-color: rgb(217 119 6 / 0.28) !important;
+  box-shadow: 0 22px 55px -32px rgb(15 23 42 / 0.42) !important;
+}
+
+.student-dashboard.light-theme .university-compare-overlay {
+  background: rgb(15 23 42 / 0.34) !important;
+}
+
+.student-dashboard.light-theme .university-compare-modal {
+  color: #172033 !important;
+  background: #ffffff !important;
+  border-color: #dce2eb !important;
+  box-shadow: 0 28px 80px -35px rgb(15 23 42 / 0.5) !important;
+}
+
+.student-dashboard.light-theme .university-compare-header {
+  background: linear-gradient(135deg, #fffaf0, #ffffff 55%, #f7f6ff) !important;
+  border-color: #e5e9f1 !important;
+}
+
+.student-dashboard.light-theme .university-compare-grid {
+  background: #dce2eb !important;
+  border-color: #dce2eb !important;
+}
+
+.student-dashboard.light-theme .university-compare-column {
+  background: #f7f9fc !important;
+}
+
+.student-dashboard.light-theme .university-compare-cell {
+  background: #ffffff !important;
+}
+
+.student-dashboard.light-theme .university-compare-label {
+  background: #f8fafc !important;
+  color: #526176 !important;
+}
+
+.student-dashboard.light-theme .student-readiness-center {
+  background: #fffdf8 !important;
+}
+
+.student-dashboard.light-theme .student-journey-card {
+  background: #fff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.student-dashboard.light-theme .student-journey-upcoming {
+  border-color: #cbd5e1 !important;
+  background: #f8fafc !important;
+  color: #64748b !important;
+  box-shadow: 0 2px 7px rgb(15 23 42 / 0.06);
+}
+
+.student-dashboard.light-theme .student-journey-connector {
+  background: #dbe2ea !important;
+}
+
+.student-dashboard.light-theme .student-journey-connector-complete {
+  background: #34d399 !important;
+}
+
+.student-dashboard.light-theme .student-journey-badge {
+  border: 1px solid rgb(245 158 11 / 0.2);
+  background: #fff7e6 !important;
+  color: #a64b08 !important;
+}
+
+.student-dashboard.light-theme .assistance-chat {
+  border-color: rgb(203 213 225 / 0.85);
+  background: rgb(255 255 255);
+  color: rgb(15 23 42);
+  box-shadow: 0 24px 70px -20px rgb(15 23 42 / 0.28);
+}
+
+.student-dashboard.light-theme .assistance-chat-header {
+  border-color: rgb(226 232 240);
+  background: linear-gradient(to right, rgb(251 191 36 / 0.14), transparent);
+}
+
+.student-dashboard.light-theme .assistance-chat-muted,
+.student-dashboard.light-theme .assistance-chat-empty {
+  color: rgb(100 116 139);
+}
+
+.student-dashboard.light-theme .assistance-chat-close {
+  color: rgb(71 85 105);
+}
+
+.student-dashboard.light-theme .assistance-chat-close:hover {
+  background: rgb(241 245 249);
+  color: rgb(15 23 42);
+}
+
+.student-dashboard.light-theme .assistance-chat-body {
+  background: rgb(248 250 252 / 0.72);
+}
+
+.student-dashboard.light-theme .assistance-chat-support {
+  border: 1px solid rgb(226 232 240);
+  background: rgb(255 255 255);
+  color: rgb(30 41 59);
+  box-shadow: 0 3px 12px rgb(15 23 42 / 0.06);
+}
+
+.student-dashboard.light-theme .assistance-chat-student {
+  background: rgb(245 158 11);
+  color: rgb(15 23 42);
+}
+
+.student-dashboard.light-theme .assistance-chat-composer {
+  border-color: rgb(226 232 240);
+  background: rgb(255 255 255);
+}
+
+.student-dashboard.light-theme .assistance-chat-input {
+  border-color: rgb(203 213 225);
+  background: rgb(248 250 252);
+  color: rgb(15 23 42);
+}
+
+.student-dashboard.light-theme .assistance-chat-input::placeholder {
+  color: rgb(148 163 184);
+}
+
 .onboarding-course-menu {
   background: rgb(11 17 34 / 0.98);
   box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.75);
@@ -643,6 +770,33 @@
 
 .staff-workspace.light-theme .delete-modal-confirm:hover {
   background: #be123c !important;
+}
+
+.staff-workspace.light-theme .workflow-progress-card {
+  background: #fff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.staff-workspace.light-theme .workflow-progress-upcoming {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #64748b !important;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.07);
+}
+
+.staff-workspace.light-theme .workflow-progress-current {
+  background: #fbbf24 !important;
+  border-color: #d97706 !important;
+  color: #172033 !important;
+  box-shadow: 0 0 0 5px rgb(245 158 11 / 0.14);
+}
+
+.staff-workspace.light-theme .workflow-progress-connector {
+  background: #dbe2ea !important;
+}
+
+.staff-workspace.light-theme .workflow-progress-connector-complete {
+  background: #34d399 !important;
 }
 
 

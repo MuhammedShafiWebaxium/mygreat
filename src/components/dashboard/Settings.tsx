@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { BookOpen, Check, GraduationCap, Languages, LogOut, Mail, MapPin, Phone, Plane, Save, ShieldCheck, User } from 'lucide-react'
+import { BookOpen, Check, Crown, GraduationCap, Languages, LogOut, Mail, MapPin, Phone, Plane, Save, ShieldCheck, User } from 'lucide-react'
+import { getStudentSupport } from '@/features/support/support.functions'
 import { EDUCATION_LEVELS, GRAD_YEARS, INTAKES } from '@/data/onboarding'
 import { getOnboardingCoursesFn } from '@/features/onboarding/onboarding.functions'
 import type { Account } from '@/lib/store'
@@ -25,6 +26,7 @@ function Field({ label, icon: Icon, children }: { label: string; icon: React.Ele
 
 const inputCls='w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[13.5px] outline-none transition-colors placeholder:text-white/30 focus:border-amber-400/60 focus:bg-white/[0.06]'
 const selectCls=cn(inputCls,'cursor-pointer appearance-none [&>option]:bg-[#0a0f24]')
+type SettingsTab='profile'|'academics'|'subscription'|'account'
 
 export default function Settings({profile,account,countries,onSaveAccount,onSaveProfile,onSignOut}:Props) {
   const [name,setName]=useState(account?.name??'')
@@ -35,9 +37,12 @@ export default function Settings({profile,account,countries,onSaveAccount,onSave
   const [loadingCourses,setLoadingCourses]=useState(false)
   const [saving,setSaving]=useState(false)
   const [message,setMessage]=useState<{type:'success'|'error';text:string}|null>(null)
+  const [subscription,setSubscription]=useState<any>()
+  const [tab,setTab]=useState<SettingsTab>('profile')
 
   useEffect(()=>{setName(account?.name??'');setEmail(account?.email??'');setPhone(account?.phone??'')},[account])
   useEffect(()=>setDraft(profile),[profile])
+  useEffect(()=>{getStudentSupport().then(setSubscription)},[])
   useEffect(()=>{
     let active=true
     if(!draft?.country?.id){setCourses([]);setLoadingCourses(false);return}
@@ -63,7 +68,9 @@ export default function Settings({profile,account,countries,onSaveAccount,onSave
     finally{setSaving(false)}
   }
 
-  return <div className="max-w-3xl space-y-5">
+  return <div className="settings-tabs max-w-3xl space-y-5" data-settings-tab={tab}>
+    <motion.div variants={fadeUp} initial="hidden" animate="show"><div className="flex gap-1 overflow-x-auto rounded-2xl border border-white/10 bg-white/[.025] p-1.5">{([{id:'profile',label:'Profile'},{id:'academics',label:'Academics'},{id:'subscription',label:'Subscription'},{id:'account',label:'Account'}] as {id:SettingsTab;label:string}[]).map(item=><button key={item.id} onClick={()=>setTab(item.id)} className={cn('rounded-xl px-4 py-2.5 text-xs font-semibold transition',tab===item.id?'bg-amber-400 text-[#0a0f24] shadow-lg shadow-amber-500/15':'text-white/45 hover:bg-white/[.05] hover:text-white')}>{item.label}</button>)}</div></motion.div>
+    <motion.div variants={fadeUp} initial="hidden" animate="show"><Panel className="relative overflow-hidden p-5 sm:p-6"><div className="absolute right-0 top-0 size-48 rounded-full bg-amber-400/10 blur-3xl"/><div className="relative"><div className="flex items-center gap-2.5"><Crown className="size-4 text-amber-300"/><p className="text-[11px] font-semibold uppercase tracking-[.2em] text-white/40">Subscription</p></div><div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center"><div className="flex-1"><h3 className="font-display text-2xl">Mygreat Pro</h3><p className="mt-1 text-xs text-white/40">{subscription?.subscription?.status==='ACTIVE'?'Your Pro membership is active.':subscription?.subscription?.status==='PENDING'?'Your payment is awaiting verification.':'Upgrade from Messages to unlock Pro benefits.'}</p></div><div className="grid grid-cols-2 gap-3 text-xs"><div className="rounded-xl border border-white/10 bg-white/[.035] p-3"><p className="text-[9px] uppercase text-white/30">Plan price</p><p className="mt-1 font-semibold">{subscription?.subscription?`₹${(subscription.subscription.price_minor/100).toLocaleString('en-IN')}`:subscription?.plan?.displayPrice??'₹999'} / month</p></div><div className="rounded-xl border border-white/10 bg-white/[.035] p-3"><p className="text-[9px] uppercase text-white/30">Status</p><p className="mt-1 font-semibold text-amber-300">{subscription?.subscription?.status??'FREE'}</p></div><div className="rounded-xl border border-white/10 bg-white/[.035] p-3"><p className="text-[9px] uppercase text-white/30">Payment</p><p className="mt-1 font-semibold">{subscription?.subscription?.method?.replaceAll('_',' ')??'Not subscribed'}</p></div><div className="rounded-xl border border-white/10 bg-white/[.035] p-3"><p className="text-[9px] uppercase text-white/30">Valid until</p><p className="mt-1 font-semibold">{subscription?.subscription?.current_period_end?new Date(subscription.subscription.current_period_end).toLocaleDateString():'—'}</p></div></div></div></div></Panel></motion.div>
     <motion.div variants={fadeUp} initial="hidden" animate="show"><h2 className="font-display text-2xl font-light sm:text-3xl">Profile &amp; <span className="text-gradient-gold font-medium">settings</span></h2><p className="mt-1.5 text-sm text-white/45">These details come from your account and onboarding profile.</p></motion.div>
     <motion.div variants={fadeUp} initial="hidden" animate="show"><Panel className="p-5 sm:p-6"><p className="text-[11px] font-semibold uppercase tracking-[.2em] text-white/40">Personal details</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><Field label="Full name" icon={User}><input value={name} onChange={event=>setName(event.target.value)} className={inputCls}/></Field><Field label="Email" icon={Mail}><input type="email" value={email} onChange={event=>setEmail(event.target.value)} className={inputCls}/></Field><Field label="Phone (optional)" icon={Phone}><input value={phone} onChange={event=>setPhone(event.target.value)} placeholder="Your phone number" className={inputCls}/></Field></div></Panel></motion.div>
     <motion.div variants={fadeUp} initial="hidden" animate="show"><Panel className="p-5 sm:p-6"><p className="text-[11px] font-semibold uppercase tracking-[.2em] text-white/40">Academic profile</p>{draft?<div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -79,5 +86,6 @@ export default function Settings({profile,account,countries,onSaveAccount,onSave
     {message&&<p className={cn('mt-5 text-xs',message.type==='success'?'text-emerald-300':'text-rose-300')}>{message.text}</p>}
     <button disabled={saving||!draft} onClick={save} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-300 to-amber-500 px-6 py-3.5 text-[13px] font-semibold text-[#0a0f24] shadow-[0_8px_30px_-8px_rgba(242,179,61,.5)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">{message?.type==='success'?<Check className="size-4"/>:<Save className="size-4"/>}{saving?'Saving...':'Save changes'}</button></Panel></motion.div>
     <motion.div variants={fadeUp} initial="hidden" animate="show"><Panel className="p-5 sm:p-6"><div className="flex items-center gap-2.5"><ShieldCheck className="size-4 text-amber-400/80"/><p className="text-[11px] font-semibold uppercase tracking-[.2em] text-white/40">Account</p></div><button onClick={onSignOut} className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 px-5 py-3 text-[13px] font-semibold text-white/70 transition hover:border-white/30 hover:text-white"><LogOut className="size-4"/>Sign out</button></Panel></motion.div>
+    <style>{`.settings-tabs[data-settings-tab="profile"]>:nth-child(2),.settings-tabs[data-settings-tab="profile"]>:nth-child(5),.settings-tabs[data-settings-tab="profile"]>:nth-child(6),.settings-tabs[data-settings-tab="academics"]>:nth-child(2),.settings-tabs[data-settings-tab="academics"]>:nth-child(4),.settings-tabs[data-settings-tab="academics"]>:nth-child(6),.settings-tabs[data-settings-tab="subscription"]>:nth-child(4),.settings-tabs[data-settings-tab="subscription"]>:nth-child(5),.settings-tabs[data-settings-tab="subscription"]>:nth-child(6),.settings-tabs[data-settings-tab="account"]>:nth-child(2),.settings-tabs[data-settings-tab="account"]>:nth-child(4),.settings-tabs[data-settings-tab="account"]>:nth-child(5){display:none}`}</style>
   </div>
 }

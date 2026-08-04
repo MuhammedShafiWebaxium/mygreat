@@ -1,13 +1,25 @@
 import { assertRole, requireUser } from '@/features/auth/authorization.server'
-import { applicationUpdateSchema, createApplicationSchema, staffCreateApplicationSchema, taskToggleSchema } from '@/features/workflow/workflow.schema'
-import { createApplication, createApplicationForStudent, readDocumentFile, readStudentDashboard, reviewDocument, setTaskCompleted, updateApplication, uploadRequiredDocument } from '@/features/workflow/workflow.server'
+import { applicationUpdateSchema, createApplicationSchema, priorityApplicationSchema, staffCreateApplicationSchema, taskToggleSchema, workflowCaseActionSchema } from '@/features/workflow/workflow.schema'
+import { actOnWorkflowCase, createApplication, createApplicationForStudent, readDocumentFile, readOfferLetterFile, readStudentDashboard, readWorkflowApprovalQueue, readWorkflowCase, readWorkflowFile, reviewDocument, setPriorityApplication, setTaskCompleted, updateApplication, uploadOfferLetter, uploadRequiredDocument, uploadSopFile } from '@/features/workflow/workflow.server'
 import { apiError } from '@/lib/api'
 
 export async function GET(request?:Request) {
   try {
     const user = await requireUser()
-    const documentId=request?new URL(request.url).searchParams.get('documentId'):null
+    const url=request?new URL(request.url):null
+    const documentId=url?.searchParams.get('documentId')
     if(documentId){const file=await readDocumentFile(documentId,user);const fileName=file.fileName.replace(/["\r\n]/g,'');return new Response(file.fileData as BodyInit,{headers:{'content-type':file.mimeType,'content-disposition':`attachment; filename="${fileName}"`,'x-content-type-options':'nosniff'}})}
+    const workflowFileId=url?.searchParams.get('workflowFileId')
+    if(workflowFileId){assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE','VISA_EXECUTIVE']);const file=await readWorkflowFile(user,workflowFileId);const fileName=file.fileName.replace(/["\r\n]/g,'');const disposition=url?.searchParams.get('preview')==='1'&&file.mimeType==='application/pdf'?'inline':'attachment';return new Response(file.fileData as BodyInit,{headers:{'content-type':file.mimeType,'content-disposition':`${disposition}; filename="${fileName}"`,'x-content-type-options':'nosniff'}})}
+    const offerLetterId=url?.searchParams.get('offerLetterId')
+    if(offerLetterId){assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE','VISA_EXECUTIVE']);const file=await readOfferLetterFile(user,offerLetterId);const fileName=file.fileName.replace(/["\r\n]/g,'');const isPdf=file.mimeType==='application/pdf'||fileName.toLowerCase().endsWith('.pdf');const disposition=url?.searchParams.get('preview')==='1'&&isPdf?'inline':'attachment';return new Response(file.fileData as BodyInit,{headers:{'content-type':isPdf?'application/pdf':file.mimeType,'content-disposition':`${disposition}; filename="${fileName}"`,'x-content-type-options':'nosniff','cache-control':'private, no-store'}})}
+    if(url?.searchParams.get('action')==='approvalQueue'){assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE','VISA_EXECUTIVE']);return Response.json(await readWorkflowApprovalQueue(user))}
+    if(url?.searchParams.get('action')==='workflowCase'){
+      assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE','VISA_EXECUTIVE'])
+      const workflowType=url.searchParams.get('workflowType')
+      if(workflowType!=='APPLICATION'&&workflowType!=='VISA')throw new Error('Invalid workflow type.')
+      return Response.json(await readWorkflowCase(user,String(url.searchParams.get('applicationId')||''),workflowType,url.searchParams.get('visaAttemptId')))
+    }
     assertRole(user.role, ['STUDENT'])
     return Response.json(await readStudentDashboard(user.id))
   } catch (error) {
@@ -18,8 +30,16 @@ export async function GET(request?:Request) {
 export async function POST(request: Request) {
   try {
     const user = await requireUser()
-    if(request.headers.get('content-type')?.includes('multipart/form-data')){assertRole(user.role,['STUDENT']);const form=await request.formData(),file=form.get('file');if(!(file instanceof File))throw new Error('Select a file to upload.');return Response.json(await uploadRequiredDocument(user.id,String(form.get('documentType')||''),file))}
+    if(request.headers.get('content-type')?.includes('multipart/form-data')){const form=await request.formData(),file=form.get('file');if(!(file instanceof File))throw new Error('Select a file to upload.');if(form.get('workflowAction')==='uploadSop'){assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE']);return Response.json(await uploadSopFile(user,String(form.get('applicationId')||''),file,String(form.get('note')||'')))}if(form.get('workflowAction')==='uploadOfferLetter'){assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE']);const offerType=String(form.get('offerType'));if(offerType!=='CONDITIONAL'&&offerType!=='UNCONDITIONAL')throw new Error('Select an offer type.');return Response.json(await uploadOfferLetter(user,String(form.get('applicationId')||''),offerType,file))}assertRole(user.role,['STUDENT']);return Response.json(await uploadRequiredDocument(user.id,String(form.get('documentType')||''),file))}
     const body = await request.json()
+    if(body.action==='workflowCaseAction'){
+      assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE','VISA_EXECUTIVE'])
+      return Response.json(await actOnWorkflowCase(user,workflowCaseActionSchema.parse(body.data)))
+    }
+    if(body.action==='setPriorityApplication'){
+      assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE'])
+      return Response.json(await setPriorityApplication(user,priorityApplicationSchema.parse(body.data).applicationId))
+    }
     if(body.action==='reviewDocument'){
       assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE','VISA_EXECUTIVE'])
       const status=body.data?.status

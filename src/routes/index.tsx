@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import Landing from '@/screens/Landing'
+import Landing from '@/screens/public/Landing'
 import { getCurrentUserFn } from '@/features/auth/auth.functions'
 
 export const Route = createFileRoute('/')({

@@ -3,7 +3,7 @@
 import { Link } from '@/lib/navigation'
 import { usePathname, useRouter } from '@/lib/navigation'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { BarChart3, BriefcaseBusiness, Building2, ChevronRight, Compass, FileText, GraduationCap, LayoutDashboard, LogOut, Menu, Plane, ShieldCheck, Users, X } from 'lucide-react'
+import { BarChart3, Bell, BriefcaseBusiness, Building2, ChevronRight, Compass, FileText, GraduationCap, LayoutDashboard, LogOut, Menu, MessageSquare, Plane, Settings2, ShieldCheck, Users, WalletCards, X } from 'lucide-react'
 import { useState } from 'react'
 import { currentUserQuery } from '@/features/auth/auth.queries'
 import { logoutFn } from '@/features/auth/auth.functions'
@@ -32,6 +32,10 @@ const pageMeta = {
   '/staff/team': { title: 'Team management', description: 'Manage staff access, roles, and operational coverage.' },
   '/staff/partners': { title: 'Partner reviews', description: 'Review and approve study abroad partner registrations.' },
   '/staff/universities': { title: 'University management', description: 'Manage countries, universities, courses, and effective-dated fees.' },
+  '/staff/messages': { title: 'Support messages', description: 'Assist students and prioritize subscribed support requests.' },
+  '/staff/notifications': { title: 'Notifications', description: 'Review operational and student support alerts.' },
+  '/staff/finance': { title: 'Finance management', description: 'Manage subscription pricing, payments, and revenue.' },
+  '/staff/settings': { title: 'Platform settings', description: 'Configure Mygreat Pro and platform-wide preferences.' },
 }
 
 export default function Staff({ children }: { children: React.ReactNode }) {
@@ -44,6 +48,8 @@ export default function Staff({ children }: { children: React.ReactNode }) {
   const meta = pageMeta[pathname as keyof typeof pageMeta]
     ?? (pathname.startsWith('/staff/students/') ? pageMeta['/staff/students']
       : pathname.startsWith('/staff/partners/') ? pageMeta['/staff/partners']
+        : pathname.startsWith('/staff/applications/') ? pageMeta['/staff/applications']
+          : pathname.startsWith('/staff/visas/') ? pageMeta['/staff/visas']
         : pageMeta['/staff'])
   const logout = useMutation({
     mutationFn: () => logoutFn(),
@@ -53,15 +59,42 @@ export default function Staff({ children }: { children: React.ReactNode }) {
     },
   })
 
-  const navigation = [
-    { to: '/staff' as const, label: 'Overview', icon: LayoutDashboard, exact: true },
-    { to: '/staff/students' as const, label: 'Students', icon: BriefcaseBusiness },
-    { to: '/staff/applications' as const, label: 'Applications', icon: FileText },
-    { to: '/staff/visas' as const, label: 'Visas', icon: Plane },
-    ...(user?.role === 'SUPER_ADMIN' ? [{ to: '/staff/universities' as const, label: 'Universities', icon: GraduationCap }] : []),
-    ...(['SUPER_ADMIN', 'PARTNER_ADMIN'].includes(user?.role ?? '') ? [{ to: '/staff/team' as const, label: 'Team management', icon: Users }] : []),
-    ...(user?.accountType === 'ADMIN' ? [{ to: '/staff/partners' as const, label: user.role === 'SUPER_ADMIN' ? 'Partner reviews' : 'Partners', icon: Building2 }] : []),
-  ]
+  const navigationGroups = [
+    {
+      label: 'Overview',
+      items: [{ to: '/staff' as const, label: 'Dashboard', icon: LayoutDashboard, exact: true }],
+    },
+    {
+      label: 'Student operations',
+      items: [
+        { to: '/staff/students' as const, label: 'Students', icon: BriefcaseBusiness },
+        { to: '/staff/applications' as const, label: 'Applications', icon: FileText },
+        { to: '/staff/visas' as const, label: 'Visas', icon: Plane },
+      ],
+    },
+    {
+      label: 'Catalog & partners',
+      items: [
+        ...(user?.role === 'SUPER_ADMIN' ? [{ to: '/staff/universities' as const, label: 'Universities', icon: GraduationCap }] : []),
+        ...(user?.accountType === 'ADMIN' ? [{ to: '/staff/partners' as const, label: user.role === 'SUPER_ADMIN' ? 'Partner reviews' : 'Partners', icon: Building2 }] : []),
+      ],
+    },
+    {
+      label: 'Communication',
+      items: [
+        ...(['SUPER_ADMIN', 'SUPPORT_EXECUTIVE'].includes(user?.role ?? '') ? [{ to: '/staff/messages' as const, label: 'Messages', icon: MessageSquare }] : []),
+        ...(['SUPER_ADMIN', 'SUPPORT_EXECUTIVE'].includes(user?.role ?? '') ? [{ to: '/staff/notifications' as const, label: 'Notifications', icon: Bell }] : []),
+      ],
+    },
+    {
+      label: 'Administration',
+      items: [
+        ...(user?.role === 'SUPER_ADMIN' ? [{ to: '/staff/finance' as const, label: 'Finance', icon: WalletCards }] : []),
+        ...(['SUPER_ADMIN', 'PARTNER_ADMIN'].includes(user?.role ?? '') ? [{ to: '/staff/team' as const, label: 'Team management', icon: Users }] : []),
+        ...(user?.role === 'SUPER_ADMIN' ? [{ to: '/staff/settings' as const, label: 'Settings', icon: Settings2 }] : []),
+      ],
+    },
+  ].filter((group) => group.items.length > 0)
 
   const sidebar = (
     <>
@@ -77,14 +110,14 @@ export default function Staff({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-indigo-400/15 text-xs font-bold text-indigo-200">{user?.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join('')}</span><div className="min-w-0"><p className="truncate text-sm font-semibold">{user?.name}</p><p className="mt-0.5 truncate text-[10.5px] text-white/35">{user ? STAFF_ROLE_LABELS[user.role] : ''}</p></div></div>
       </div>
 
-      <nav className="mt-8 flex-1">
-        <p className="mb-2 px-3 text-[9px] font-bold uppercase tracking-[0.22em] text-white/25">Workspace</p>
-        <div className="space-y-1">
-          {navigation.map((item) => {
-            const active = item.exact ? pathname === item.to : pathname.startsWith(item.to)
-            return <Link key={item.to} href={item.to} onClick={() => setMobileOpen(false)} className={cn('staff-nav-item group flex items-center gap-3 rounded-xl px-3.5 py-3 text-[13px] font-medium transition', active ? 'staff-nav-active bg-white/[0.075] text-white ring-1 ring-white/[0.08]' : 'text-white/45 hover:bg-white/[0.04] hover:text-white/80')}><item.icon className={cn('size-[17px]', active ? 'text-amber-300' : 'text-white/30')} /><span className="flex-1">{item.label}</span>{active && <ChevronRight className="size-3.5 text-white/25" />}</Link>
-          })}
-        </div>
+      <nav className="mt-7 min-h-0 flex-1 space-y-5 overflow-y-auto pr-1 scrollbar-thin">
+        {navigationGroups.map((group) => <div key={group.label}>
+          <p className="mb-1.5 px-3 text-[9px] font-bold uppercase tracking-[0.22em] text-white/25">{group.label}</p>
+          <div className="space-y-1">{group.items.map((item) => {
+            const active = 'exact' in item && item.exact ? pathname === item.to : pathname.startsWith(item.to)
+            return <Link key={item.to} href={item.to} onClick={() => setMobileOpen(false)} className={cn('staff-nav-item group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13px] font-medium transition', active ? 'staff-nav-active bg-white/[0.075] text-white ring-1 ring-white/[0.08]' : 'text-white/45 hover:bg-white/[0.04] hover:text-white/80')}><item.icon className={cn('size-[17px]', active ? 'text-amber-300' : 'text-white/30')} /><span className="flex-1">{item.label}</span>{active && <ChevronRight className="size-3.5 text-white/25" />}</Link>
+          })}</div>
+        </div>)}
       </nav>
 
       <div className="mt-6 rounded-2xl border border-amber-300/15 bg-amber-300/[0.06] p-4"><div className="flex items-center gap-2"><ShieldCheck className="size-4 text-amber-300" /><p className="text-xs font-semibold">Secure workspace</p></div><p className="mt-2 text-[10.5px] leading-4 text-white/35">Access is role-controlled and operational activity is recorded.</p></div>

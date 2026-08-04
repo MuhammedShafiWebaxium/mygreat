@@ -1,0 +1,1 @@
+import{createFileRoute,redirect}from'@tanstack/react-router';import AdminSettings from'@/screens/staff/AdminSettings';import{getCurrentUserFn}from'@/features/auth/auth.functions';export const Route=createFileRoute('/staff/settings')({beforeLoad:async()=>{const u=await getCurrentUserFn();if(u?.role!=='SUPER_ADMIN')throw redirect({to:'/staff'})},component:AdminSettings})

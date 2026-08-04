@@ -1,19 +1,18 @@
 'use client'
 
 import { Link } from '@/lib/navigation'
-import { Building2, CalendarDays, Compass, FileText, FolderOpen, LayoutDashboard, MessageSquare, Send, Settings, Sparkles } from 'lucide-react'
+import { Bell, Building2, Compass, FileText, FolderOpen, LayoutDashboard, Send, Settings, Sparkles } from 'lucide-react'
 import { ProgressRing } from './bits'
 import { cn } from '@/lib/utils'
 
-export type TabId = 'overview' | 'applications' | 'universities' | 'documents' | 'deadlines' | 'messages' | 'settings'
+export type TabId = 'overview' | 'applications' | 'universities' | 'documents' | 'notifications' | 'settings'
 
 export const TABS: { id: TabId; label: string; icon: React.ElementType; group: 'workspace' | 'support' }[] = [
   { id: 'overview', label: 'Home', icon: LayoutDashboard, group: 'workspace' },
   { id: 'universities', label: 'Discover', icon: Building2, group: 'workspace' },
   { id: 'documents', label: 'Documents', icon: FolderOpen, group: 'workspace' },
   { id: 'applications', label: 'Applications', icon: Send, group: 'workspace' },
-  { id: 'deadlines', label: 'Calendar', icon: CalendarDays, group: 'workspace' },
-  { id: 'messages', label: 'Messages', icon: MessageSquare, group: 'support' },
+  { id: 'notifications', label: 'Notifications', icon: Bell, group: 'support' },
   { id: 'settings', label: 'Profile & settings', icon: Settings, group: 'support' },
 ]
 
@@ -41,7 +40,7 @@ export default function Sidebar({ tab, onChange, unread, profileComplete }: Prop
         {active && <span className="absolute -left-3.5 h-6 w-0.5 rounded-full bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,.65)]" />}
         <item.icon className={cn('size-[17px] transition-colors', active ? 'text-amber-300' : 'text-white/32 group-hover:text-white/60')} />
         <span className="flex-1 text-left">{item.label}</span>
-        {item.id === 'messages' && unread > 0 && (
+        {item.id === 'notifications' && unread > 0 && (
           <span className="grid min-w-5 place-items-center rounded-full bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold text-[#0a0f24]">{unread}</span>
         )}
       </button>

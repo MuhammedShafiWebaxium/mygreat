@@ -38,7 +38,7 @@ export function buildStudent(p: OnboardingData, account: Account | null): Studen
     flag: p.country?.flag ?? '🌍',
     intake: p.intake || 'Upcoming',
     gpa: p.gpa,
-    profileComplete: 55,
+    profileComplete: Math.round(([p.country, p.educationLevel, p.degree, p.field, p.gpa > 0, p.gradYear, p.intake, account?.name, account?.email].filter(Boolean).length / 9) * 100),
     journeyStep: 2,
   }
 }
@@ -137,4 +137,3 @@ export function buildNotifications(
       : []),
   ]
 }
-

@@ -17,12 +17,17 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as ApiAdminRouteImport } from './routes/api.admin'
 import { Route as ApiProfileRouteImport } from './routes/api.profile'
+import { Route as ApiSupportRouteImport } from './routes/api.support'
 import { Route as ApiWorkflowRouteImport } from './routes/api.workflow'
 import { Route as LoginAccountTypeRouteImport } from './routes/login.$accountType'
 import { Route as PartnerRegisterRouteImport } from './routes/partner.register'
 import { Route as StaffIndexRouteImport } from './routes/staff.index'
 import { Route as StaffApplicationsRouteImport } from './routes/staff.applications'
+import { Route as StaffFinanceRouteImport } from './routes/staff.finance'
+import { Route as StaffMessagesRouteImport } from './routes/staff.messages'
+import { Route as StaffNotificationsRouteImport } from './routes/staff.notifications'
 import { Route as StaffPartnersRouteImport } from './routes/staff.partners'
+import { Route as StaffSettingsRouteImport } from './routes/staff.settings'
 import { Route as StaffStudentsRouteImport } from './routes/staff.students'
 import { Route as StaffTeamRouteImport } from './routes/staff.team'
 import { Route as StaffUniversitiesRouteImport } from './routes/staff.universities'
@@ -33,8 +38,12 @@ import { Route as ApiAuthLogoutRouteImport } from './routes/api.auth.logout'
 import { Route as ApiAuthMeRouteImport } from './routes/api.auth.me'
 import { Route as ApiAuthRegisterRouteImport } from './routes/api.auth.register'
 import { Route as ApiPartnersRegisterRouteImport } from './routes/api.partners.register'
+import { Route as StaffApplicationsIndexRouteImport } from './routes/staff.applications.index'
+import { Route as StaffApplicationsApplicationIdRouteImport } from './routes/staff.applications.$applicationId'
 import { Route as StaffPartnersPartnerCompanyIdRouteImport } from './routes/staff.partners.$partnerCompanyId'
 import { Route as StaffStudentsStudentIdRouteImport } from './routes/staff.students.$studentId'
+import { Route as StaffVisasIndexRouteImport } from './routes/staff.visas.index'
+import { Route as StaffVisasApplicationIdRouteImport } from './routes/staff.visas.$applicationId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +85,11 @@ const ApiProfileRoute = ApiProfileRouteImport.update({
   path: '/api/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSupportRoute = ApiSupportRouteImport.update({
+  id: '/api/support',
+  path: '/api/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWorkflowRoute = ApiWorkflowRouteImport.update({
   id: '/api/workflow',
   path: '/api/workflow',
@@ -101,9 +115,29 @@ const StaffApplicationsRoute = StaffApplicationsRouteImport.update({
   path: '/applications',
   getParentRoute: () => StaffRoute,
 } as any)
+const StaffFinanceRoute = StaffFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffMessagesRoute = StaffMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffNotificationsRoute = StaffNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => StaffRoute,
+} as any)
 const StaffPartnersRoute = StaffPartnersRouteImport.update({
   id: '/partners',
   path: '/partners',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffSettingsRoute = StaffSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => StaffRoute,
 } as any)
 const StaffStudentsRoute = StaffStudentsRouteImport.update({
@@ -156,6 +190,17 @@ const ApiPartnersRegisterRoute = ApiPartnersRegisterRouteImport.update({
   path: '/api/partners/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StaffApplicationsIndexRoute = StaffApplicationsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffApplicationsRoute,
+} as any)
+const StaffApplicationsApplicationIdRoute =
+  StaffApplicationsApplicationIdRouteImport.update({
+    id: '/$applicationId',
+    path: '/$applicationId',
+    getParentRoute: () => StaffApplicationsRoute,
+  } as any)
 const StaffPartnersPartnerCompanyIdRoute =
   StaffPartnersPartnerCompanyIdRouteImport.update({
     id: '/$partnerCompanyId',
@@ -167,6 +212,16 @@ const StaffStudentsStudentIdRoute = StaffStudentsStudentIdRouteImport.update({
   path: '/$studentId',
   getParentRoute: () => StaffStudentsRoute,
 } as any)
+const StaffVisasIndexRoute = StaffVisasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffVisasRoute,
+} as any)
+const StaffVisasApplicationIdRoute = StaffVisasApplicationIdRouteImport.update({
+  id: '/$applicationId',
+  path: '/$applicationId',
+  getParentRoute: () => StaffVisasRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -177,15 +232,20 @@ export interface FileRoutesByFullPath {
   '/staff': typeof StaffRouteWithChildren
   '/api/admin': typeof ApiAdminRoute
   '/api/profile': typeof ApiProfileRoute
+  '/api/support': typeof ApiSupportRoute
   '/api/workflow': typeof ApiWorkflowRoute
   '/login/$accountType': typeof LoginAccountTypeRoute
   '/partner/register': typeof PartnerRegisterRoute
-  '/staff/applications': typeof StaffApplicationsRoute
+  '/staff/applications': typeof StaffApplicationsRouteWithChildren
+  '/staff/finance': typeof StaffFinanceRoute
+  '/staff/messages': typeof StaffMessagesRoute
+  '/staff/notifications': typeof StaffNotificationsRoute
   '/staff/partners': typeof StaffPartnersRouteWithChildren
+  '/staff/settings': typeof StaffSettingsRoute
   '/staff/students': typeof StaffStudentsRouteWithChildren
   '/staff/team': typeof StaffTeamRoute
   '/staff/universities': typeof StaffUniversitiesRoute
-  '/staff/visas': typeof StaffVisasRoute
+  '/staff/visas': typeof StaffVisasRouteWithChildren
   '/staff/': typeof StaffIndexRoute
   '/api/auth/account': typeof ApiAuthAccountRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
@@ -193,8 +253,12 @@ export interface FileRoutesByFullPath {
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/partners/register': typeof ApiPartnersRegisterRoute
+  '/staff/applications/$applicationId': typeof StaffApplicationsApplicationIdRoute
   '/staff/partners/$partnerCompanyId': typeof StaffPartnersPartnerCompanyIdRoute
   '/staff/students/$studentId': typeof StaffStudentsStudentIdRoute
+  '/staff/visas/$applicationId': typeof StaffVisasApplicationIdRoute
+  '/staff/applications/': typeof StaffApplicationsIndexRoute
+  '/staff/visas/': typeof StaffVisasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -204,15 +268,18 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/api/admin': typeof ApiAdminRoute
   '/api/profile': typeof ApiProfileRoute
+  '/api/support': typeof ApiSupportRoute
   '/api/workflow': typeof ApiWorkflowRoute
   '/login/$accountType': typeof LoginAccountTypeRoute
   '/partner/register': typeof PartnerRegisterRoute
-  '/staff/applications': typeof StaffApplicationsRoute
+  '/staff/finance': typeof StaffFinanceRoute
+  '/staff/messages': typeof StaffMessagesRoute
+  '/staff/notifications': typeof StaffNotificationsRoute
   '/staff/partners': typeof StaffPartnersRouteWithChildren
+  '/staff/settings': typeof StaffSettingsRoute
   '/staff/students': typeof StaffStudentsRouteWithChildren
   '/staff/team': typeof StaffTeamRoute
   '/staff/universities': typeof StaffUniversitiesRoute
-  '/staff/visas': typeof StaffVisasRoute
   '/staff': typeof StaffIndexRoute
   '/api/auth/account': typeof ApiAuthAccountRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
@@ -220,8 +287,12 @@ export interface FileRoutesByTo {
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/partners/register': typeof ApiPartnersRegisterRoute
+  '/staff/applications/$applicationId': typeof StaffApplicationsApplicationIdRoute
   '/staff/partners/$partnerCompanyId': typeof StaffPartnersPartnerCompanyIdRoute
   '/staff/students/$studentId': typeof StaffStudentsStudentIdRoute
+  '/staff/visas/$applicationId': typeof StaffVisasApplicationIdRoute
+  '/staff/applications': typeof StaffApplicationsIndexRoute
+  '/staff/visas': typeof StaffVisasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -233,15 +304,20 @@ export interface FileRoutesById {
   '/staff': typeof StaffRouteWithChildren
   '/api/admin': typeof ApiAdminRoute
   '/api/profile': typeof ApiProfileRoute
+  '/api/support': typeof ApiSupportRoute
   '/api/workflow': typeof ApiWorkflowRoute
   '/login/$accountType': typeof LoginAccountTypeRoute
   '/partner/register': typeof PartnerRegisterRoute
-  '/staff/applications': typeof StaffApplicationsRoute
+  '/staff/applications': typeof StaffApplicationsRouteWithChildren
+  '/staff/finance': typeof StaffFinanceRoute
+  '/staff/messages': typeof StaffMessagesRoute
+  '/staff/notifications': typeof StaffNotificationsRoute
   '/staff/partners': typeof StaffPartnersRouteWithChildren
+  '/staff/settings': typeof StaffSettingsRoute
   '/staff/students': typeof StaffStudentsRouteWithChildren
   '/staff/team': typeof StaffTeamRoute
   '/staff/universities': typeof StaffUniversitiesRoute
-  '/staff/visas': typeof StaffVisasRoute
+  '/staff/visas': typeof StaffVisasRouteWithChildren
   '/staff/': typeof StaffIndexRoute
   '/api/auth/account': typeof ApiAuthAccountRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
@@ -249,8 +325,12 @@ export interface FileRoutesById {
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/auth/register': typeof ApiAuthRegisterRoute
   '/api/partners/register': typeof ApiPartnersRegisterRoute
+  '/staff/applications/$applicationId': typeof StaffApplicationsApplicationIdRoute
   '/staff/partners/$partnerCompanyId': typeof StaffPartnersPartnerCompanyIdRoute
   '/staff/students/$studentId': typeof StaffStudentsStudentIdRoute
+  '/staff/visas/$applicationId': typeof StaffVisasApplicationIdRoute
+  '/staff/applications/': typeof StaffApplicationsIndexRoute
+  '/staff/visas/': typeof StaffVisasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -263,11 +343,16 @@ export interface FileRouteTypes {
     | '/staff'
     | '/api/admin'
     | '/api/profile'
+    | '/api/support'
     | '/api/workflow'
     | '/login/$accountType'
     | '/partner/register'
     | '/staff/applications'
+    | '/staff/finance'
+    | '/staff/messages'
+    | '/staff/notifications'
     | '/staff/partners'
+    | '/staff/settings'
     | '/staff/students'
     | '/staff/team'
     | '/staff/universities'
@@ -279,8 +364,12 @@ export interface FileRouteTypes {
     | '/api/auth/me'
     | '/api/auth/register'
     | '/api/partners/register'
+    | '/staff/applications/$applicationId'
     | '/staff/partners/$partnerCompanyId'
     | '/staff/students/$studentId'
+    | '/staff/visas/$applicationId'
+    | '/staff/applications/'
+    | '/staff/visas/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -290,15 +379,18 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/api/admin'
     | '/api/profile'
+    | '/api/support'
     | '/api/workflow'
     | '/login/$accountType'
     | '/partner/register'
-    | '/staff/applications'
+    | '/staff/finance'
+    | '/staff/messages'
+    | '/staff/notifications'
     | '/staff/partners'
+    | '/staff/settings'
     | '/staff/students'
     | '/staff/team'
     | '/staff/universities'
-    | '/staff/visas'
     | '/staff'
     | '/api/auth/account'
     | '/api/auth/login'
@@ -306,8 +398,12 @@ export interface FileRouteTypes {
     | '/api/auth/me'
     | '/api/auth/register'
     | '/api/partners/register'
+    | '/staff/applications/$applicationId'
     | '/staff/partners/$partnerCompanyId'
     | '/staff/students/$studentId'
+    | '/staff/visas/$applicationId'
+    | '/staff/applications'
+    | '/staff/visas'
   id:
     | '__root__'
     | '/'
@@ -318,11 +414,16 @@ export interface FileRouteTypes {
     | '/staff'
     | '/api/admin'
     | '/api/profile'
+    | '/api/support'
     | '/api/workflow'
     | '/login/$accountType'
     | '/partner/register'
     | '/staff/applications'
+    | '/staff/finance'
+    | '/staff/messages'
+    | '/staff/notifications'
     | '/staff/partners'
+    | '/staff/settings'
     | '/staff/students'
     | '/staff/team'
     | '/staff/universities'
@@ -334,8 +435,12 @@ export interface FileRouteTypes {
     | '/api/auth/me'
     | '/api/auth/register'
     | '/api/partners/register'
+    | '/staff/applications/$applicationId'
     | '/staff/partners/$partnerCompanyId'
     | '/staff/students/$studentId'
+    | '/staff/visas/$applicationId'
+    | '/staff/applications/'
+    | '/staff/visas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -347,6 +452,7 @@ export interface RootRouteChildren {
   StaffRoute: typeof StaffRouteWithChildren
   ApiAdminRoute: typeof ApiAdminRoute
   ApiProfileRoute: typeof ApiProfileRoute
+  ApiSupportRoute: typeof ApiSupportRoute
   ApiWorkflowRoute: typeof ApiWorkflowRoute
   PartnerRegisterRoute: typeof PartnerRegisterRoute
   ApiAuthAccountRoute: typeof ApiAuthAccountRoute
@@ -415,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/support': {
+      id: '/api/support'
+      path: '/api/support'
+      fullPath: '/api/support'
+      preLoaderRoute: typeof ApiSupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/workflow': {
       id: '/api/workflow'
       path: '/api/workflow'
@@ -450,11 +563,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffApplicationsRouteImport
       parentRoute: typeof StaffRoute
     }
+    '/staff/finance': {
+      id: '/staff/finance'
+      path: '/finance'
+      fullPath: '/staff/finance'
+      preLoaderRoute: typeof StaffFinanceRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/messages': {
+      id: '/staff/messages'
+      path: '/messages'
+      fullPath: '/staff/messages'
+      preLoaderRoute: typeof StaffMessagesRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/notifications': {
+      id: '/staff/notifications'
+      path: '/notifications'
+      fullPath: '/staff/notifications'
+      preLoaderRoute: typeof StaffNotificationsRouteImport
+      parentRoute: typeof StaffRoute
+    }
     '/staff/partners': {
       id: '/staff/partners'
       path: '/partners'
       fullPath: '/staff/partners'
       preLoaderRoute: typeof StaffPartnersRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/settings': {
+      id: '/staff/settings'
+      path: '/settings'
+      fullPath: '/staff/settings'
+      preLoaderRoute: typeof StaffSettingsRouteImport
       parentRoute: typeof StaffRoute
     }
     '/staff/students': {
@@ -527,6 +668,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPartnersRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff/applications/': {
+      id: '/staff/applications/'
+      path: '/'
+      fullPath: '/staff/applications/'
+      preLoaderRoute: typeof StaffApplicationsIndexRouteImport
+      parentRoute: typeof StaffApplicationsRoute
+    }
+    '/staff/applications/$applicationId': {
+      id: '/staff/applications/$applicationId'
+      path: '/$applicationId'
+      fullPath: '/staff/applications/$applicationId'
+      preLoaderRoute: typeof StaffApplicationsApplicationIdRouteImport
+      parentRoute: typeof StaffApplicationsRoute
+    }
     '/staff/partners/$partnerCompanyId': {
       id: '/staff/partners/$partnerCompanyId'
       path: '/$partnerCompanyId'
@@ -541,6 +696,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffStudentsStudentIdRouteImport
       parentRoute: typeof StaffStudentsRoute
     }
+    '/staff/visas/': {
+      id: '/staff/visas/'
+      path: '/'
+      fullPath: '/staff/visas/'
+      preLoaderRoute: typeof StaffVisasIndexRouteImport
+      parentRoute: typeof StaffVisasRoute
+    }
+    '/staff/visas/$applicationId': {
+      id: '/staff/visas/$applicationId'
+      path: '/$applicationId'
+      fullPath: '/staff/visas/$applicationId'
+      preLoaderRoute: typeof StaffVisasApplicationIdRouteImport
+      parentRoute: typeof StaffVisasRoute
+    }
   }
 }
 
@@ -553,6 +722,19 @@ const LoginRouteChildren: LoginRouteChildren = {
 }
 
 const LoginRouteWithChildren = LoginRoute._addFileChildren(LoginRouteChildren)
+
+interface StaffApplicationsRouteChildren {
+  StaffApplicationsApplicationIdRoute: typeof StaffApplicationsApplicationIdRoute
+  StaffApplicationsIndexRoute: typeof StaffApplicationsIndexRoute
+}
+
+const StaffApplicationsRouteChildren: StaffApplicationsRouteChildren = {
+  StaffApplicationsApplicationIdRoute: StaffApplicationsApplicationIdRoute,
+  StaffApplicationsIndexRoute: StaffApplicationsIndexRoute,
+}
+
+const StaffApplicationsRouteWithChildren =
+  StaffApplicationsRoute._addFileChildren(StaffApplicationsRouteChildren)
 
 interface StaffPartnersRouteChildren {
   StaffPartnersPartnerCompanyIdRoute: typeof StaffPartnersPartnerCompanyIdRoute
@@ -578,23 +760,45 @@ const StaffStudentsRouteWithChildren = StaffStudentsRoute._addFileChildren(
   StaffStudentsRouteChildren,
 )
 
+interface StaffVisasRouteChildren {
+  StaffVisasApplicationIdRoute: typeof StaffVisasApplicationIdRoute
+  StaffVisasIndexRoute: typeof StaffVisasIndexRoute
+}
+
+const StaffVisasRouteChildren: StaffVisasRouteChildren = {
+  StaffVisasApplicationIdRoute: StaffVisasApplicationIdRoute,
+  StaffVisasIndexRoute: StaffVisasIndexRoute,
+}
+
+const StaffVisasRouteWithChildren = StaffVisasRoute._addFileChildren(
+  StaffVisasRouteChildren,
+)
+
 interface StaffRouteChildren {
-  StaffApplicationsRoute: typeof StaffApplicationsRoute
+  StaffApplicationsRoute: typeof StaffApplicationsRouteWithChildren
+  StaffFinanceRoute: typeof StaffFinanceRoute
+  StaffMessagesRoute: typeof StaffMessagesRoute
+  StaffNotificationsRoute: typeof StaffNotificationsRoute
   StaffPartnersRoute: typeof StaffPartnersRouteWithChildren
+  StaffSettingsRoute: typeof StaffSettingsRoute
   StaffStudentsRoute: typeof StaffStudentsRouteWithChildren
   StaffTeamRoute: typeof StaffTeamRoute
   StaffUniversitiesRoute: typeof StaffUniversitiesRoute
-  StaffVisasRoute: typeof StaffVisasRoute
+  StaffVisasRoute: typeof StaffVisasRouteWithChildren
   StaffIndexRoute: typeof StaffIndexRoute
 }
 
 const StaffRouteChildren: StaffRouteChildren = {
-  StaffApplicationsRoute: StaffApplicationsRoute,
+  StaffApplicationsRoute: StaffApplicationsRouteWithChildren,
+  StaffFinanceRoute: StaffFinanceRoute,
+  StaffMessagesRoute: StaffMessagesRoute,
+  StaffNotificationsRoute: StaffNotificationsRoute,
   StaffPartnersRoute: StaffPartnersRouteWithChildren,
+  StaffSettingsRoute: StaffSettingsRoute,
   StaffStudentsRoute: StaffStudentsRouteWithChildren,
   StaffTeamRoute: StaffTeamRoute,
   StaffUniversitiesRoute: StaffUniversitiesRoute,
-  StaffVisasRoute: StaffVisasRoute,
+  StaffVisasRoute: StaffVisasRouteWithChildren,
   StaffIndexRoute: StaffIndexRoute,
 }
 
@@ -609,6 +813,7 @@ const rootRouteChildren: RootRouteChildren = {
   StaffRoute: StaffRouteWithChildren,
   ApiAdminRoute: ApiAdminRoute,
   ApiProfileRoute: ApiProfileRoute,
+  ApiSupportRoute: ApiSupportRoute,
   ApiWorkflowRoute: ApiWorkflowRoute,
   PartnerRegisterRoute: PartnerRegisterRoute,
   ApiAuthAccountRoute: ApiAuthAccountRoute,

@@ -117,6 +117,26 @@ export type StudentShortlist = Prisma.StudentShortlistModel
  */
 export type Application = Prisma.ApplicationModel
 /**
+ * Model VisaAttempt
+ * A distinct visa journey for an application. Reapplications create another attempt.
+ */
+export type VisaAttempt = Prisma.VisaAttemptModel
+/**
+ * Model WorkflowFollowup
+ * Immutable event history for application and visa workflow actions.
+ */
+export type WorkflowFollowup = Prisma.WorkflowFollowupModel
+/**
+ * Model WorkflowFollowupFile
+ * 
+ */
+export type WorkflowFollowupFile = Prisma.WorkflowFollowupFileModel
+/**
+ * Model WorkflowApprovalRequest
+ * 
+ */
+export type WorkflowApprovalRequest = Prisma.WorkflowApprovalRequestModel
+/**
  * Model Task
  * 
  */
@@ -141,3 +161,13 @@ export type Notification = Prisma.NotificationModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model CatalogImportJob
+ * 
+ */
+export type CatalogImportJob = Prisma.CatalogImportJobModel
+/**
+ * Model CatalogImportError
+ * 
+ */
+export type CatalogImportError = Prisma.CatalogImportErrorModel

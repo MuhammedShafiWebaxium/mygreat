@@ -1,137 +1,21 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Send, Phone, Video } from 'lucide-react'
-import { CONVERSATIONS, type ChatMessage } from '@/data/dashboard'
-import { Panel, Avatar, fadeUp } from './bits'
-import { cn } from '@/lib/utils'
+import { useEffect,useRef,useState } from 'react'
+import { Check,Crown,FileUp,MessageCircle,Send,ShieldCheck,X,Zap } from 'lucide-react'
+import { dummySubscribe,getStudentSupport,receiptSubscribe,sendStudentSupportMessage } from '@/features/support/support.functions'
+import { Panel } from './bits'
 
-interface Props {
-  onRead: () => void
+const benefits=[['Faster support','Your requests are placed ahead of standard requests.'],['Application guidance','Get focused help throughout your study journey.'],['Document assistance','Receive help preparing application documents.']]
+export default function Messages({onRead}:{onRead:()=>void}){
+  const[state,setState]=useState<any>(),[draft,setDraft]=useState(''),[busy,setBusy]=useState(false),[checkout,setCheckout]=useState(false),file=useRef<HTMLInputElement>(null)
+  const load=()=>getStudentSupport().then(setState)
+  useEffect(()=>{onRead();load();const id=setInterval(load,5000);return()=>clearInterval(id)},[])
+  const send=async()=>{if(!draft.trim())return;setBusy(true);try{await sendStudentSupportMessage(draft);setDraft('');await load()}finally{setBusy(false)}}
+  const online=async()=>{setBusy(true);try{await dummySubscribe();setCheckout(false);await load()}finally{setBusy(false)}}
+  const receipt=async(f?:File)=>{if(!f)return;setBusy(true);try{await receiptSubscribe(f);setCheckout(false);await load()}finally{setBusy(false)}}
+  if(!state)return <div className="h-72 animate-pulse rounded-3xl bg-white/[.03]"/>
+  const active=state.subscription?.status==='ACTIVE',pending=state.subscription?.status==='PENDING'
+  return <div className="max-w-5xl space-y-5"><div><h2 className="font-display text-3xl">Support messages</h2><p className="mt-1 text-sm text-white/40">Talk directly with the Mygreat support team.</p></div>
+    <Panel className={`relative overflow-hidden p-0 ${active?'border-emerald-400/20':'border-amber-400/20'}`}><div className="absolute right-0 top-0 size-56 rounded-full bg-amber-400/10 blur-3xl"/><div className="relative grid gap-6 p-6 md:grid-cols-[1fr_auto] md:items-center"><div><div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.2em] text-amber-300"><Crown className="size-4"/>Mygreat Pro</div><h3 className="mt-3 font-display text-2xl">{active?'Your Pro membership is active':'Go further with Mygreat Pro'}</h3><p className="mt-2 max-w-xl text-xs leading-5 text-white/45">A premium study-abroad membership designed to provide more guidance and a faster support experience.</p><div className="mt-4 flex flex-wrap gap-2">{benefits.map(([title])=><span key={title} className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5 text-[10px] text-white/60"><Check className="size-3 text-emerald-300"/>{title}</span>)}</div></div><div className="min-w-48 rounded-2xl border border-white/10 bg-white/[.04] p-4 text-center"><p className="font-display text-3xl text-amber-300">{state.plan.displayPrice}</p><p className="text-[10px] text-white/35">per month</p>{active?<div className="mt-3 rounded-xl bg-emerald-400/10 py-2 text-xs font-semibold text-emerald-300">Active membership</div>:pending?<div className="mt-3 rounded-xl bg-amber-400/10 py-2 text-xs font-semibold text-amber-300">Payment under review</div>:<button onClick={()=>setCheckout(true)} className="mt-3 w-full rounded-xl bg-amber-400 py-3 text-xs font-bold text-slate-950">Upgrade to Pro</button>}</div></div></Panel>
+    <Panel className="flex h-[560px] flex-col"><div className="flex items-center gap-3 border-b border-white/[.07] px-5 py-4"><span className="grid size-10 place-items-center rounded-xl bg-indigo-400/10"><MessageCircle className="size-4 text-indigo-300"/></span><div><p className="font-semibold">Mygreat Support</p><p className="text-[10px] text-white/35">{active?'Pro priority conversation':'Usually responds during business hours'}</p></div>{active&&<span className="ml-auto rounded-full bg-amber-400/15 px-2.5 py-1 text-[9px] font-bold text-amber-300">PRO</span>}</div><div className="flex-1 space-y-3 overflow-y-auto p-5">{state.messages.map((m:any)=><div key={m.id} className={`flex ${m.senderType==='STUDENT'?'justify-end':''}`}><div className={`max-w-[78%] rounded-2xl px-4 py-3 text-sm ${m.senderType==='STUDENT'?'bg-amber-400 text-slate-950':'border border-white/10 bg-white/[.05]'}`}>{m.body}</div></div>)}{!state.messages.length&&<p className="py-16 text-center text-sm text-white/35">Tell us how we can help.</p>}</div><div className="flex gap-2 border-t border-white/[.07] p-4"><input value={draft} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} placeholder="Write a message…" className="flex-1 rounded-xl border border-white/10 bg-white/[.04] px-4 text-sm outline-none"/><button disabled={busy} onClick={send} className="grid size-11 place-items-center rounded-xl bg-amber-400 text-slate-950"><Send className="size-4"/></button></div></Panel>
+    {checkout&&<div className="fixed inset-0 z-[90] grid place-items-center bg-black/65 p-4 backdrop-blur-sm"><section className="w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-[#0b1122] shadow-2xl"><header className="flex items-center border-b border-white/[.07] p-5"><div><p className="text-[10px] font-bold uppercase tracking-[.2em] text-amber-300">Mygreat Pro</p><h3 className="mt-1 font-display text-2xl">Choose how to subscribe</h3></div><button onClick={()=>setCheckout(false)} className="icon ml-auto"><X className="size-4"/></button></header><div className="p-5"><div className="rounded-2xl border border-amber-400/20 bg-amber-400/[.07] p-5"><div className="flex justify-between"><span className="font-semibold">Monthly membership</span><strong className="text-amber-300">{state.plan.displayPrice}/month</strong></div><p className="mt-2 text-xs text-white/40">Your subscription uses the price shown today. Future price changes won’t alter this subscription period.</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2"><button disabled={busy} onClick={online} className="rounded-2xl border border-white/10 p-5 text-left transition hover:border-amber-400/35 hover:bg-amber-400/[.06]"><Zap className="size-5 text-amber-300"/><p className="mt-3 text-sm font-semibold">Online payment</p><p className="mt-1 text-[10px] leading-4 text-white/35">Use the dummy provider and activate Pro instantly.</p></button><button disabled={busy} onClick={()=>file.current?.click()} className="rounded-2xl border border-white/10 p-5 text-left transition hover:border-indigo-400/35 hover:bg-indigo-400/[.06]"><FileUp className="size-5 text-indigo-300"/><p className="mt-3 text-sm font-semibold">Upload payment receipt</p><p className="mt-1 text-[10px] leading-4 text-white/35">Pay externally and upload proof for admin approval.</p></button></div><div className="mt-5 flex items-center gap-2 text-[10px] text-white/30"><ShieldCheck className="size-3.5"/>Secure subscription record and payment history</div></div></section><input ref={file} hidden type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e=>receipt(e.target.files?.[0])}/></div>}
+  </div>
 }
-
-export default function Messages({ onRead }: Props) {
-  const [activeId, setActiveId] = useState(CONVERSATIONS[0].id)
-  const [threads, setThreads] = useState<Record<string, ChatMessage[]>>(
-    Object.fromEntries(CONVERSATIONS.map((c) => [c.id, c.messages]))
-  )
-  const [draft, setDraft] = useState('')
-
-  const active = CONVERSATIONS.find((c) => c.id === activeId)!
-  const messages = threads[activeId]
-
-  const send = () => {
-    const text = draft.trim()
-    if (!text) return
-    const msg: ChatMessage = {
-      id: `u${Date.now()}`,
-      from: 'me',
-      text,
-      time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-    }
-    setThreads((t) => ({ ...t, [activeId]: [...t[activeId], msg] }))
-    setDraft('')
-  }
-
-  return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show" custom={0} className="max-w-5xl">
-      <h2 className="font-display text-2xl sm:text-3xl font-light">
-        <span className="text-gradient-gold font-medium">Messages</span>
-      </h2>
-      <p className="text-white/45 text-sm mt-1.5">Your counsellor and the Mygreat team, one thread away.</p>
-
-      <div className="grid md:grid-cols-[280px_1fr] gap-4 mt-6 items-start">
-        {/* conversation list */}
-        <Panel className="p-2.5 space-y-1">
-          {CONVERSATIONS.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => {
-                setActiveId(c.id)
-                if (c.id === 'priya') onRead()
-              }}
-              className={cn(
-                'w-full flex items-center gap-3 rounded-2xl px-3 py-3 text-left transition-all',
-                activeId === c.id ? 'bg-amber-400/[0.08] border border-amber-400/25' : 'hover:bg-white/[0.03] border border-transparent'
-              )}
-            >
-              <Avatar initials={c.initials} className="w-10 h-10 text-xs shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-[13.5px] font-semibold truncate">{c.name}</p>
-                  {c.unread > 0 && (
-                    <span className="min-w-4.5 h-4.5 px-1 rounded-full bg-amber-400 text-[#0a0f24] text-[9.5px] font-bold flex items-center justify-center shrink-0">
-                      {c.unread}
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11.5px] text-white/40 truncate mt-0.5">{c.preview}</p>
-              </div>
-            </button>
-          ))}
-        </Panel>
-
-        {/* chat */}
-        <Panel className="flex flex-col h-[520px]">
-          {/* chat header */}
-          <div className="flex items-center gap-3.5 px-5 py-4 border-b border-white/[0.07]">
-            <Avatar initials={active.initials} className="w-10 h-10 text-xs" />
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[14.5px]">{active.name}</p>
-              <p className="text-[11px] text-emerald-300/90 flex items-center gap-1.5 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Online · {active.role}
-              </p>
-            </div>
-            <button className="w-9 h-9 rounded-xl border border-white/10 text-white/50 hover:text-white hover:border-white/25 flex items-center justify-center transition-all">
-              <Phone className="w-4 h-4" />
-            </button>
-            <button className="w-9 h-9 rounded-xl border border-white/10 text-white/50 hover:text-white hover:border-white/25 flex items-center justify-center transition-all">
-              <Video className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* bubbles */}
-          <div className="flex-1 overflow-y-auto scrollbar-thin px-5 py-5 space-y-3.5">
-            {messages.map((m) => (
-              <motion.div
-                key={m.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={cn('flex', m.from === 'me' ? 'justify-end' : 'justify-start')}
-              >
-                <div
-                  className={cn(
-                    'max-w-[78%] rounded-2xl px-4 py-3 text-[13px] leading-relaxed',
-                    m.from === 'me'
-                      ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-[#0a0f24] rounded-br-md font-medium'
-                      : 'bg-white/[0.05] border border-white/[0.08] text-white/85 rounded-bl-md'
-                  )}
-                >
-                  <p>{m.text}</p>
-                  <p className={cn('text-[10px] mt-1.5', m.from === 'me' ? 'text-[#0a0f24]/60' : 'text-white/30')}>{m.time}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* composer */}
-          <div className="px-4 py-3.5 border-t border-white/[0.07] flex items-center gap-2.5">
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && send()}
-              placeholder={`Message ${active.name.split(' ')[0]}…`}
-              className="flex-1 bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-[13px] placeholder:text-white/30 outline-none focus:border-amber-400/50 transition-colors"
-            />
-            <button
-              onClick={send}
-              className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-300 to-amber-500 text-[#0a0f24] flex items-center justify-center shadow-[0_6px_24px_-6px_rgba(242,179,61,0.55)] hover:-translate-y-0.5 transition-all shrink-0"
-            >
-              <Send className="w-4 h-4" strokeWidth={2.4} />
-            </button>
-          </div>
-        </Panel>
-      </div>
-    </motion.div>
-  )
-}
-

@@ -35,23 +35,39 @@ enum AdminRole {
 }
 
 enum ApplicationStatus {
-  DRAFT
-  SUBMITTED
-  UNDER_REVIEW
-  OFFER
-  REJECTED
-  WITHDRAWN
+  SOP_PREPARATION
+  SOP_VERIFICATION
+  SOP_CORRECTION_REQUIRED
+  SOP_APPROVED
+  APPLICATION_SUBMISSION
+  APPLICATION_ACCEPTED
+  APPLICATION_FOLLOW_UP
+  CONDITIONAL_OFFER_RECEIVED
+  UNCONDITIONAL_OFFER_RECEIVED
+  MOVE_TO_VISA
 
   @@map("application_status")
 }
 
+enum OfferType {
+  CONDITIONAL
+  UNCONDITIONAL
+
+  @@map("offer_type")
+}
+
 enum VisaStatus {
-  NOT_STARTED
-  DOCUMENTS_PENDING
-  READY_TO_FILE
-  FILED
-  APPROVED
-  REJECTED
+  MEET_OFFER_CONDITIONS
+  TUITION_FEE_PAYMENT
+  VISA_DOCUMENT_COLLECTION
+  VISA_SERVICE_CHARGE
+  VISA_SLOT_BOOKING
+  VISA_LEVEL_1_VERIFICATION
+  VISA_LEVEL_2_VERIFICATION
+  VISA_SUBMISSION
+  VISA_APPROVED
+  VISA_REAPPLY_OR_APPEAL
+  VISA_GRANTED
 
   @@map("visa_status")
 }
@@ -104,6 +120,7 @@ model Student {
   documents             Document[]    @relation("StudentDocuments")
   deadlines             Deadline[]
   notifications         Notification[]
+  workflowFollowups     WorkflowFollowup[]
   assignedPartnerCompanyId String?      @map("assigned_partner_company_id") @db.Uuid
   assignedPartnerCompany   PartnerCompany? @relation(fields: [assignedPartnerCompanyId], references: [id], onDelete: SetNull)
 
@@ -361,10 +378,11 @@ model Application {
   quotedFeeAmount       Decimal?          @map("quoted_fee_amount") @db.Decimal(12, 2)
   quotedFeeCurrency     String?           @map("quoted_fee_currency") @db.VarChar(3)
   feeQuotedAt           DateTime?         @map("fee_quoted_at") @db.Timestamptz(6)
-  status                ApplicationStatus @default(DRAFT)
-  visaStatus            VisaStatus        @default(NOT_STARTED) @map("visa_status")
   progress              Int               @default(0)
   nextAction            String            @default("Complete your application") @map("next_action")
+  isPriority            Boolean           @default(false) @map("is_priority")
+  applicationStage      ApplicationStatus @default(SOP_PREPARATION) @map("application_stage")
+  offerType             OfferType?        @map("offer_type")
   applicationDeadline   DateTime?         @map("application_deadline") @db.Date
   admissionsExecutiveId String?           @map("admissions_executive_id") @db.Uuid
   visaExecutiveId       String?           @map("visa_executive_id") @db.Uuid
@@ -379,11 +397,121 @@ model Application {
   tasks                 Task[]
   documents             Document[]
   deadlines             Deadline[]
+  visaAttempts          VisaAttempt[]
+  workflowFollowups     WorkflowFollowup[]
+  workflowApprovals     WorkflowApprovalRequest[]
+  offerLetter           ApplicationOfferLetter?
 
   @@index([studentId], map: "applications_student_idx")
   @@index([admissionsExecutiveId], map: "applications_admissions_idx")
   @@index([visaExecutiveId], map: "applications_visa_idx")
   @@map("applications")
+}
+
+/// A distinct visa journey for an application. Reapplications create another attempt.
+model VisaAttempt {
+  id                String                    @id @default(uuid()) @db.Uuid
+  applicationId     String                    @map("application_id") @db.Uuid
+  attemptNumber     Int                       @map("attempt_number")
+  isCurrent         Boolean                   @default(false) @map("is_current")
+  currentStage      VisaStatus                @default(MEET_OFFER_CONDITIONS) @map("current_stage")
+  outcome           String?
+  createdAt         DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime                  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  application       Application               @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  followups         WorkflowFollowup[]
+  approvalRequests  WorkflowApprovalRequest[]
+
+  @@unique([applicationId, attemptNumber])
+  @@index([applicationId, createdAt(sort: Desc)], map: "visa_attempts_application_idx")
+  @@map("visa_attempts")
+}
+
+model ApplicationOfferLetter {
+  id            String      @id @default(uuid()) @db.Uuid
+  applicationId String      @unique(map: "application_offer_letters_application_id_key") @map("application_id") @db.Uuid
+  offerType     OfferType   @map("offer_type")
+  fileName      String      @map("file_name")
+  mimeType      String      @map("mime_type")
+  sizeBytes     Int         @map("size_bytes")
+  fileData      Bytes       @map("file_data")
+  uploadedById  String      @map("uploaded_by_id") @db.Uuid
+  uploadedByName String     @map("uploaded_by_name")
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("application_offer_letters")
+}
+
+/// Immutable event history for application and visa workflow actions.
+model WorkflowFollowup {
+  id                      String                    @id @default(uuid()) @db.Uuid
+  studentId               String                    @map("student_id") @db.Uuid
+  applicationId           String                    @map("application_id") @db.Uuid
+  visaAttemptId           String?                   @map("visa_attempt_id") @db.Uuid
+  workflowType            String                    @map("workflow_type")
+  stage                   String
+  outcome                 String?
+  notes                   String                    @default("")
+  expectedCompletionAt    DateTime?                 @map("expected_completion_at") @db.Timestamptz(6)
+  expectedCompletionEndAt DateTime?                 @map("expected_completion_end_at") @db.Timestamptz(6)
+  nextFollowUpAt          DateTime?                 @map("next_follow_up_at") @db.Timestamptz(6)
+  assignedStaffId         String?                   @map("assigned_staff_id") @db.Uuid
+  assignedStaffName       String?                   @map("assigned_staff_name")
+  createdById             String                    @map("created_by_id") @db.Uuid
+  createdByName           String                    @map("created_by_name")
+  followedUpAt            DateTime                  @default(now()) @map("followed_up_at") @db.Timestamptz(6)
+  createdAt               DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  student                 Student                   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  application             Application               @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  visaAttempt             VisaAttempt?              @relation(fields: [visaAttemptId], references: [id], onDelete: Cascade)
+  attachments             WorkflowFollowupFile[]
+  approvalRequest         WorkflowApprovalRequest?
+
+  @@index([applicationId, workflowType, followedUpAt(sort: Desc), id(sort: Desc)], map: "workflow_followups_application_idx")
+  @@index([visaAttemptId, followedUpAt(sort: Desc), id(sort: Desc)], map: "workflow_followups_visa_idx")
+  @@index([studentId, followedUpAt(sort: Desc)], map: "workflow_followups_student_idx")
+  @@map("workflow_followups")
+}
+
+model WorkflowFollowupFile {
+  id          String           @id @default(uuid()) @db.Uuid
+  followupId  String           @map("followup_id") @db.Uuid
+  fileName    String           @map("file_name")
+  mimeType    String           @map("mime_type")
+  sizeBytes   Int              @map("size_bytes")
+  fileData    Bytes            @map("file_data")
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  followup    WorkflowFollowup @relation(fields: [followupId], references: [id], onDelete: Cascade)
+
+  @@index([followupId], map: "workflow_followup_files_followup_id_idx")
+  @@map("workflow_followup_files")
+}
+
+model WorkflowApprovalRequest {
+  id              String           @id @default(uuid()) @db.Uuid
+  studentId       String           @map("student_id") @db.Uuid
+  applicationId   String           @map("application_id") @db.Uuid
+  followupId      String           @unique(map: "workflow_approval_requests_followup_id_key") @map("followup_id") @db.Uuid
+  workflowType    String           @default("APPLICATION") @map("workflow_type")
+  visaAttemptId   String?          @map("visa_attempt_id") @db.Uuid
+  stage           String
+  status          String           @default("PENDING")
+  requestedById   String           @map("requested_by_id") @db.Uuid
+  requestedByName String           @map("requested_by_name")
+  reviewedById    String?          @map("reviewed_by_id") @db.Uuid
+  reviewedByName  String?          @map("reviewed_by_name")
+  reviewNote      String?          @map("review_note")
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  reviewedAt      DateTime?        @map("reviewed_at") @db.Timestamptz(6)
+  application     Application      @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  followup        WorkflowFollowup @relation(fields: [followupId], references: [id], onDelete: Cascade)
+  visaAttempt     VisaAttempt?     @relation(fields: [visaAttemptId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt], map: "workflow_approval_requests_pending_idx")
+  @@index([visaAttemptId], map: "workflow_approval_requests_visa_attempt_id_idx")
+  @@map("workflow_approval_requests")
 }
 
 model Task {

@@ -4,21 +4,18 @@ import { useMemo, useState } from 'react'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from '@/lib/navigation'
-import { Search, Bell, Compass, ArrowRight, Sparkles, MoreHorizontal, X } from 'lucide-react'
+import { Search, Bell, Compass, ArrowRight, Sparkles, MoreHorizontal, MessageCircle, X } from 'lucide-react'
 import Sidebar, { TABS, type TabId } from '@/components/dashboard/Sidebar'
 import Overview from '@/components/dashboard/Overview'
 import Applications from '@/components/dashboard/Applications'
 import UniversitiesTab from '@/components/dashboard/UniversitiesTab'
 import Documents from '@/components/dashboard/Documents'
-import Deadlines from '@/components/dashboard/Deadlines'
-import Messages from '@/components/dashboard/Messages'
+import AssistanceChat from '@/components/dashboard/AssistanceChat'
+import NotificationCenter from '@/components/dashboard/NotificationCenter'
 import Settings from '@/components/dashboard/Settings'
 import Notifications from '@/components/dashboard/Notifications'
-import {
-  CONVERSATIONS,
-} from '@/data/dashboard'
-import type { Application, Deadline, Notice, Task } from '@/data/dashboard'
-import { buildStudent, buildRecommendations } from '@/data/student'
+import type { Application, Notice, Reco, Task } from '@/data/dashboard'
+import { buildStudent } from '@/data/student'
 import { useAppStore, type Account } from '@/lib/store'
 import { Avatar } from '@/components/dashboard/bits'
 import { cn } from '@/lib/utils'
@@ -37,8 +34,7 @@ const TAB_TITLES: Record<TabId, string> = {
   applications: 'Applications',
   universities: 'Discover universities',
   documents: 'Document center',
-  deadlines: 'Calendar & deadlines',
-  messages: 'Messages',
+  notifications: 'Notifications',
   settings: 'Profile & settings',
 }
 
@@ -47,8 +43,7 @@ const TAB_DESCRIPTIONS: Record<TabId, string> = {
   applications: 'Track every submission, decision, and next action',
   universities: 'Explore matches built around your goals and profile',
   documents: 'Keep your application documents ready and verified',
-  deadlines: 'See every important date before it becomes urgent',
-  messages: 'Stay connected with your Mygreat support team',
+  notifications: 'Review important updates from Mygreat',
   settings: 'Manage your personal, academic, and account details',
 }
 
@@ -75,25 +70,30 @@ export default function Dashboard() {
     city: item.city,
     program: item.program,
     rank: item.rank,
-    status: item.status === 'OFFER' ? 'offer' : item.status === 'UNDER_REVIEW' ? 'under-review' : item.status === 'SUBMITTED' ? 'submitted' : 'in-progress',
+    status: ['CONDITIONAL_OFFER_RECEIVED','MOVE_TO_VISA'].includes(item.status) ? 'offer' : item.status === 'APPLICATION_FOLLOW_UP' ? 'under-review' : item.status === 'APPLICATION_ACCEPTED' ? 'submitted' : 'in-progress',
     progress: item.progress,
     nextAction: item.nextAction,
     deadline: item.deadline ?? undefined,
     deadlineLabel: item.deadline ? 'Application deadline' : undefined,
     stages: [{ label: item.status.replaceAll('_', ' '), state: 'current' }],
-    visaStatus: item.visaStatus.toLowerCase().replaceAll('_', '-') as Application['visaStatus'],
+    visaStatus: item.visaStatus?.toLowerCase().replaceAll('_', '-') as Application['visaStatus'],
   })), [serverDashboard.applications])
-  const recommendations = useMemo(
-    () => profile ? buildRecommendations(profile) : [],
-    [profile]
-  )
-  const deadlines: Deadline[] = serverDashboard.deadlines.map((item) => ({ id: item.id, label: item.label, org: item.organization, date: item.dueDate, type: item.type.toLowerCase() as Deadline['type'] }))
+  const recommendations = useMemo<Reco[]>(() => serverDashboard.recommendations.map((item) => ({
+    ...item,
+    initials: item.name.split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase(),
+    tuition: item.tuition || 'Contact university',
+    acceptance: item.acceptance || 'Not published',
+    match: 0,
+  })), [serverDashboard.recommendations])
   const tasks: Task[] = serverDashboard.tasks.map((item) => ({ id: item.id, label: item.label, due: item.dueDate ?? undefined, tag: item.tag, done: item.completed }))
-  const [unread, setUnread] = useState(CONVERSATIONS[0].unread)
+  const [unread, setUnread] = useState(() => serverDashboard.notifications.filter((item) => !item.readAt).length)
   const [notices, setNotices] = useState<Notice[]>(() => serverDashboard.notifications.map((item) => ({ id: item.id, kind: item.kind === 'DOCUMENT' ? 'doc' : item.kind.toLowerCase() as Notice['kind'], title: item.title, desc: item.description, time: 'Recently', read: Boolean(item.readAt) })))
   const [showNotifs, setShowNotifs] = useState(false)
   const [showMobileMore, setShowMobileMore] = useState(false)
+  const [showAssistance, setShowAssistance] = useState(false)
   const requiredDocumentCount=REQUIRED_DOCUMENTS.filter(required=>serverDashboard.documents.some(document=>document.name===required.name&&document.status==='VERIFIED')).length
+  const requiredDocumentRows=REQUIRED_DOCUMENTS.map(required=>serverDashboard.documents.find(document=>document.name===required.name)).filter(Boolean)
+  const documentStats={uploaded:requiredDocumentRows.length,verified:requiredDocumentRows.filter(document=>document?.status==='VERIFIED').length,pending:requiredDocumentRows.filter(document=>document?.status==='PENDING').length,needed:requiredDocumentRows.filter(document=>document?.status==='NEEDED').length,total:REQUIRED_DOCUMENTS.length}
   const requiredDocumentsComplete=requiredDocumentCount===REQUIRED_DOCUMENTS.length
 
   const unreadNotifs = notices.filter((n) => !n.read).length
@@ -115,6 +115,18 @@ export default function Dashboard() {
   const handleSaveProfile = async (p: NonNullable<typeof profile>) => {
     await saveMyProfileFn({ data: p })
     await queryClient.invalidateQueries({ queryKey: ['student'] })
+  }
+
+  const handleShortlistToggle = async (university: NonNullable<typeof profile>['universities'][number]) => {
+    if (!profile) throw new Error('Complete your country and course selection first.')
+    const exists = profile.universities.some((item) => item.id === university.id)
+    if (!exists && profile.universities.length >= 3) throw new Error('You can shortlist up to three universities.')
+    const universities = exists ? profile.universities.filter((item) => item.id !== university.id) : [...profile.universities, university]
+    await saveMyProfileFn({ data: { ...profile, universities, notSure: false } })
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['student'] }),
+      queryClient.invalidateQueries({ queryKey: ['student', 'dashboard'] }),
+    ])
   }
 
   const signOut = async () => {
@@ -225,20 +237,19 @@ export default function Dashboard() {
                       student={{...student,journeyStep:requiredDocumentsComplete?3:2}}
                       applications={applications}
                       recommendations={recommendations}
-                      deadlines={deadlines}
                       tasks={tasks}
-                      requiredDocumentCount={requiredDocumentCount}
+                      shortlistedCount={profile?.universities.length??0}
+                      documentStats={documentStats}
                       onToggleTask={toggleTask}
                       onNavigate={setTab}
                     />
                   )}
                   {tab === 'applications' && <Applications applications={applications} documentsComplete={requiredDocumentsComplete} onNavigate={setTab} />}
                   {tab === 'universities' && (
-                    <UniversitiesTab student={student} shortlisted={profile?.universities ?? []} recommendations={recommendations} />
+                    <UniversitiesTab student={student} shortlisted={profile?.universities ?? []} recommendations={recommendations} onShortlistToggle={handleShortlistToggle} />
                   )}
                   {tab === 'documents' && <Documents documents={serverDashboard.documents} onChanged={()=>queryClient.invalidateQueries({queryKey:['student','dashboard']})} />}
-                  {tab === 'deadlines' && <Deadlines deadlines={deadlines} />}
-                  {tab === 'messages' && <Messages onRead={() => setUnread(0)} />}
+                  {tab === 'notifications' && <NotificationCenter notices={notices} onMarkAll={() => { setNotices((items) => items.map((item) => ({ ...item, read: true }))); setUnread(0) }} />}
                   {tab === 'settings' && (
                     <Settings
                       profile={profile}
@@ -273,7 +284,7 @@ export default function Dashboard() {
               })}
               <button
                 onClick={() => setShowMobileMore(true)}
-                className={cn('flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[9px] font-semibold transition', ['deadlines', 'documents', 'messages', 'settings'].includes(tab) ? 'mobile-dashboard-nav-active bg-amber-300/[0.1] text-amber-200' : 'text-white/38 active:bg-white/[0.05]')}
+                className={cn('flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[9px] font-semibold transition', ['documents', 'notifications', 'settings'].includes(tab) ? 'mobile-dashboard-nav-active bg-amber-300/[0.1] text-amber-200' : 'text-white/38 active:bg-white/[0.05]')}
               >
                 <MoreHorizontal className="size-[19px]" /><span>More</span>
               </button>
@@ -288,15 +299,14 @@ export default function Dashboard() {
                   <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/15" />
                   <div className="flex items-center justify-between"><div><p className="font-display text-xl">More tools</p><p className="mt-1 text-xs text-white/35">Discovery, planning, and account preferences</p></div><button onClick={() => setShowMobileMore(false)} className="grid size-10 place-items-center rounded-xl border border-white/10"><X className="size-4" /></button></div>
                   <div className="mt-5 grid grid-cols-2 gap-3">
-                    {(['deadlines', 'documents', 'messages', 'settings'] as TabId[]).map((id) => {
+                    {(['documents', 'notifications', 'settings'] as TabId[]).map((id) => {
                       const item = TABS.find((entry) => entry.id === id)!
-                      const descriptions: Record<'deadlines' | 'documents' | 'messages' | 'settings', string> = {
-                        deadlines: 'View important dates and tasks',
+                      const descriptions: Record<'documents' | 'notifications' | 'settings', string> = {
                         documents: 'Upload and track your files',
-                        messages: 'Chat with your support team',
+                        notifications: 'Review your latest updates',
                         settings: 'Profile, preferences, and sign out',
                       }
-                      return <button key={id} onClick={() => { setTab(id); setShowMobileMore(false) }} className={cn('mobile-more-item relative rounded-2xl border p-4 text-left transition', tab === id ? 'border-amber-300/30 bg-amber-300/[0.09]' : 'border-white/[0.08] bg-white/[0.035]')}><span className={cn('grid size-10 place-items-center rounded-xl', tab === id ? 'bg-amber-400 text-[#10172a]' : 'bg-white/[0.06] text-white/55')}><item.icon className="size-4.5" /></span>{id === 'messages' && unread > 0 && <span className="absolute right-3 top-3 grid min-w-5 place-items-center rounded-full bg-amber-400 px-1.5 text-[9px] font-bold leading-5 text-[#10172a]">{unread}</span>}<p className="mt-4 text-sm font-semibold">{item.label}</p><p className="mt-1 text-[10.5px] leading-4 text-white/32">{descriptions[id as keyof typeof descriptions]}</p></button>
+                      return <button key={id} onClick={() => { setTab(id); setShowMobileMore(false) }} className={cn('mobile-more-item relative rounded-2xl border p-4 text-left transition', tab === id ? 'border-amber-300/30 bg-amber-300/[0.09]' : 'border-white/[0.08] bg-white/[0.035]')}><span className={cn('grid size-10 place-items-center rounded-xl', tab === id ? 'bg-amber-400 text-[#10172a]' : 'bg-white/[0.06] text-white/55')}><item.icon className="size-4.5" /></span>{id === 'notifications' && unread > 0 && <span className="absolute right-3 top-3 grid min-w-5 place-items-center rounded-full bg-amber-400 px-1.5 text-[9px] font-bold leading-5 text-[#10172a]">{unread}</span>}<p className="mt-4 text-sm font-semibold">{item.label}</p><p className="mt-1 text-[10.5px] leading-4 text-white/32">{descriptions[id as keyof typeof descriptions]}</p></button>
                     })}
                   </div>
                 </motion.section>
@@ -305,6 +315,8 @@ export default function Dashboard() {
           </AnimatePresence>
         </div>
       </div>
+      {!showAssistance&&<button onClick={()=>setShowAssistance(true)} className="fixed bottom-24 right-5 z-50 flex items-center gap-3 rounded-2xl bg-amber-400 px-4 py-3 text-xs font-bold text-[#10172a] shadow-2xl shadow-amber-500/30 transition hover:-translate-y-1 lg:bottom-7 lg:right-7"><span className="grid size-8 place-items-center rounded-xl bg-[#10172a]/10"><MessageCircle className="size-4"/></span><span className="text-left"><span className="block">Need assistance?</span><span className="block text-[9px] font-medium opacity-65">Message our support team</span></span></button>}
+      {showAssistance&&<AssistanceChat close={()=>setShowAssistance(false)}/>}
     </div>
   )
 }

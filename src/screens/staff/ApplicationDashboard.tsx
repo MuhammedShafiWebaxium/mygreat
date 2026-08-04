@@ -5,11 +5,11 @@ import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-q
 import { AnimatePresence, motion } from 'framer-motion'
 import { FilePlus2, Plus, Search, X } from 'lucide-react'
 import { assignmentOptionsQuery, primaryApplicationQueueQuery, staffStudentsQuery } from '@/features/admin/admin.queries'
+import { Link } from '@/lib/navigation'
 import { currentUserQuery } from '@/features/auth/auth.queries'
-import { staffCreateApplicationFn, updateApplicationFn } from '@/features/workflow/workflow.functions'
+import { staffCreateApplicationFn } from '@/features/workflow/workflow.functions'
 import { STAFF_PAGE_SIZE, StaffPagination } from '@/components/staff/StaffPagination'
 
-const STATUSES = ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'OFFER', 'REJECTED', 'WITHDRAWN'] as const
 const title = (value: string) => value.replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase())
 
 export default function ApplicationDashboard() {
@@ -24,10 +24,7 @@ export default function ApplicationDashboard() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [draft, setDraft] = useState({ studentId: '', universityId: '', program: '' })
   const refresh = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['staff', 'primary-applications'] }),
-      queryClient.invalidateQueries({ queryKey: ['staff', 'queue'] }),
-    ])
+    await Promise.all([queryClient.invalidateQueries({ queryKey: ['staff', 'queue'] }),queryClient.invalidateQueries({ queryKey: ['staff', 'primary-applications'] })])
   }
   const create = useMutation({
     mutationFn: () => staffCreateApplicationFn({ data: draft }),
@@ -37,11 +34,6 @@ export default function ApplicationDashboard() {
       setDrawerOpen(false)
       await refresh()
     },
-  })
-  const update = useMutation({
-    mutationFn: (data: { applicationId: string; status?: string; progress?: number; nextAction?: string }) => updateApplicationFn({ data }),
-    onSuccess: async () => { setMessage('Application updated.'); await refresh() },
-    onError: (error) => setMessage(error.message),
   })
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase()
@@ -57,18 +49,18 @@ export default function ApplicationDashboard() {
 
     <section className="grid gap-3 sm:grid-cols-3">{[
       ['Students with applications', queue.length],
-      ['Under review', queue.filter((item) => item.status === 'UNDER_REVIEW').length],
-      ['Offers', queue.filter((item) => item.status === 'OFFER').length],
+      ['Under review', queue.filter((item) => item.status === 'APPLICATION_FOLLOW_UP').length],
+      ['Offers', queue.filter((item) => ['CONDITIONAL_OFFER_RECEIVED','MOVE_TO_VISA'].includes(item.status)).length],
     ].map(([label, value]) => <div key={String(label)} className="staff-card rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5"><p className="text-[10px] uppercase tracking-[.18em] text-white/35">{label}</p><p className="mt-2 font-display text-3xl">{value}</p></div>)}</section>
 
     <section className="staff-card overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.025]">
       <div className="border-b border-white/[0.06] p-5"><div className="relative"><Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/30" /><input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1) }} placeholder="Search applications" className="w-full rounded-xl border border-white/10 bg-white/[.035] py-3 pl-11 pr-4 text-sm outline-none" /></div>{message && <p className="mt-3 text-xs text-amber-200">{message}</p>}</div>
-      <div className="overflow-x-auto"><table className="w-full min-w-[980px] text-left"><thead><tr className="border-b border-white/[.06] text-[9px] uppercase tracking-[.17em] text-white/30"><th className="px-6 py-4">Student</th><th className="px-4 py-4">Primary application</th><th className="px-4 py-4">Status</th><th className="px-4 py-4">Progress</th><th className="px-6 py-4">Next action</th></tr></thead><tbody className="divide-y divide-white/[.05]">{visibleApplications.map((application) => <tr key={application.studentId}>
-        <td className="px-6 py-4"><p className="text-xs font-semibold">{application.studentName}</p><span className="mt-1 inline-flex rounded-full border border-amber-400/20 bg-amber-400/[.07] px-2 py-0.5 text-[9px] font-semibold text-amber-300">Primary case</span></td>
-        <td className="px-4 py-4"><p className="text-xs">{application.university}</p><p className="mt-1 text-[10.5px] text-white/35">{application.program}</p></td>
-        <td className="px-4 py-4">{canEdit ? <select value={application.status} onChange={(event) => update.mutate({ applicationId: application.id, status: event.target.value })} className="rounded-lg border border-sky-400/20 bg-[#0c1122] px-2 py-2 text-[10px] text-sky-300">{STATUSES.map((status) => <option key={status} value={status}>{title(status)}</option>)}</select> : <span className="text-xs text-sky-300">{title(application.status)}</span>}</td>
-        <td className="px-4 py-4"><div className="flex items-center gap-2">{canEdit ? <input type="number" min="0" max="100" defaultValue={application.progress} onBlur={(event) => update.mutate({ applicationId: application.id, progress: Number(event.target.value) })} className="w-16 rounded-lg border border-white/10 bg-white/[.035] px-2 py-2 text-xs" /> : <span className="text-xs">{application.progress}%</span>}<div className="h-1.5 w-20 rounded-full bg-white/[.07]"><div className="h-full rounded-full bg-amber-400" style={{ width: `${application.progress}%` }} /></div></div></td>
-        <td className="px-6 py-4">{canEdit ? <input defaultValue={application.nextAction} onBlur={(event) => event.target.value !== application.nextAction && update.mutate({ applicationId: application.id, nextAction: event.target.value })} className="w-full min-w-[220px] rounded-lg border border-white/10 bg-white/[.035] px-3 py-2 text-xs" /> : <span className="text-xs text-white/50">{application.nextAction}</span>}</td>
+      <div className="overflow-x-auto"><table className="w-full min-w-[980px] text-left"><thead><tr className="border-b border-white/[.06] text-[9px] uppercase tracking-[.17em] text-white/30"><th className="px-6 py-4">Student</th><th className="px-4 py-4">Application</th><th className="px-4 py-4">Status</th><th className="px-4 py-4">Progress</th><th className="px-6 py-4">Next action</th></tr></thead><tbody className="divide-y divide-white/[.05]">{visibleApplications.map((application) => <tr key={application.id}>
+        <td className="px-6 py-4"><p className="text-xs font-semibold">{application.studentName}</p><span className="mt-1 text-[9px] text-white/35">{application.applicationCount} applications</span></td>
+        <td className="px-4 py-4">{application.id?<Link href={`/staff/applications/${application.id}`} className="text-xs transition hover:text-amber-300">{application.university}</Link>:<><span className="text-xs text-amber-300">Priority application not selected</span><Link href={`/staff/students/${application.studentId}`} className="ml-3 text-[9px] font-bold text-amber-300 underline underline-offset-2">Select priority</Link></>}<p className="mt-1 text-[10.5px] text-white/35">{application.program}</p></td>
+        <td className="px-4 py-4"><span className="text-xs text-sky-300">{application.id?title(application.status):'Not selected'}</span></td>
+        <td className="px-4 py-4"><div className="flex items-center gap-2"><span className="text-xs">{application.id?`${application.progress}%`:'—'}</span><div className="h-1.5 w-20 rounded-full bg-white/[.07]"><div className="h-full rounded-full bg-amber-400" style={{ width: `${application.id?application.progress:0}%` }} /></div></div></td>
+        <td className="px-6 py-4"><span className="text-xs text-white/50">{application.nextAction}</span>{application.id&&<Link href={`/staff/applications/${application.id}`} className="ml-3 text-[9px] font-bold text-amber-300">Open case →</Link>}</td>
       </tr>)}</tbody></table></div>
       <StaffPagination page={currentPage} total={filtered.length} onPageChange={setPage} />
     </section>

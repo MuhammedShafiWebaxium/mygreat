@@ -392,13 +392,6 @@ export type EnumApplicationStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumApplicationStatusFilter<$PrismaModel> | $Enums.ApplicationStatus
 }
 
-export type EnumVisaStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.VisaStatus | Prisma.EnumVisaStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.VisaStatus[] | Prisma.ListEnumVisaStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.VisaStatus[] | Prisma.ListEnumVisaStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumVisaStatusFilter<$PrismaModel> | $Enums.VisaStatus
-}
-
 export type EnumApplicationStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ApplicationStatus | Prisma.EnumApplicationStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ApplicationStatus[] | Prisma.ListEnumApplicationStatusFieldRefInput<$PrismaModel>
@@ -409,6 +402,13 @@ export type EnumApplicationStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumApplicationStatusFilter<$PrismaModel>
 }
 
+export type EnumVisaStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.VisaStatus | Prisma.EnumVisaStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.VisaStatus[] | Prisma.ListEnumVisaStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VisaStatus[] | Prisma.ListEnumVisaStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVisaStatusFilter<$PrismaModel> | $Enums.VisaStatus
+}
+
 export type EnumVisaStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.VisaStatus | Prisma.EnumVisaStatusFieldRefInput<$PrismaModel>
   in?: $Enums.VisaStatus[] | Prisma.ListEnumVisaStatusFieldRefInput<$PrismaModel>
@@ -417,6 +417,23 @@ export type EnumVisaStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumVisaStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumVisaStatusFilter<$PrismaModel>
+}
+
+export type BytesFilter<$PrismaModel = never> = {
+  equals?: runtime.Bytes | Prisma.BytesFieldRefInput<$PrismaModel>
+  in?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
+  notIn?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBytesFilter<$PrismaModel> | runtime.Bytes
+}
+
+export type BytesWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: runtime.Bytes | Prisma.BytesFieldRefInput<$PrismaModel>
+  in?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
+  notIn?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBytesWithAggregatesFilter<$PrismaModel> | runtime.Bytes
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedBytesFilter<$PrismaModel>
+  _max?: Prisma.NestedBytesFilter<$PrismaModel>
 }
 
 export type EnumDocumentStatusFilter<$PrismaModel = never> = {
@@ -881,13 +898,6 @@ export type NestedEnumApplicationStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumApplicationStatusFilter<$PrismaModel> | $Enums.ApplicationStatus
 }
 
-export type NestedEnumVisaStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.VisaStatus | Prisma.EnumVisaStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.VisaStatus[] | Prisma.ListEnumVisaStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.VisaStatus[] | Prisma.ListEnumVisaStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumVisaStatusFilter<$PrismaModel> | $Enums.VisaStatus
-}
-
 export type NestedEnumApplicationStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ApplicationStatus | Prisma.EnumApplicationStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ApplicationStatus[] | Prisma.ListEnumApplicationStatusFieldRefInput<$PrismaModel>
@@ -898,6 +908,13 @@ export type NestedEnumApplicationStatusWithAggregatesFilter<$PrismaModel = never
   _max?: Prisma.NestedEnumApplicationStatusFilter<$PrismaModel>
 }
 
+export type NestedEnumVisaStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.VisaStatus | Prisma.EnumVisaStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.VisaStatus[] | Prisma.ListEnumVisaStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VisaStatus[] | Prisma.ListEnumVisaStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVisaStatusFilter<$PrismaModel> | $Enums.VisaStatus
+}
+
 export type NestedEnumVisaStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.VisaStatus | Prisma.EnumVisaStatusFieldRefInput<$PrismaModel>
   in?: $Enums.VisaStatus[] | Prisma.ListEnumVisaStatusFieldRefInput<$PrismaModel>
@@ -906,6 +923,23 @@ export type NestedEnumVisaStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumVisaStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumVisaStatusFilter<$PrismaModel>
+}
+
+export type NestedBytesFilter<$PrismaModel = never> = {
+  equals?: runtime.Bytes | Prisma.BytesFieldRefInput<$PrismaModel>
+  in?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
+  notIn?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBytesFilter<$PrismaModel> | runtime.Bytes
+}
+
+export type NestedBytesWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: runtime.Bytes | Prisma.BytesFieldRefInput<$PrismaModel>
+  in?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
+  notIn?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedBytesWithAggregatesFilter<$PrismaModel> | runtime.Bytes
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedBytesFilter<$PrismaModel>
+  _max?: Prisma.NestedBytesFilter<$PrismaModel>
 }
 
 export type NestedEnumDocumentStatusFilter<$PrismaModel = never> = {

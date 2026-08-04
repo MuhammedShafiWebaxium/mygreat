@@ -230,6 +230,7 @@ export type StudentWhereInput = {
   documents?: Prisma.DocumentListRelationFilter
   deadlines?: Prisma.DeadlineListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  workflowFollowups?: Prisma.WorkflowFollowupListRelationFilter
   assignedPartnerCompany?: Prisma.XOR<Prisma.PartnerCompanyNullableScalarRelationFilter, Prisma.PartnerCompanyWhereInput> | null
 }
 
@@ -252,6 +253,7 @@ export type StudentOrderByWithRelationInput = {
   documents?: Prisma.DocumentOrderByRelationAggregateInput
   deadlines?: Prisma.DeadlineOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  workflowFollowups?: Prisma.WorkflowFollowupOrderByRelationAggregateInput
   assignedPartnerCompany?: Prisma.PartnerCompanyOrderByWithRelationInput
 }
 
@@ -277,6 +279,7 @@ export type StudentWhereUniqueInput = Prisma.AtLeast<{
   documents?: Prisma.DocumentListRelationFilter
   deadlines?: Prisma.DeadlineListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  workflowFollowups?: Prisma.WorkflowFollowupListRelationFilter
   assignedPartnerCompany?: Prisma.XOR<Prisma.PartnerCompanyNullableScalarRelationFilter, Prisma.PartnerCompanyWhereInput> | null
 }, "id" | "email">
 
@@ -330,6 +333,7 @@ export type StudentCreateInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutStudentInput
   assignedPartnerCompany?: Prisma.PartnerCompanyCreateNestedOneWithoutAssignedStudentsInput
 }
 
@@ -352,6 +356,7 @@ export type StudentUncheckedCreateInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type StudentUpdateInput = {
@@ -372,6 +377,7 @@ export type StudentUpdateInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutStudentNestedInput
   assignedPartnerCompany?: Prisma.PartnerCompanyUpdateOneWithoutAssignedStudentsNestedInput
 }
 
@@ -394,6 +400,7 @@ export type StudentUncheckedUpdateInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type StudentCreateManyInput = {
@@ -606,6 +613,20 @@ export type StudentUpdateOneRequiredWithoutApplicationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.StudentUpdateToOneWithWhereWithoutApplicationsInput, Prisma.StudentUpdateWithoutApplicationsInput>, Prisma.StudentUncheckedUpdateWithoutApplicationsInput>
 }
 
+export type StudentCreateNestedOneWithoutWorkflowFollowupsInput = {
+  create?: Prisma.XOR<Prisma.StudentCreateWithoutWorkflowFollowupsInput, Prisma.StudentUncheckedCreateWithoutWorkflowFollowupsInput>
+  connectOrCreate?: Prisma.StudentCreateOrConnectWithoutWorkflowFollowupsInput
+  connect?: Prisma.StudentWhereUniqueInput
+}
+
+export type StudentUpdateOneRequiredWithoutWorkflowFollowupsNestedInput = {
+  create?: Prisma.XOR<Prisma.StudentCreateWithoutWorkflowFollowupsInput, Prisma.StudentUncheckedCreateWithoutWorkflowFollowupsInput>
+  connectOrCreate?: Prisma.StudentCreateOrConnectWithoutWorkflowFollowupsInput
+  upsert?: Prisma.StudentUpsertWithoutWorkflowFollowupsInput
+  connect?: Prisma.StudentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StudentUpdateToOneWithWhereWithoutWorkflowFollowupsInput, Prisma.StudentUpdateWithoutWorkflowFollowupsInput>, Prisma.StudentUncheckedUpdateWithoutWorkflowFollowupsInput>
+}
+
 export type StudentCreateNestedOneWithoutTasksInput = {
   create?: Prisma.XOR<Prisma.StudentCreateWithoutTasksInput, Prisma.StudentUncheckedCreateWithoutTasksInput>
   connectOrCreate?: Prisma.StudentCreateOrConnectWithoutTasksInput
@@ -680,6 +701,7 @@ export type StudentCreateWithoutAssignedPartnerCompanyInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutStudentInput
 }
 
 export type StudentUncheckedCreateWithoutAssignedPartnerCompanyInput = {
@@ -700,6 +722,7 @@ export type StudentUncheckedCreateWithoutAssignedPartnerCompanyInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutAssignedPartnerCompanyInput = {
@@ -761,6 +784,7 @@ export type StudentCreateWithoutSessionsInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutStudentInput
   assignedPartnerCompany?: Prisma.PartnerCompanyCreateNestedOneWithoutAssignedStudentsInput
 }
 
@@ -782,6 +806,7 @@ export type StudentUncheckedCreateWithoutSessionsInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutSessionsInput = {
@@ -817,6 +842,7 @@ export type StudentUpdateWithoutSessionsInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutStudentNestedInput
   assignedPartnerCompany?: Prisma.PartnerCompanyUpdateOneWithoutAssignedStudentsNestedInput
 }
 
@@ -838,6 +864,7 @@ export type StudentUncheckedUpdateWithoutSessionsInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type StudentCreateWithoutProfileInput = {
@@ -857,6 +884,7 @@ export type StudentCreateWithoutProfileInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutStudentInput
   assignedPartnerCompany?: Prisma.PartnerCompanyCreateNestedOneWithoutAssignedStudentsInput
 }
 
@@ -878,6 +906,7 @@ export type StudentUncheckedCreateWithoutProfileInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutProfileInput = {
@@ -913,6 +942,7 @@ export type StudentUpdateWithoutProfileInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutStudentNestedInput
   assignedPartnerCompany?: Prisma.PartnerCompanyUpdateOneWithoutAssignedStudentsNestedInput
 }
 
@@ -934,6 +964,7 @@ export type StudentUncheckedUpdateWithoutProfileInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type StudentCreateWithoutShortlistInput = {
@@ -953,6 +984,7 @@ export type StudentCreateWithoutShortlistInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutStudentInput
   assignedPartnerCompany?: Prisma.PartnerCompanyCreateNestedOneWithoutAssignedStudentsInput
 }
 
@@ -974,6 +1006,7 @@ export type StudentUncheckedCreateWithoutShortlistInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutShortlistInput = {
@@ -1009,6 +1042,7 @@ export type StudentUpdateWithoutShortlistInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutStudentNestedInput
   assignedPartnerCompany?: Prisma.PartnerCompanyUpdateOneWithoutAssignedStudentsNestedInput
 }
 
@@ -1030,6 +1064,7 @@ export type StudentUncheckedUpdateWithoutShortlistInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type StudentCreateWithoutApplicationsInput = {
@@ -1049,6 +1084,7 @@ export type StudentCreateWithoutApplicationsInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutStudentInput
   assignedPartnerCompany?: Prisma.PartnerCompanyCreateNestedOneWithoutAssignedStudentsInput
 }
 
@@ -1070,6 +1106,7 @@ export type StudentUncheckedCreateWithoutApplicationsInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutApplicationsInput = {
@@ -1105,6 +1142,7 @@ export type StudentUpdateWithoutApplicationsInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutStudentNestedInput
   assignedPartnerCompany?: Prisma.PartnerCompanyUpdateOneWithoutAssignedStudentsNestedInput
 }
 
@@ -1122,6 +1160,107 @@ export type StudentUncheckedUpdateWithoutApplicationsInput = {
   sessions?: Prisma.StudentSessionUncheckedUpdateManyWithoutStudentNestedInput
   profile?: Prisma.StudentProfileUncheckedUpdateOneWithoutUserNestedInput
   shortlist?: Prisma.StudentShortlistUncheckedUpdateManyWithoutUserNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
+  deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutStudentNestedInput
+}
+
+export type StudentCreateWithoutWorkflowFollowupsInput = {
+  id?: string
+  name: string
+  email: string
+  phone?: string | null
+  passwordHash: string
+  emailVerifiedAt?: Date | string | null
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.StudentSessionCreateNestedManyWithoutStudentInput
+  profile?: Prisma.StudentProfileCreateNestedOneWithoutUserInput
+  shortlist?: Prisma.StudentShortlistCreateNestedManyWithoutUserInput
+  applications?: Prisma.ApplicationCreateNestedManyWithoutStudentInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
+  deadlines?: Prisma.DeadlineCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  assignedPartnerCompany?: Prisma.PartnerCompanyCreateNestedOneWithoutAssignedStudentsInput
+}
+
+export type StudentUncheckedCreateWithoutWorkflowFollowupsInput = {
+  id?: string
+  name: string
+  email: string
+  phone?: string | null
+  passwordHash: string
+  emailVerifiedAt?: Date | string | null
+  active?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedPartnerCompanyId?: string | null
+  sessions?: Prisma.StudentSessionUncheckedCreateNestedManyWithoutStudentInput
+  profile?: Prisma.StudentProfileUncheckedCreateNestedOneWithoutUserInput
+  shortlist?: Prisma.StudentShortlistUncheckedCreateNestedManyWithoutUserInput
+  applications?: Prisma.ApplicationUncheckedCreateNestedManyWithoutStudentInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
+  deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type StudentCreateOrConnectWithoutWorkflowFollowupsInput = {
+  where: Prisma.StudentWhereUniqueInput
+  create: Prisma.XOR<Prisma.StudentCreateWithoutWorkflowFollowupsInput, Prisma.StudentUncheckedCreateWithoutWorkflowFollowupsInput>
+}
+
+export type StudentUpsertWithoutWorkflowFollowupsInput = {
+  update: Prisma.XOR<Prisma.StudentUpdateWithoutWorkflowFollowupsInput, Prisma.StudentUncheckedUpdateWithoutWorkflowFollowupsInput>
+  create: Prisma.XOR<Prisma.StudentCreateWithoutWorkflowFollowupsInput, Prisma.StudentUncheckedCreateWithoutWorkflowFollowupsInput>
+  where?: Prisma.StudentWhereInput
+}
+
+export type StudentUpdateToOneWithWhereWithoutWorkflowFollowupsInput = {
+  where?: Prisma.StudentWhereInput
+  data: Prisma.XOR<Prisma.StudentUpdateWithoutWorkflowFollowupsInput, Prisma.StudentUncheckedUpdateWithoutWorkflowFollowupsInput>
+}
+
+export type StudentUpdateWithoutWorkflowFollowupsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.StudentSessionUpdateManyWithoutStudentNestedInput
+  profile?: Prisma.StudentProfileUpdateOneWithoutUserNestedInput
+  shortlist?: Prisma.StudentShortlistUpdateManyWithoutUserNestedInput
+  applications?: Prisma.ApplicationUpdateManyWithoutStudentNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
+  deadlines?: Prisma.DeadlineUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  assignedPartnerCompany?: Prisma.PartnerCompanyUpdateOneWithoutAssignedStudentsNestedInput
+}
+
+export type StudentUncheckedUpdateWithoutWorkflowFollowupsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedPartnerCompanyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessions?: Prisma.StudentSessionUncheckedUpdateManyWithoutStudentNestedInput
+  profile?: Prisma.StudentProfileUncheckedUpdateOneWithoutUserNestedInput
+  shortlist?: Prisma.StudentShortlistUncheckedUpdateManyWithoutUserNestedInput
+  applications?: Prisma.ApplicationUncheckedUpdateManyWithoutStudentNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutUserNestedInput
@@ -1145,6 +1284,7 @@ export type StudentCreateWithoutTasksInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutStudentInput
   assignedPartnerCompany?: Prisma.PartnerCompanyCreateNestedOneWithoutAssignedStudentsInput
 }
 
@@ -1166,6 +1306,7 @@ export type StudentUncheckedCreateWithoutTasksInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutTasksInput = {
@@ -1201,6 +1342,7 @@ export type StudentUpdateWithoutTasksInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutStudentNestedInput
   assignedPartnerCompany?: Prisma.PartnerCompanyUpdateOneWithoutAssignedStudentsNestedInput
 }
 
@@ -1222,6 +1364,7 @@ export type StudentUncheckedUpdateWithoutTasksInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type StudentCreateWithoutDocumentsInput = {
@@ -1241,6 +1384,7 @@ export type StudentCreateWithoutDocumentsInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutStudentInput
   assignedPartnerCompany?: Prisma.PartnerCompanyCreateNestedOneWithoutAssignedStudentsInput
 }
 
@@ -1262,6 +1406,7 @@ export type StudentUncheckedCreateWithoutDocumentsInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutDocumentsInput = {
@@ -1297,6 +1442,7 @@ export type StudentUpdateWithoutDocumentsInput = {
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutStudentNestedInput
   assignedPartnerCompany?: Prisma.PartnerCompanyUpdateOneWithoutAssignedStudentsNestedInput
 }
 
@@ -1318,6 +1464,7 @@ export type StudentUncheckedUpdateWithoutDocumentsInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type StudentCreateWithoutDeadlinesInput = {
@@ -1337,6 +1484,7 @@ export type StudentCreateWithoutDeadlinesInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutStudentInput
   assignedPartnerCompany?: Prisma.PartnerCompanyCreateNestedOneWithoutAssignedStudentsInput
 }
 
@@ -1358,6 +1506,7 @@ export type StudentUncheckedCreateWithoutDeadlinesInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutDeadlinesInput = {
@@ -1393,6 +1542,7 @@ export type StudentUpdateWithoutDeadlinesInput = {
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutStudentNestedInput
   assignedPartnerCompany?: Prisma.PartnerCompanyUpdateOneWithoutAssignedStudentsNestedInput
 }
 
@@ -1414,6 +1564,7 @@ export type StudentUncheckedUpdateWithoutDeadlinesInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type StudentCreateWithoutNotificationsInput = {
@@ -1433,6 +1584,7 @@ export type StudentCreateWithoutNotificationsInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupCreateNestedManyWithoutStudentInput
   assignedPartnerCompany?: Prisma.PartnerCompanyCreateNestedOneWithoutAssignedStudentsInput
 }
 
@@ -1454,6 +1606,7 @@ export type StudentUncheckedCreateWithoutNotificationsInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   deadlines?: Prisma.DeadlineUncheckedCreateNestedManyWithoutUserInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedCreateNestedManyWithoutStudentInput
 }
 
 export type StudentCreateOrConnectWithoutNotificationsInput = {
@@ -1489,6 +1642,7 @@ export type StudentUpdateWithoutNotificationsInput = {
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutStudentNestedInput
   assignedPartnerCompany?: Prisma.PartnerCompanyUpdateOneWithoutAssignedStudentsNestedInput
 }
 
@@ -1510,6 +1664,7 @@ export type StudentUncheckedUpdateWithoutNotificationsInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type StudentCreateManyAssignedPartnerCompanyInput = {
@@ -1542,6 +1697,7 @@ export type StudentUpdateWithoutAssignedPartnerCompanyInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUpdateManyWithoutStudentNestedInput
 }
 
 export type StudentUncheckedUpdateWithoutAssignedPartnerCompanyInput = {
@@ -1562,6 +1718,7 @@ export type StudentUncheckedUpdateWithoutAssignedPartnerCompanyInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   deadlines?: Prisma.DeadlineUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  workflowFollowups?: Prisma.WorkflowFollowupUncheckedUpdateManyWithoutStudentNestedInput
 }
 
 export type StudentUncheckedUpdateManyWithoutAssignedPartnerCompanyInput = {
@@ -1589,6 +1746,7 @@ export type StudentCountOutputType = {
   documents: number
   deadlines: number
   notifications: number
+  workflowFollowups: number
 }
 
 export type StudentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1599,6 +1757,7 @@ export type StudentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   documents?: boolean | StudentCountOutputTypeCountDocumentsArgs
   deadlines?: boolean | StudentCountOutputTypeCountDeadlinesArgs
   notifications?: boolean | StudentCountOutputTypeCountNotificationsArgs
+  workflowFollowups?: boolean | StudentCountOutputTypeCountWorkflowFollowupsArgs
 }
 
 /**
@@ -1660,6 +1819,13 @@ export type StudentCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime
   where?: Prisma.NotificationWhereInput
 }
 
+/**
+ * StudentCountOutputType without action
+ */
+export type StudentCountOutputTypeCountWorkflowFollowupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkflowFollowupWhereInput
+}
+
 
 export type StudentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1680,6 +1846,7 @@ export type StudentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   documents?: boolean | Prisma.Student$documentsArgs<ExtArgs>
   deadlines?: boolean | Prisma.Student$deadlinesArgs<ExtArgs>
   notifications?: boolean | Prisma.Student$notificationsArgs<ExtArgs>
+  workflowFollowups?: boolean | Prisma.Student$workflowFollowupsArgs<ExtArgs>
   assignedPartnerCompany?: boolean | Prisma.Student$assignedPartnerCompanyArgs<ExtArgs>
   _count?: boolean | Prisma.StudentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["student"]>
@@ -1735,6 +1902,7 @@ export type StudentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   documents?: boolean | Prisma.Student$documentsArgs<ExtArgs>
   deadlines?: boolean | Prisma.Student$deadlinesArgs<ExtArgs>
   notifications?: boolean | Prisma.Student$notificationsArgs<ExtArgs>
+  workflowFollowups?: boolean | Prisma.Student$workflowFollowupsArgs<ExtArgs>
   assignedPartnerCompany?: boolean | Prisma.Student$assignedPartnerCompanyArgs<ExtArgs>
   _count?: boolean | Prisma.StudentCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1756,6 +1924,7 @@ export type $StudentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     documents: Prisma.$DocumentPayload<ExtArgs>[]
     deadlines: Prisma.$DeadlinePayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    workflowFollowups: Prisma.$WorkflowFollowupPayload<ExtArgs>[]
     assignedPartnerCompany: Prisma.$PartnerCompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2171,6 +2340,7 @@ export interface Prisma__StudentClient<T, Null = never, ExtArgs extends runtime.
   documents<T extends Prisma.Student$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Student$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   deadlines<T extends Prisma.Student$deadlinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Student$deadlinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DeadlinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.Student$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Student$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  workflowFollowups<T extends Prisma.Student$workflowFollowupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Student$workflowFollowupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkflowFollowupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedPartnerCompany<T extends Prisma.Student$assignedPartnerCompanyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Student$assignedPartnerCompanyArgs<ExtArgs>>): Prisma.Prisma__PartnerCompanyClient<runtime.Types.Result.GetResult<Prisma.$PartnerCompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2796,6 +2966,30 @@ export type Student$notificationsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * Student.workflowFollowups
+ */
+export type Student$workflowFollowupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkflowFollowup
+   */
+  select?: Prisma.WorkflowFollowupSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkflowFollowup
+   */
+  omit?: Prisma.WorkflowFollowupOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkflowFollowupInclude<ExtArgs> | null
+  where?: Prisma.WorkflowFollowupWhereInput
+  orderBy?: Prisma.WorkflowFollowupOrderByWithRelationInput | Prisma.WorkflowFollowupOrderByWithRelationInput[]
+  cursor?: Prisma.WorkflowFollowupWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkflowFollowupScalarFieldEnum | Prisma.WorkflowFollowupScalarFieldEnum[]
 }
 
 /**

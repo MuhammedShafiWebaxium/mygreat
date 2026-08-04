@@ -7,14 +7,33 @@ export const createApplicationSchema = z.object({
 })
 export const applicationUpdateSchema = z.object({
   applicationId: z.uuid(),
-  status: z.enum(['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'OFFER', 'REJECTED', 'WITHDRAWN']).optional(),
-  visaStatus: z.enum(['NOT_STARTED', 'DOCUMENTS_PENDING', 'READY_TO_FILE', 'FILED', 'APPROVED', 'REJECTED']).optional(),
   progress: z.number().int().min(0).max(100).optional(),
   nextAction: z.string().trim().min(1).max(300).optional(),
   admissionsExecutiveId: z.uuid().nullable().optional(),
   visaExecutiveId: z.uuid().nullable().optional(),
 })
 export const taskToggleSchema = z.object({ taskId: z.uuid(), completed: z.boolean() })
+
+export const workflowCaseActionSchema = z.object({
+  applicationId: z.uuid(),
+  visaAttemptId: z.uuid().nullable().optional(),
+  workflowType: z.enum(['APPLICATION', 'VISA']),
+  targetStage: z.string().trim().min(1).max(80),
+  outcome: z.string().trim().max(80).optional(),
+  approvalStage: z.enum(['VISA_LEVEL_1_VERIFICATION','VISA_LEVEL_2_VERIFICATION']).optional(),
+  approvalRequestId: z.uuid().optional(),
+  offerType: z.enum(['CONDITIONAL','UNCONDITIONAL']).nullable().optional(),
+  note: z.string().trim().max(2000).default(''),
+  expectedCompletionAt: z.iso.datetime().nullable().optional(),
+  expectedCompletionEndAt: z.iso.datetime().nullable().optional(),
+  nextFollowUpAt: z.iso.datetime().nullable().optional(),
+  assignedStaffId: z.uuid().nullable().optional(),
+  assignedStaffName: z.string().trim().max(120).nullable().optional(),
+  reapplyMode: z.enum(['APPEAL', 'NEW_ATTEMPT']).optional(),
+  restartStage: z.string().trim().max(80).optional(),
+})
+
+export const priorityApplicationSchema=z.object({applicationId:z.uuid()})
 
 export const staffCreateApplicationSchema = z.object({
   studentId: z.uuid(),
