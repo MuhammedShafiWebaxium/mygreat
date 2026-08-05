@@ -6,6 +6,7 @@ import type { z } from 'zod'
 import type { applicationUpdateSchema, createApplicationSchema } from './workflow.schema'
 import type { workflowCaseActionSchema } from './workflow.schema'
 import { APPLICATION_WORKFLOW, VISA_WORKFLOW, WORKFLOW_TRANSITIONS, isValidWorkflowTransition } from './workflow.transitions'
+import { listRequiredDocumentSettings } from '@/features/required-documents/required-documents.server'
 
 const dateOnly = (date: Date | null) => date?.toISOString().slice(0, 10) ?? null
 
@@ -44,16 +45,16 @@ export async function readWorkflowCase(actor:{id:string;role:UserRole},applicati
     const unconditionalStageVisited=currentStage==='UNCONDITIONAL_OFFER_RECEIVED'||followups.some((event:any)=>event.stage==='UNCONDITIONAL_OFFER_RECEIVED')
     if(current.offerType!=='CONDITIONAL'&&!unconditionalStageVisited)stages.splice(stages.indexOf('UNCONDITIONAL_OFFER_RECEIVED'),1)
   }
-  let validNextStages=WORKFLOW_TRANSITIONS[currentStage]??[]
+  let validNextStages=workflowType==='VISA'&&currentStage==='UNCONDITIONAL_OFFER_RECEIVED'?['TUITION_FEE_PAYMENT']:WORKFLOW_TRANSITIONS[currentStage]??[]
   if(workflowType==='VISA'&&currentStage==='MEET_OFFER_CONDITIONS')validNextStages=current.offerType==='CONDITIONAL'?['UNCONDITIONAL_OFFER_RECEIVED']:['TUITION_FEE_PAYMENT']
-  return {...current,workflowType,currentStage,stages,validNextStages,siblings,visaAttempts,selectedVisaAttempt:visaAttempt,tasks,documents,events,canApprove:actor.role==='SUPER_ADMIN',canChangePriority:['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE'].includes(actor.role)}
+  return {...current,workflowType,currentStage,stages,validNextStages,siblings,visaAttempts,selectedVisaAttempt:visaAttempt,tasks,documents,events,requiredDocuments:await listRequiredDocumentSettings(true),canApprove:actor.role==='SUPER_ADMIN',canChangePriority:['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE'].includes(actor.role)}
 }
 
 export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRole},input:z.infer<typeof workflowCaseActionSchema>){
   const detail=await readWorkflowCase(actor,input.applicationId,input.workflowType,input.visaAttemptId,Boolean(input.approvalRequestId)&&actor.role==='SUPER_ADMIN')
   const stage=detail.currentStage as string
   const target=input.targetStage
-  if(!isValidWorkflowTransition(stage,target))throw new Error(`Invalid transition from ${stage} to ${target}.`)
+  if(!isValidWorkflowTransition(stage,target,input.workflowType))throw new Error(`Invalid transition from ${stage} to ${target}.`)
   if(input.workflowType==='VISA'&&stage==='MEET_OFFER_CONDITIONS'&&detail.offerType==='CONDITIONAL'&&target!=='MEET_OFFER_CONDITIONS'&&target!=='UNCONDITIONAL_OFFER_RECEIVED')throw new Error('Record the unconditional offer before continuing the visa workflow.')
   if(input.workflowType==='VISA'&&stage==='MEET_OFFER_CONDITIONS'&&detail.offerType!=='CONDITIONAL'&&target==='UNCONDITIONAL_OFFER_RECEIVED')throw new Error('This application already has an unconditional offer.')
   if(stage==='APPLICATION_REJECTED_BY_UNIVERSITY')throw new Error('This application was finally rejected by the university and is closed to further follow-ups.')
@@ -97,7 +98,7 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
     if(summary)await tx.application.update({where:{id:input.applicationId},data:summary})
     if(input.workflowType==='APPLICATION'&&input.rejectionType==='STUDENT_ACTION'){
       for(const documentId of input.requiredDocumentIds??[]){
-        const name=requiredDocumentNames[documentId]
+        const name=(await tx.requiredDocumentSetting.findUnique({where:{id:documentId}}))?.name
         if(!name)continue
         const replacementNote=`URGENT — Application resubmission requires a replacement. ${input.note||'Please upload a corrected document as soon as possible.'}`
         const changed=await tx.document.updateMany({where:{userId:detail.studentId,name},data:{status:'NEEDED',note:replacementNote,verifiedBy:null}})
@@ -224,7 +225,7 @@ async function assertPartnerCanAccessStudent(actorId: string, studentId: string)
 }
 
 export async function createApplicationForStudent(
-  actor: { id: string; role: UserRole; accountType: 'ADMIN' | 'PARTNER' | 'STUDENT' },
+  actor: { id: string; name:string; role: UserRole; accountType: 'ADMIN' | 'PARTNER' | 'STUDENT' },
   input: { studentId: string; universityId: string; program: string; deadline?: string },
   sopFile: File,
 ) {
@@ -317,7 +318,7 @@ export async function updateApplication(
 }
 
 export async function readStudentDashboard(userId: string) {
-  const [applicationRows, taskRows, documentRows, deadlineRows, notificationRows, profile, shortlist] = await Promise.all([
+  const [applicationRows, taskRows, documentRows, deadlineRows, notificationRows, profile, shortlist, requiredDocuments] = await Promise.all([
     prisma.application.findMany({
       where: { studentId: userId,applicationStage:{notIn:['SOP_PREPARATION','SOP_VERIFICATION','SOP_CORRECTION_REQUIRED']} },
       include: { university: true },
@@ -328,6 +329,7 @@ export async function readStudentDashboard(userId: string) {
     prisma.notification.findMany({ where: { userId } }),
     prisma.studentProfile.findUnique({ where: { userId } }),
     prisma.studentShortlist.findMany({ where: { userId }, select: { universityId: true } }),
+    listRequiredDocumentSettings(true),
   ])
   const visaStages=applicationRows.length?await prisma.$queryRaw<Array<{applicationId:string;currentStage:string}>>(Prisma.sql`SELECT application_id AS "applicationId",current_stage AS "currentStage" FROM visa_attempts WHERE is_current=TRUE AND application_id IN (${Prisma.join(applicationRows.map(row=>Prisma.sql`${row.id}::uuid`))})`):[]
   const visaStageByApplication=new Map(visaStages.map(item=>[item.applicationId,item.currentStage]))
@@ -346,12 +348,12 @@ export async function readStudentDashboard(userId: string) {
       })
     : []
   return {
-    applications: applicationRows.map(({ university, ...application }) => ({
+    applications: (applicationRows ?? []).map(({ university, ...application }) => ({
       id: application.id,
-      universityId: university.id,
-      universityName: university.name,
-      city: university.city,
-      rank: university.rank,
+      universityId: university?.id ?? '',
+      universityName: university?.name ?? 'University',
+      city: university?.city ?? '',
+      rank: university?.rank ?? 0,
       program: application.program,
       status: application.applicationStage,
       visaStatus: visaStageByApplication.get(application.id)??null,
@@ -359,11 +361,12 @@ export async function readStudentDashboard(userId: string) {
       nextAction: application.nextAction,
       deadline: dateOnly(application.applicationDeadline),
     })),
-    tasks: taskRows.map((task) => ({ ...task, dueDate: dateOnly(task.dueDate) })),
-    documents: documentRows,
-    deadlines: deadlineRows.map((deadline) => ({ ...deadline, dueDate: dateOnly(deadline.dueDate)! })),
-    notifications: notificationRows.map((notice) => ({ ...notice, createdAt: notice.createdAt.toISOString() })),
-    recommendations: recommendationRows,
+    tasks: (taskRows ?? []).map((task) => ({ ...task, dueDate: dateOnly(task.dueDate) })),
+    documents: documentRows ?? [],
+    deadlines: (deadlineRows ?? []).map((deadline) => ({ ...deadline, dueDate: dateOnly(deadline.dueDate) ?? '' })),
+    notifications: (notificationRows ?? []).map((notice) => ({ ...notice, createdAt: notice.createdAt.toISOString() })),
+    recommendations: recommendationRows ?? [],
+    requiredDocuments: requiredDocuments ?? [],
   }
 }
 
@@ -376,17 +379,8 @@ export async function setTaskCompleted(userId: string, taskId: string, completed
   return prisma.task.findUniqueOrThrow({ where: { id: taskId } })
 }
 
-const requiredDocumentNames: Record<string, string> = {
-  passport: 'Passport',
-  'passport-photo': 'Passport-size photograph',
-  cv: 'CV or résumé',
-  aadhaar: 'Aadhaar',
-  '10th-certificate': '10th certificate / mark sheet',
-  '12th-certificate': '12th certificate / mark sheet',
-}
-
 async function assertRequiredDocumentsVerified(userId: string) {
-  const names = Object.values(requiredDocumentNames)
+  const names = (await listRequiredDocumentSettings(true)).map(item=>item.name)
   const verified = await prisma.document.count({
     where: { userId, name: { in: names }, status: 'VERIFIED' },
   })
@@ -399,8 +393,9 @@ let documentFilesReady:Promise<void>|undefined
 function ensureDocumentFiles(){documentFilesReady??=(async()=>{await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS document_files (document_id UUID PRIMARY KEY REFERENCES documents(id) ON DELETE CASCADE,file_name TEXT NOT NULL,mime_type TEXT NOT NULL,size_bytes INTEGER NOT NULL,file_data BYTEA NOT NULL,updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`)})();return documentFilesReady}
 
 export async function uploadRequiredDocument(userId:string,documentType:string,file:File) {
-  const name=requiredDocumentNames[documentType]
-  if(!name) throw new Error('Unknown required document type.')
+  const setting=await prisma.requiredDocumentSetting.findFirst({where:{id:documentType,active:true}})
+  if(!setting) throw new Error('Unknown required document type.')
+  const name=setting.name
   if(file.size>10*1024*1024) throw new Error('Files must be 10 MB or smaller.')
   await ensureDocumentFiles()
   const bytes=Buffer.from(await file.arrayBuffer())

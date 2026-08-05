@@ -25,7 +25,6 @@ import {
   uploadSopFileFn,
 } from '@/features/workflow/workflow.functions'
 import { cn } from '@/lib/utils'
-import { REQUIRED_DOCUMENTS, type RequiredDocumentId } from '@/lib/local-documents'
 const label = (value: string) =>
   value
     .replaceAll('_', ' ')
@@ -59,13 +58,13 @@ export default function WorkflowCaseDetail({
     [expectedEnd, setExpectedEnd] = useState(''),
     [nextFollowUp, setNextFollowUp] = useState('')
   const [rejectionType, setRejectionType] = useState<'UNIVERSITY_FINAL' | 'OFFICER_CORRECTION' | 'STUDENT_ACTION' | ''>('')
-  const [requiredDocumentIds, setRequiredDocumentIds] = useState<RequiredDocumentId[]>([])
+  const [requiredDocumentIds, setRequiredDocumentIds] = useState<string[]>([])
   const query = useQuery({
     queryKey: ['workflow-case', applicationId, workflowType, visaAttemptId],
     queryFn: () =>
       getWorkflowCaseFn(applicationId, workflowType, visaAttemptId),
   })
-  const data = query.data
+  const data = query.data as {requiredDocuments:Array<{id:string;name:string}>}&Record<string,any>
   useEffect(() => {
     if (data) {
       setTarget(
@@ -386,7 +385,7 @@ export default function WorkflowCaseDetail({
               ['UNIVERSITY_FINAL','Final rejection by university','The application cannot proceed and no more follow-ups will be allowed.'],
               ['OFFICER_CORRECTION','Application officer correction','Staff will correct the issue and resubmit using the existing workflow.'],
               ['STUDENT_ACTION','Urgent student action required','Select documents the student must replace before staff can resubmit.'],
-            ] as const).map(([value,title,description])=><button type="button" key={value} onClick={()=>{setRejectionType(value);if(value!=='STUDENT_ACTION')setRequiredDocumentIds([])}} className={cn('w-full rounded-xl border p-3 text-left transition',rejectionType===value?'border-rose-400/45 bg-rose-400/10':'border-white/10 hover:border-white/20')}><div className="flex items-start gap-3"><span className={cn('mt-0.5 grid size-4 shrink-0 place-items-center rounded-full border',rejectionType===value?'border-rose-400 bg-rose-400':'border-white/25')}>{rejectionType===value&&<Check className="size-3 text-slate-950"/>}</span><span><span className="block text-[10px] font-bold">{title}</span><span className="mt-1 block text-[9px] leading-4 text-white/40">{description}</span></span></div></button>)}</div>{rejectionType==='STUDENT_ACTION'&&<div className="mt-4 border-t border-rose-400/15 pt-4"><p className="text-[9px] font-bold uppercase tracking-[.15em] text-rose-300">Documents requiring urgent replacement</p><div className="mt-2 grid gap-2 sm:grid-cols-2">{REQUIRED_DOCUMENTS.map(document=>{const selected=requiredDocumentIds.includes(document.id);return <button type="button" aria-pressed={selected} key={document.id} onClick={()=>setRequiredDocumentIds(current=>current.includes(document.id)?current.filter(id=>id!==document.id):[...current,document.id])} className={cn('flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-[9px] transition',selected?'border-rose-400/40 bg-rose-400/10':'border-white/10 hover:border-rose-400/25 hover:bg-rose-400/[.035]')}><span className={cn('grid size-4 shrink-0 place-items-center rounded border',selected?'border-rose-400 bg-rose-400':'border-white/20')}>{selected&&<Check className="size-3 text-slate-950"/>}</span><span className="leading-4">{document.name}</span></button>})}</div></div>}</div>}
+            ] as const).map(([value,title,description])=><button type="button" key={value} onClick={()=>{setRejectionType(value);if(value!=='STUDENT_ACTION')setRequiredDocumentIds([])}} className={cn('w-full rounded-xl border p-3 text-left transition',rejectionType===value?'border-rose-400/45 bg-rose-400/10':'border-white/10 hover:border-white/20')}><div className="flex items-start gap-3"><span className={cn('mt-0.5 grid size-4 shrink-0 place-items-center rounded-full border',rejectionType===value?'border-rose-400 bg-rose-400':'border-white/25')}>{rejectionType===value&&<Check className="size-3 text-slate-950"/>}</span><span><span className="block text-[10px] font-bold">{title}</span><span className="mt-1 block text-[9px] leading-4 text-white/40">{description}</span></span></div></button>)}</div>{rejectionType==='STUDENT_ACTION'&&<div className="mt-4 border-t border-rose-400/15 pt-4"><p className="text-[9px] font-bold uppercase tracking-[.15em] text-rose-300">Documents requiring urgent replacement</p><div className="mt-2 grid gap-2 sm:grid-cols-2">{data.requiredDocuments.map(document=>{const selected=requiredDocumentIds.includes(document.id);return <button type="button" aria-pressed={selected} key={document.id} onClick={()=>setRequiredDocumentIds(current=>current.includes(document.id)?current.filter(id=>id!==document.id):[...current,document.id])} className={cn('flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-[9px] transition',selected?'border-rose-400/40 bg-rose-400/10':'border-white/10 hover:border-rose-400/25 hover:bg-rose-400/[.035]')}><span className={cn('grid size-4 shrink-0 place-items-center rounded border',selected?'border-rose-400 bg-rose-400':'border-white/20')}>{selected&&<Check className="size-3 text-slate-950"/>}</span><span className="leading-4">{document.name}</span></button>})}</div></div>}</div>}
             {workflowType === 'APPLICATION' &&
               ['APPLICATION_FOLLOW_UP','CONDITIONAL_OFFER_RECEIVED','UNCONDITIONAL_OFFER_RECEIVED','MOVE_TO_VISA'].includes(data.currentStage) && (
                 <div className="rounded-xl border border-white/10 bg-white/[.025] p-3">

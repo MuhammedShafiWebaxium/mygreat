@@ -410,8 +410,10 @@ export const ModelName = {
   Country: 'Country',
   Course: 'Course',
   CourseFee: 'CourseFee',
+  ExchangeRate: 'ExchangeRate',
   StudentShortlist: 'StudentShortlist',
   Application: 'Application',
+  RequiredDocumentSetting: 'RequiredDocumentSetting',
   VisaAttempt: 'VisaAttempt',
   ApplicationOfferLetter: 'ApplicationOfferLetter',
   WorkflowFollowup: 'WorkflowFollowup',
@@ -439,7 +441,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "student" | "partner" | "partnerCompany" | "admin" | "studentSession" | "partnerSession" | "adminSession" | "studentProfile" | "university" | "universityRanking" | "country" | "course" | "courseFee" | "studentShortlist" | "application" | "visaAttempt" | "applicationOfferLetter" | "workflowFollowup" | "workflowFollowupFile" | "workflowApprovalRequest" | "task" | "document" | "deadline" | "notification" | "auditLog" | "catalogImportJob" | "catalogImportError"
+    modelProps: "student" | "partner" | "partnerCompany" | "admin" | "studentSession" | "partnerSession" | "adminSession" | "studentProfile" | "university" | "universityRanking" | "country" | "course" | "courseFee" | "exchangeRate" | "studentShortlist" | "application" | "requiredDocumentSetting" | "visaAttempt" | "applicationOfferLetter" | "workflowFollowup" | "workflowFollowupFile" | "workflowApprovalRequest" | "task" | "document" | "deadline" | "notification" | "auditLog" | "catalogImportJob" | "catalogImportError"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1405,6 +1407,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ExchangeRate: {
+      payload: Prisma.$ExchangeRatePayload<ExtArgs>
+      fields: Prisma.ExchangeRateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExchangeRateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExchangeRateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        findFirst: {
+          args: Prisma.ExchangeRateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExchangeRateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        findMany: {
+          args: Prisma.ExchangeRateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>[]
+        }
+        create: {
+          args: Prisma.ExchangeRateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        createMany: {
+          args: Prisma.ExchangeRateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ExchangeRateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>[]
+        }
+        delete: {
+          args: Prisma.ExchangeRateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        update: {
+          args: Prisma.ExchangeRateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        deleteMany: {
+          args: Prisma.ExchangeRateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExchangeRateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ExchangeRateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>[]
+        }
+        upsert: {
+          args: Prisma.ExchangeRateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExchangeRatePayload>
+        }
+        aggregate: {
+          args: Prisma.ExchangeRateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExchangeRate>
+        }
+        groupBy: {
+          args: Prisma.ExchangeRateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExchangeRateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExchangeRateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExchangeRateCountAggregateOutputType> | number
+        }
+      }
+    }
     StudentShortlist: {
       payload: Prisma.$StudentShortlistPayload<ExtArgs>
       fields: Prisma.StudentShortlistFieldRefs
@@ -1550,6 +1626,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ApplicationCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ApplicationCountAggregateOutputType> | number
+        }
+      }
+    }
+    RequiredDocumentSetting: {
+      payload: Prisma.$RequiredDocumentSettingPayload<ExtArgs>
+      fields: Prisma.RequiredDocumentSettingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RequiredDocumentSettingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RequiredDocumentSettingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload>
+        }
+        findFirst: {
+          args: Prisma.RequiredDocumentSettingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RequiredDocumentSettingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload>
+        }
+        findMany: {
+          args: Prisma.RequiredDocumentSettingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload>[]
+        }
+        create: {
+          args: Prisma.RequiredDocumentSettingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload>
+        }
+        createMany: {
+          args: Prisma.RequiredDocumentSettingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RequiredDocumentSettingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload>[]
+        }
+        delete: {
+          args: Prisma.RequiredDocumentSettingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload>
+        }
+        update: {
+          args: Prisma.RequiredDocumentSettingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload>
+        }
+        deleteMany: {
+          args: Prisma.RequiredDocumentSettingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RequiredDocumentSettingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RequiredDocumentSettingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload>[]
+        }
+        upsert: {
+          args: Prisma.RequiredDocumentSettingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequiredDocumentSettingPayload>
+        }
+        aggregate: {
+          args: Prisma.RequiredDocumentSettingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRequiredDocumentSetting>
+        }
+        groupBy: {
+          args: Prisma.RequiredDocumentSettingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RequiredDocumentSettingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RequiredDocumentSettingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RequiredDocumentSettingCountAggregateOutputType> | number
         }
       }
     }
@@ -2595,11 +2745,14 @@ export const StudentProfileScalarFieldEnum = {
   educationLevel: 'educationLevel',
   degree: 'degree',
   field: 'field',
+  feeMinInr: 'feeMinInr',
+  feeMaxInr: 'feeMaxInr',
   gpa: 'gpa',
   graduationYear: 'graduationYear',
   englishTest: 'englishTest',
   preferredIntake: 'preferredIntake',
   openToRecommendations: 'openToRecommendations',
+  agencyDetails: 'agencyDetails',
   completedAt: 'completedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -2690,6 +2843,8 @@ export const CourseFeeScalarFieldEnum = {
   courseId: 'courseId',
   amount: 'amount',
   currencyCode: 'currencyCode',
+  amountInr: 'amountInr',
+  exchangeRate: 'exchangeRate',
   effectiveFrom: 'effectiveFrom',
   effectiveTo: 'effectiveTo',
   createdBy: 'createdBy',
@@ -2697,6 +2852,18 @@ export const CourseFeeScalarFieldEnum = {
 } as const
 
 export type CourseFeeScalarFieldEnum = (typeof CourseFeeScalarFieldEnum)[keyof typeof CourseFeeScalarFieldEnum]
+
+
+export const ExchangeRateScalarFieldEnum = {
+  currencyCode: 'currencyCode',
+  rateToInr: 'rateToInr',
+  provider: 'provider',
+  providerDate: 'providerDate',
+  refreshedBy: 'refreshedBy',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExchangeRateScalarFieldEnum = (typeof ExchangeRateScalarFieldEnum)[keyof typeof ExchangeRateScalarFieldEnum]
 
 
 export const StudentShortlistScalarFieldEnum = {
@@ -2731,6 +2898,19 @@ export const ApplicationScalarFieldEnum = {
 } as const
 
 export type ApplicationScalarFieldEnum = (typeof ApplicationScalarFieldEnum)[keyof typeof ApplicationScalarFieldEnum]
+
+
+export const RequiredDocumentSettingScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  accept: 'accept',
+  active: 'active',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RequiredDocumentSettingScalarFieldEnum = (typeof RequiredDocumentSettingScalarFieldEnum)[keyof typeof RequiredDocumentSettingScalarFieldEnum]
 
 
 export const VisaAttemptScalarFieldEnum = {
@@ -3372,8 +3552,10 @@ export type GlobalOmitConfig = {
   country?: Prisma.CountryOmit
   course?: Prisma.CourseOmit
   courseFee?: Prisma.CourseFeeOmit
+  exchangeRate?: Prisma.ExchangeRateOmit
   studentShortlist?: Prisma.StudentShortlistOmit
   application?: Prisma.ApplicationOmit
+  requiredDocumentSetting?: Prisma.RequiredDocumentSettingOmit
   visaAttempt?: Prisma.VisaAttemptOmit
   applicationOfferLetter?: Prisma.ApplicationOfferLetterOmit
   workflowFollowup?: Prisma.WorkflowFollowupOmit

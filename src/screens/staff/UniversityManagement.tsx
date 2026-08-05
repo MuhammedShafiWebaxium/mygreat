@@ -109,7 +109,6 @@ export default function UniversityManagement() {
         return
       }
       let imported = 0
-      const courseMap = new Map(data.courses.map(course => [`${course.universityId}|${course.code.toLowerCase()}`, course]))
       for (const [index, row] of parsed.entries()) {
         if (!row.name) throw new Error(`Row ${index + 2}: name is required.`)
         if (targetTab === 'countries') {
@@ -124,21 +123,6 @@ export default function UniversityManagement() {
             : c.code.toLowerCase() === row.countryCode?.toLowerCase())
           if (!country) throw new Error(`Unknown country: ${row.countryName || row.countryCode || 'not provided'}`)
           await saveUniversityFn({ ...row, countryId: country.id, rank: 0, rankings: parseRankings(row.rankings), active: bool(row.active) })
-        }
-        if (targetTab === 'courses') {
-          const university = data.universities.find(u => u.name.toLowerCase() === row.universityName?.toLowerCase())
-          if (!university) throw new Error(`Unknown university: ${row.universityName}`)
-          if (!row.code) throw new Error(`Row ${index + 2}: course code is required.`)
-          const key = `${university.id}|${row.code.trim().toLowerCase()}`
-          const existing = courseMap.get(key)
-          let saved: any
-          try {
-            saved = await saveCourseFn({ ...row, id: existing?.id, universityId: university.id, durationMonths: Number(row.durationMonths), intakeMonth: splitList(row.intakeMonth), active: bool(row.active) })
-          } catch (error) {
-            throw new Error(`Row ${index + 2} (${row.name}): ${error instanceof Error ? error.message : 'Import failed.'}`)
-          }
-          courseMap.set(key, { ...existing, ...saved, id: saved.id, universityId: university.id, universityName: university.name, code: row.code } as any)
-          if (row.feeAmount && !existing) await setCourseFeeFn({ courseId: saved.id, amount: Number(row.feeAmount), currencyCode: row.currencyCode, effectiveFrom: new Date(row.effectiveFrom || Date.now()).toISOString() })
         }
         imported++
         setImportProgress({ label: `Importing ${targetTab}`, current: imported, total: parsed.length })

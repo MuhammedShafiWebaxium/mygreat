@@ -27,10 +27,14 @@ export type AggregateStudentProfile = {
 }
 
 export type StudentProfileAvgAggregateOutputType = {
+  feeMinInr: runtime.Decimal | null
+  feeMaxInr: runtime.Decimal | null
   gpa: runtime.Decimal | null
 }
 
 export type StudentProfileSumAggregateOutputType = {
+  feeMinInr: runtime.Decimal | null
+  feeMaxInr: runtime.Decimal | null
   gpa: runtime.Decimal | null
 }
 
@@ -40,6 +44,8 @@ export type StudentProfileMinAggregateOutputType = {
   educationLevel: string | null
   degree: string | null
   field: string | null
+  feeMinInr: runtime.Decimal | null
+  feeMaxInr: runtime.Decimal | null
   gpa: runtime.Decimal | null
   graduationYear: string | null
   englishTest: string | null
@@ -56,6 +62,8 @@ export type StudentProfileMaxAggregateOutputType = {
   educationLevel: string | null
   degree: string | null
   field: string | null
+  feeMinInr: runtime.Decimal | null
+  feeMaxInr: runtime.Decimal | null
   gpa: runtime.Decimal | null
   graduationYear: string | null
   englishTest: string | null
@@ -73,11 +81,14 @@ export type StudentProfileCountAggregateOutputType = {
   educationLevel: number
   degree: number
   field: number
+  feeMinInr: number
+  feeMaxInr: number
   gpa: number
   graduationYear: number
   englishTest: number
   preferredIntake: number
   openToRecommendations: number
+  agencyDetails: number
   completedAt: number
   createdAt: number
   updatedAt: number
@@ -86,10 +97,14 @@ export type StudentProfileCountAggregateOutputType = {
 
 
 export type StudentProfileAvgAggregateInputType = {
+  feeMinInr?: true
+  feeMaxInr?: true
   gpa?: true
 }
 
 export type StudentProfileSumAggregateInputType = {
+  feeMinInr?: true
+  feeMaxInr?: true
   gpa?: true
 }
 
@@ -99,6 +114,8 @@ export type StudentProfileMinAggregateInputType = {
   educationLevel?: true
   degree?: true
   field?: true
+  feeMinInr?: true
+  feeMaxInr?: true
   gpa?: true
   graduationYear?: true
   englishTest?: true
@@ -115,6 +132,8 @@ export type StudentProfileMaxAggregateInputType = {
   educationLevel?: true
   degree?: true
   field?: true
+  feeMinInr?: true
+  feeMaxInr?: true
   gpa?: true
   graduationYear?: true
   englishTest?: true
@@ -132,11 +151,14 @@ export type StudentProfileCountAggregateInputType = {
   educationLevel?: true
   degree?: true
   field?: true
+  feeMinInr?: true
+  feeMaxInr?: true
   gpa?: true
   graduationYear?: true
   englishTest?: true
   preferredIntake?: true
   openToRecommendations?: true
+  agencyDetails?: true
   completedAt?: true
   createdAt?: true
   updatedAt?: true
@@ -236,11 +258,14 @@ export type StudentProfileGroupByOutputType = {
   educationLevel: string
   degree: string
   field: string
+  feeMinInr: runtime.Decimal | null
+  feeMaxInr: runtime.Decimal | null
   gpa: runtime.Decimal | null
   graduationYear: string
   englishTest: string
   preferredIntake: string
   openToRecommendations: boolean
+  agencyDetails: runtime.JsonValue | null
   completedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -276,11 +301,14 @@ export type StudentProfileWhereInput = {
   educationLevel?: Prisma.StringFilter<"StudentProfile"> | string
   degree?: Prisma.StringFilter<"StudentProfile"> | string
   field?: Prisma.StringFilter<"StudentProfile"> | string
+  feeMinInr?: Prisma.DecimalNullableFilter<"StudentProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: Prisma.DecimalNullableFilter<"StudentProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: Prisma.DecimalNullableFilter<"StudentProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: Prisma.StringFilter<"StudentProfile"> | string
   englishTest?: Prisma.StringFilter<"StudentProfile"> | string
   preferredIntake?: Prisma.StringFilter<"StudentProfile"> | string
   openToRecommendations?: Prisma.BoolFilter<"StudentProfile"> | boolean
+  agencyDetails?: Prisma.JsonNullableFilter<"StudentProfile">
   completedAt?: Prisma.DateTimeNullableFilter<"StudentProfile"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"StudentProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StudentProfile"> | Date | string
@@ -294,11 +322,14 @@ export type StudentProfileOrderByWithRelationInput = {
   educationLevel?: Prisma.SortOrder
   degree?: Prisma.SortOrder
   field?: Prisma.SortOrder
+  feeMinInr?: Prisma.SortOrderInput | Prisma.SortOrder
+  feeMaxInr?: Prisma.SortOrderInput | Prisma.SortOrder
   gpa?: Prisma.SortOrderInput | Prisma.SortOrder
   graduationYear?: Prisma.SortOrder
   englishTest?: Prisma.SortOrder
   preferredIntake?: Prisma.SortOrder
   openToRecommendations?: Prisma.SortOrder
+  agencyDetails?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -315,11 +346,14 @@ export type StudentProfileWhereUniqueInput = Prisma.AtLeast<{
   educationLevel?: Prisma.StringFilter<"StudentProfile"> | string
   degree?: Prisma.StringFilter<"StudentProfile"> | string
   field?: Prisma.StringFilter<"StudentProfile"> | string
+  feeMinInr?: Prisma.DecimalNullableFilter<"StudentProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: Prisma.DecimalNullableFilter<"StudentProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: Prisma.DecimalNullableFilter<"StudentProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: Prisma.StringFilter<"StudentProfile"> | string
   englishTest?: Prisma.StringFilter<"StudentProfile"> | string
   preferredIntake?: Prisma.StringFilter<"StudentProfile"> | string
   openToRecommendations?: Prisma.BoolFilter<"StudentProfile"> | boolean
+  agencyDetails?: Prisma.JsonNullableFilter<"StudentProfile">
   completedAt?: Prisma.DateTimeNullableFilter<"StudentProfile"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"StudentProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StudentProfile"> | Date | string
@@ -333,11 +367,14 @@ export type StudentProfileOrderByWithAggregationInput = {
   educationLevel?: Prisma.SortOrder
   degree?: Prisma.SortOrder
   field?: Prisma.SortOrder
+  feeMinInr?: Prisma.SortOrderInput | Prisma.SortOrder
+  feeMaxInr?: Prisma.SortOrderInput | Prisma.SortOrder
   gpa?: Prisma.SortOrderInput | Prisma.SortOrder
   graduationYear?: Prisma.SortOrder
   englishTest?: Prisma.SortOrder
   preferredIntake?: Prisma.SortOrder
   openToRecommendations?: Prisma.SortOrder
+  agencyDetails?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -358,11 +395,14 @@ export type StudentProfileScalarWhereWithAggregatesInput = {
   educationLevel?: Prisma.StringWithAggregatesFilter<"StudentProfile"> | string
   degree?: Prisma.StringWithAggregatesFilter<"StudentProfile"> | string
   field?: Prisma.StringWithAggregatesFilter<"StudentProfile"> | string
+  feeMinInr?: Prisma.DecimalNullableWithAggregatesFilter<"StudentProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: Prisma.DecimalNullableWithAggregatesFilter<"StudentProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: Prisma.DecimalNullableWithAggregatesFilter<"StudentProfile"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: Prisma.StringWithAggregatesFilter<"StudentProfile"> | string
   englishTest?: Prisma.StringWithAggregatesFilter<"StudentProfile"> | string
   preferredIntake?: Prisma.StringWithAggregatesFilter<"StudentProfile"> | string
   openToRecommendations?: Prisma.BoolWithAggregatesFilter<"StudentProfile"> | boolean
+  agencyDetails?: Prisma.JsonNullableWithAggregatesFilter<"StudentProfile">
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"StudentProfile"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"StudentProfile"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"StudentProfile"> | Date | string
@@ -374,11 +414,14 @@ export type StudentProfileCreateInput = {
   educationLevel?: string
   degree?: string
   field?: string
+  feeMinInr?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: string
   englishTest?: string
   preferredIntake?: string
   openToRecommendations?: boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -392,11 +435,14 @@ export type StudentProfileUncheckedCreateInput = {
   educationLevel?: string
   degree?: string
   field?: string
+  feeMinInr?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: string
   englishTest?: string
   preferredIntake?: string
   openToRecommendations?: boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -408,11 +454,14 @@ export type StudentProfileUpdateInput = {
   educationLevel?: Prisma.StringFieldUpdateOperationsInput | string
   degree?: Prisma.StringFieldUpdateOperationsInput | string
   field?: Prisma.StringFieldUpdateOperationsInput | string
+  feeMinInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: Prisma.StringFieldUpdateOperationsInput | string
   englishTest?: Prisma.StringFieldUpdateOperationsInput | string
   preferredIntake?: Prisma.StringFieldUpdateOperationsInput | string
   openToRecommendations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -426,11 +475,14 @@ export type StudentProfileUncheckedUpdateInput = {
   educationLevel?: Prisma.StringFieldUpdateOperationsInput | string
   degree?: Prisma.StringFieldUpdateOperationsInput | string
   field?: Prisma.StringFieldUpdateOperationsInput | string
+  feeMinInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: Prisma.StringFieldUpdateOperationsInput | string
   englishTest?: Prisma.StringFieldUpdateOperationsInput | string
   preferredIntake?: Prisma.StringFieldUpdateOperationsInput | string
   openToRecommendations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -443,11 +495,14 @@ export type StudentProfileCreateManyInput = {
   educationLevel?: string
   degree?: string
   field?: string
+  feeMinInr?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: string
   englishTest?: string
   preferredIntake?: string
   openToRecommendations?: boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -459,11 +514,14 @@ export type StudentProfileUpdateManyMutationInput = {
   educationLevel?: Prisma.StringFieldUpdateOperationsInput | string
   degree?: Prisma.StringFieldUpdateOperationsInput | string
   field?: Prisma.StringFieldUpdateOperationsInput | string
+  feeMinInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: Prisma.StringFieldUpdateOperationsInput | string
   englishTest?: Prisma.StringFieldUpdateOperationsInput | string
   preferredIntake?: Prisma.StringFieldUpdateOperationsInput | string
   openToRecommendations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -476,11 +534,14 @@ export type StudentProfileUncheckedUpdateManyInput = {
   educationLevel?: Prisma.StringFieldUpdateOperationsInput | string
   degree?: Prisma.StringFieldUpdateOperationsInput | string
   field?: Prisma.StringFieldUpdateOperationsInput | string
+  feeMinInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: Prisma.StringFieldUpdateOperationsInput | string
   englishTest?: Prisma.StringFieldUpdateOperationsInput | string
   preferredIntake?: Prisma.StringFieldUpdateOperationsInput | string
   openToRecommendations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -498,17 +559,22 @@ export type StudentProfileCountOrderByAggregateInput = {
   educationLevel?: Prisma.SortOrder
   degree?: Prisma.SortOrder
   field?: Prisma.SortOrder
+  feeMinInr?: Prisma.SortOrder
+  feeMaxInr?: Prisma.SortOrder
   gpa?: Prisma.SortOrder
   graduationYear?: Prisma.SortOrder
   englishTest?: Prisma.SortOrder
   preferredIntake?: Prisma.SortOrder
   openToRecommendations?: Prisma.SortOrder
+  agencyDetails?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type StudentProfileAvgOrderByAggregateInput = {
+  feeMinInr?: Prisma.SortOrder
+  feeMaxInr?: Prisma.SortOrder
   gpa?: Prisma.SortOrder
 }
 
@@ -518,6 +584,8 @@ export type StudentProfileMaxOrderByAggregateInput = {
   educationLevel?: Prisma.SortOrder
   degree?: Prisma.SortOrder
   field?: Prisma.SortOrder
+  feeMinInr?: Prisma.SortOrder
+  feeMaxInr?: Prisma.SortOrder
   gpa?: Prisma.SortOrder
   graduationYear?: Prisma.SortOrder
   englishTest?: Prisma.SortOrder
@@ -534,6 +602,8 @@ export type StudentProfileMinOrderByAggregateInput = {
   educationLevel?: Prisma.SortOrder
   degree?: Prisma.SortOrder
   field?: Prisma.SortOrder
+  feeMinInr?: Prisma.SortOrder
+  feeMaxInr?: Prisma.SortOrder
   gpa?: Prisma.SortOrder
   graduationYear?: Prisma.SortOrder
   englishTest?: Prisma.SortOrder
@@ -545,6 +615,8 @@ export type StudentProfileMinOrderByAggregateInput = {
 }
 
 export type StudentProfileSumOrderByAggregateInput = {
+  feeMinInr?: Prisma.SortOrder
+  feeMaxInr?: Prisma.SortOrder
   gpa?: Prisma.SortOrder
 }
 
@@ -594,11 +666,14 @@ export type StudentProfileCreateWithoutUserInput = {
   educationLevel?: string
   degree?: string
   field?: string
+  feeMinInr?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: string
   englishTest?: string
   preferredIntake?: string
   openToRecommendations?: boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -610,11 +685,14 @@ export type StudentProfileUncheckedCreateWithoutUserInput = {
   educationLevel?: string
   degree?: string
   field?: string
+  feeMinInr?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: string
   englishTest?: string
   preferredIntake?: string
   openToRecommendations?: boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -642,11 +720,14 @@ export type StudentProfileUpdateWithoutUserInput = {
   educationLevel?: Prisma.StringFieldUpdateOperationsInput | string
   degree?: Prisma.StringFieldUpdateOperationsInput | string
   field?: Prisma.StringFieldUpdateOperationsInput | string
+  feeMinInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: Prisma.StringFieldUpdateOperationsInput | string
   englishTest?: Prisma.StringFieldUpdateOperationsInput | string
   preferredIntake?: Prisma.StringFieldUpdateOperationsInput | string
   openToRecommendations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -658,11 +739,14 @@ export type StudentProfileUncheckedUpdateWithoutUserInput = {
   educationLevel?: Prisma.StringFieldUpdateOperationsInput | string
   degree?: Prisma.StringFieldUpdateOperationsInput | string
   field?: Prisma.StringFieldUpdateOperationsInput | string
+  feeMinInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  feeMaxInr?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gpa?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   graduationYear?: Prisma.StringFieldUpdateOperationsInput | string
   englishTest?: Prisma.StringFieldUpdateOperationsInput | string
   preferredIntake?: Prisma.StringFieldUpdateOperationsInput | string
   openToRecommendations?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  agencyDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -677,11 +761,14 @@ export type StudentProfileSelect<ExtArgs extends runtime.Types.Extensions.Intern
   educationLevel?: boolean
   degree?: boolean
   field?: boolean
+  feeMinInr?: boolean
+  feeMaxInr?: boolean
   gpa?: boolean
   graduationYear?: boolean
   englishTest?: boolean
   preferredIntake?: boolean
   openToRecommendations?: boolean
+  agencyDetails?: boolean
   completedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -695,11 +782,14 @@ export type StudentProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   educationLevel?: boolean
   degree?: boolean
   field?: boolean
+  feeMinInr?: boolean
+  feeMaxInr?: boolean
   gpa?: boolean
   graduationYear?: boolean
   englishTest?: boolean
   preferredIntake?: boolean
   openToRecommendations?: boolean
+  agencyDetails?: boolean
   completedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -713,11 +803,14 @@ export type StudentProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   educationLevel?: boolean
   degree?: boolean
   field?: boolean
+  feeMinInr?: boolean
+  feeMaxInr?: boolean
   gpa?: boolean
   graduationYear?: boolean
   englishTest?: boolean
   preferredIntake?: boolean
   openToRecommendations?: boolean
+  agencyDetails?: boolean
   completedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -731,17 +824,20 @@ export type StudentProfileSelectScalar = {
   educationLevel?: boolean
   degree?: boolean
   field?: boolean
+  feeMinInr?: boolean
+  feeMaxInr?: boolean
   gpa?: boolean
   graduationYear?: boolean
   englishTest?: boolean
   preferredIntake?: boolean
   openToRecommendations?: boolean
+  agencyDetails?: boolean
   completedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type StudentProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "destinationCountry" | "educationLevel" | "degree" | "field" | "gpa" | "graduationYear" | "englishTest" | "preferredIntake" | "openToRecommendations" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["studentProfile"]>
+export type StudentProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "destinationCountry" | "educationLevel" | "degree" | "field" | "feeMinInr" | "feeMaxInr" | "gpa" | "graduationYear" | "englishTest" | "preferredIntake" | "openToRecommendations" | "agencyDetails" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["studentProfile"]>
 export type StudentProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
 }
@@ -764,11 +860,14 @@ export type $StudentProfilePayload<ExtArgs extends runtime.Types.Extensions.Inte
     educationLevel: string
     degree: string
     field: string
+    feeMinInr: runtime.Decimal | null
+    feeMaxInr: runtime.Decimal | null
     gpa: runtime.Decimal | null
     graduationYear: string
     englishTest: string
     preferredIntake: string
     openToRecommendations: boolean
+    agencyDetails: runtime.JsonValue | null
     completedAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -1202,11 +1301,14 @@ export interface StudentProfileFieldRefs {
   readonly educationLevel: Prisma.FieldRef<"StudentProfile", 'String'>
   readonly degree: Prisma.FieldRef<"StudentProfile", 'String'>
   readonly field: Prisma.FieldRef<"StudentProfile", 'String'>
+  readonly feeMinInr: Prisma.FieldRef<"StudentProfile", 'Decimal'>
+  readonly feeMaxInr: Prisma.FieldRef<"StudentProfile", 'Decimal'>
   readonly gpa: Prisma.FieldRef<"StudentProfile", 'Decimal'>
   readonly graduationYear: Prisma.FieldRef<"StudentProfile", 'String'>
   readonly englishTest: Prisma.FieldRef<"StudentProfile", 'String'>
   readonly preferredIntake: Prisma.FieldRef<"StudentProfile", 'String'>
   readonly openToRecommendations: Prisma.FieldRef<"StudentProfile", 'Boolean'>
+  readonly agencyDetails: Prisma.FieldRef<"StudentProfile", 'Json'>
   readonly completedAt: Prisma.FieldRef<"StudentProfile", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"StudentProfile", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"StudentProfile", 'DateTime'>

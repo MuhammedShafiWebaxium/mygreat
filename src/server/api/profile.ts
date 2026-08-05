@@ -1,6 +1,7 @@
 import { assertRole, requireUser } from '@/features/auth/authorization.server'
-import { onboardingSchema } from '@/features/profile/profile.schema'
-import { readStudentProfile, writeStudentProfile } from '@/features/profile/profile.server'
+import { z } from 'zod'
+import { agencyProfileUpdateSchema, onboardingSchema } from '@/features/profile/profile.schema'
+import { addStudentShortlistedUniversity, readStudentProfile, updateStudentAgencyProfile, writeStudentProfile } from '@/features/profile/profile.server'
 import { apiError } from '@/lib/api'
 
 export async function GET() {
@@ -22,3 +23,7 @@ export async function PUT(request: Request) {
     return apiError(error)
   }
 }
+
+export async function PATCH(request:Request){try{const user=await requireUser();assertRole(user.role,['STUDENT']);return Response.json(await updateStudentAgencyProfile(user.id,agencyProfileUpdateSchema.parse(await request.json())))}catch(error){return apiError(error)}}
+
+export async function POST(request:Request){try{const user=await requireUser();assertRole(user.role,['STUDENT']);const {universityId}=z.object({universityId:z.string().min(1)}).parse(await request.json());return Response.json(await addStudentShortlistedUniversity(user.id,universityId))}catch(error){return apiError(error)}}

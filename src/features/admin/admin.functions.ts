@@ -60,3 +60,7 @@ export const listCatalogImportErrorsFn = (jobId:string) => request<CatalogImport
 export type ExchangeRateSettings={provider:string;sourceUrl:string;rates:Array<{currencyCode:string;rateToInr:number;provider:string;providerDate:string;updatedAt:string}>;coverage:{total:number;converted:number}}
 export const getExchangeRateSettingsFn=()=>request<ExchangeRateSettings>('exchangeRates')
 export const refreshExchangeRatesFn=()=>request<ExchangeRateSettings>('refreshExchangeRates',{})
+export type RequiredDocumentSetting={id:string;name:string;accept:string;active:boolean;sortOrder:number}
+export const getRequiredDocumentSettingsFn=()=>request<RequiredDocumentSetting[]>('requiredDocuments')
+export const saveRequiredDocumentSettingFn=(data:RequiredDocumentSetting)=>request<RequiredDocumentSetting>('saveRequiredDocument',data)
+export const deleteRequiredDocumentSettingFn=(id:string)=>request<{ok:boolean}>('deleteRequiredDocument',{id})

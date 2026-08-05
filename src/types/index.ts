@@ -80,4 +80,33 @@ export interface OnboardingData {
   intake: string
   universities: University[]
   notSure: boolean
+  agencyDetails?: StudentAgencyDetails
+}
+
+export interface StudentAgencyDetails {
+  dateOfBirth: string
+  gender: string
+  maritalStatus: string
+  nationality: string
+  residenceCountry: string
+  addressLine: string
+  city: string
+  state: string
+  postalCode: string
+  passportStatus: string
+  passportNumber: string
+  passportExpiry: string
+  preferredContactMethod: string
+  whatsappNumber: string
+  emergencyContactName: string
+  emergencyContactRelation: string
+  emergencyContactPhone: string
+  fundingSource: string
+  sponsorName: string
+  educationLoanStatus: string
+  visaRefusalHistory: string
+  visaRefusalDetails: string
+  travelHistory: string
+  workExperienceYears: string
+  counsellingNotes: string
 }

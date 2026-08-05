@@ -1,8 +1,7 @@
 'use client'
 
 import { Link } from '@/lib/navigation'
-import { Bell, Building2, Compass, FileText, FolderOpen, LayoutDashboard, Send, Settings, Sparkles } from 'lucide-react'
-import { ProgressRing } from './bits'
+import { ArrowRight, Bell, Building2, Compass, FolderOpen, LayoutDashboard, LogOut, Send, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type TabId = 'overview' | 'applications' | 'universities' | 'documents' | 'notifications' | 'settings'
@@ -20,10 +19,10 @@ interface Props {
   tab: TabId
   onChange: (t: TabId) => void
   unread: number
-  profileComplete: number
+  onSignOut: () => void | Promise<void>
 }
 
-export default function Sidebar({ tab, onChange, unread, profileComplete }: Props) {
+export default function Sidebar({ tab, onChange, unread, onSignOut }: Props) {
   const renderTab = (item: (typeof TABS)[number]) => {
     const active = tab === item.id
     return (
@@ -68,20 +67,16 @@ export default function Sidebar({ tab, onChange, unread, profileComplete }: Prop
         <div className="space-y-1">{TABS.filter((item) => item.group === 'support').map(renderTab)}</div>
       </nav>
 
-      <div className="dashboard-profile-card relative z-10 mt-5 rounded-2xl border border-amber-300/15 bg-gradient-to-br from-amber-300/[0.09] to-indigo-400/[0.05] p-4">
-        <div className="flex items-center gap-3">
-          <ProgressRing value={profileComplete} size={50} stroke={5}>
-            <span className="text-[10px] font-bold text-amber-200">{profileComplete}%</span>
-          </ProgressRing>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5"><Sparkles className="size-3 text-amber-300" /><p className="text-xs font-semibold">Profile strength</p></div>
-            <p className="mt-1 text-[10.5px] leading-4 text-white/38">A stronger profile improves your university matches.</p>
-          </div>
-        </div>
-        <button onClick={() => onChange('settings')} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-[11px] font-semibold text-white/60 transition hover:border-amber-300/25 hover:text-white">
-          <FileText className="size-3.5" /> Complete profile
-        </button>
-      </div>
+      <button onClick={onSignOut} className="dashboard-logout group relative z-10 mt-5 flex w-full items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.035] p-2.5 text-left transition-all hover:border-rose-400/25 hover:bg-rose-400/[0.06]">
+        <span className="dashboard-logout-icon grid size-10 shrink-0 place-items-center rounded-xl border border-rose-400/15 bg-rose-400/[0.08] text-rose-300 transition group-hover:border-rose-400/30 group-hover:bg-rose-400/[0.13]">
+          <LogOut className="size-[17px]" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="dashboard-logout-title block text-[12px] font-semibold text-white/75 transition group-hover:text-white">Log out</span>
+          <span className="dashboard-logout-copy mt-0.5 block text-[9.5px] text-white/32">End this session securely</span>
+        </span>
+        <ArrowRight className="dashboard-logout-arrow size-3.5 text-white/20 transition group-hover:translate-x-0.5 group-hover:text-rose-300" />
+      </button>
     </aside>
   )
 }

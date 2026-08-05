@@ -1,3 +1,4 @@
+
 generator client {
   provider     = "prisma-client"
   output       = "../src/generated/prisma"
@@ -252,6 +253,7 @@ model StudentProfile {
   englishTest           String    @default("") @map("english_test")
   preferredIntake       String    @default("") @map("preferred_intake")
   openToRecommendations Boolean   @default(false) @map("open_to_recommendations")
+  agencyDetails         Json?     @map("agency_details")
   completedAt           DateTime? @map("completed_at") @db.Timestamptz(6)
   createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -424,6 +426,18 @@ model Application {
   @@index([admissionsExecutiveId], map: "applications_admissions_idx")
   @@index([visaExecutiveId], map: "applications_visa_idx")
   @@map("applications")
+}
+
+model RequiredDocumentSetting {
+  id        String   @id @db.VarChar(80)
+  name      String   @db.VarChar(160)
+  accept    String   @default(".pdf,.jpg,.jpeg,.png") @db.VarChar(255)
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("required_document_settings")
 }
 
 /// A distinct visa journey for an application. Reapplications create another attempt.

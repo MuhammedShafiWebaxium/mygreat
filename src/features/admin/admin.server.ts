@@ -4,6 +4,7 @@ import { prisma } from '@/db/client.server'
 import { hashPassword } from '@/features/auth/password.server'
 import type { AccountType, UserRole } from '@/features/auth/auth.schema'
 import type { Country } from '@/types'
+import { listRequiredDocumentSettings } from '@/features/required-documents/required-documents.server'
 
 const adminRoles = ['SUPER_ADMIN', 'MARKETING_EXECUTIVE', 'FINANCE_EXECUTIVE', 'SUPPORT_EXECUTIVE'] as const
 type AdminRole = typeof adminRoles[number]
@@ -290,6 +291,7 @@ export async function readStudentProfileForStaff(
   const priorityById=new Map(priorities.map(item=>[item.id,item.isPriority]))
   return {
     ...student,
+    requiredDocuments:await listRequiredDocumentSettings(true),
     profile: student.profile ? { ...student.profile, gpa: student.profile.gpa === null ? null : Number(student.profile.gpa) } : null,
     applications: student.applications.map(({ university, ...application }) => ({
       ...application,

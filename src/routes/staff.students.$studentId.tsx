@@ -22,7 +22,6 @@ import {
   reviewDocumentFn,
   setPriorityApplicationFn,
 } from '@/features/workflow/workflow.functions'
-import { REQUIRED_DOCUMENTS } from '@/lib/local-documents'
 import { Link } from '@/lib/navigation'
 import { cn } from '@/lib/utils'
 import type { Country } from '@/types'
@@ -42,13 +41,15 @@ type DocumentItem = {
 
 function RequiredDocuments({
   documents,
+  requiredDocuments,
   onReview,
 }: {
   documents: DocumentItem[]
+  requiredDocuments: Array<{id:string;name:string;accept:string;active:boolean;sortOrder:number}>
   onReview: (id: string, status: 'VERIFIED' | 'NEEDED') => Promise<void>
 }) {
   const [reviewingId, setReviewingId] = useState('')
-  const required = REQUIRED_DOCUMENTS.map((item) => ({
+  const required = requiredDocuments.map((item) => ({
     ...item,
     document: documents.find((document) => document.name === item.name),
   }))
@@ -59,7 +60,7 @@ function RequiredDocuments({
   const pending = required.filter(
     (item) => item.document?.status === 'PENDING',
   ).length
-  const progress = (verified / REQUIRED_DOCUMENTS.length) * 100
+  const progress = requiredDocuments.length?(verified / requiredDocuments.length) * 100:0
 
   const review = async (id: string, status: 'VERIFIED' | 'NEEDED') => {
     try {
@@ -89,11 +90,11 @@ function RequiredDocuments({
           </div>
           <div className="flex gap-2">
             <span className="rounded-xl border border-white/[.08] bg-white/[.035] px-3 py-2 text-[10px] font-semibold text-white/55">
-              <strong className="mr-1 text-sm text-white">{uploaded}</strong>/ {REQUIRED_DOCUMENTS.length}
+              <strong className="mr-1 text-sm text-white">{uploaded}</strong>/ {requiredDocuments.length}
               uploaded
             </span>
             <span className="rounded-xl border border-emerald-400/20 bg-emerald-400/[.07] px-3 py-2 text-[10px] font-semibold text-emerald-300">
-              <strong className="mr-1 text-sm">{verified}</strong>/ {REQUIRED_DOCUMENTS.length} verified
+              <strong className="mr-1 text-sm">{verified}</strong>/ {requiredDocuments.length} verified
             </span>
           </div>
         </div>
@@ -337,7 +338,7 @@ function StudentDetail() {
           selectedCourse={student.profile?.field ?? ''}
         />
       </section>
-      <RequiredDocuments documents={student.documents} onReview={review} />
+      <RequiredDocuments documents={student.documents} requiredDocuments={student.requiredDocuments} onReview={review} />
       <section className="staff-card rounded-3xl border border-white/[.07] bg-white/[.025] p-6">
         <div className="flex items-center gap-2">
           <FileText className="size-4 text-violet-300" />

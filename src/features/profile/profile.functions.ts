@@ -18,3 +18,5 @@ async function request<T>(init?: RequestInit): Promise<T> {
 export const getMyProfileFn = () => request<Profile>()
 export const saveMyProfileFn = ({ data }: { data: unknown }) =>
   request<SavedProfile>({ method: 'PUT', body: JSON.stringify(data) })
+export const saveMyAgencyProfileFn=({data}:{data:unknown})=>request<SavedProfile>({method:'PATCH',body:JSON.stringify(data)})
+export const addMyShortlistedUniversityFn=({universityId}:{universityId:string})=>request<SavedProfile>({method:'POST',body:JSON.stringify({universityId})})

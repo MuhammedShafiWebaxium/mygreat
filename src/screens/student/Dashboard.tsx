@@ -24,10 +24,9 @@ import { currentUserQuery } from '@/features/auth/auth.queries'
 import { myProfileQuery } from '@/features/profile/profile.queries'
 import { myDashboardQuery } from '@/features/workflow/workflow.queries'
 import { logoutFn, updateMyAccountFn } from '@/features/auth/auth.functions'
-import { saveMyProfileFn } from '@/features/profile/profile.functions'
-import { REQUIRED_DOCUMENTS } from '@/lib/local-documents'
+import { addMyShortlistedUniversityFn, saveMyAgencyProfileFn } from '@/features/profile/profile.functions'
+import type { StudentAgencyDetails } from '@/types'
 import { toggleTaskFn } from '@/features/workflow/workflow.functions'
-import { getOnboardingCatalogFn } from '@/features/onboarding/onboarding.functions'
 
 const TAB_TITLES: Record<TabId, string> = {
   overview: 'Your home',
@@ -54,16 +53,15 @@ export default function Dashboard() {
   const { data: user } = useSuspenseQuery(currentUserQuery)
   const { data: profile } = useSuspenseQuery(myProfileQuery)
   const { data: serverDashboard } = useSuspenseQuery(myDashboardQuery)
-  const { data: catalog } = useSuspenseQuery({ queryKey: ['onboarding', 'catalog'], queryFn: () => getOnboardingCatalogFn() })
   const clearStore = useAppStore((state) => state.clear)
   const theme = useAppStore((state) => state.theme)
   const account: Account | null = user ? { name: user.name, email: user.email, phone: user.phone } : null
 
   const student = useMemo(
-    () => profile ? buildStudent(profile, account) : buildStudent({ country: null, educationLevel: '', degree: '', field: '', gpa: 0, gradYear: '', englishTest: '', intake: '', universities: [], notSure: true }, account),
+    () => profile ? buildStudent(profile, account) : buildStudent({ country:null,countries:[],educationLevel:'',degree:'',field:'',fields:[],feeMinInr:null,feeMaxInr:null,gpa:0,gradYear:'',englishTest:'',intake:'',universities:[],notSure:true }, account),
     [profile, account]
   )
-  const applications = useMemo<Application[]>(() => serverDashboard.applications.map((item) => ({
+  const applications = useMemo<Application[]>(() => (serverDashboard?.applications ?? []).map((item) => ({
     id: item.id,
     uniName: item.universityName,
     initials: item.universityName.split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase(),
@@ -77,24 +75,26 @@ export default function Dashboard() {
     deadlineLabel: item.deadline ? 'Application deadline' : undefined,
     stages: [{ label: item.status.replaceAll('_', ' '), state: 'current' }],
     visaStatus: item.visaStatus?.toLowerCase().replaceAll('_', '-') as Application['visaStatus'],
-  })), [serverDashboard.applications])
-  const recommendations = useMemo<Reco[]>(() => serverDashboard.recommendations.map((item) => ({
+  })), [serverDashboard?.applications])
+  const recommendations = useMemo<Reco[]>(() => (serverDashboard?.recommendations ?? []).map((item) => ({
     ...item,
     initials: item.name.split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase(),
     tuition: item.tuition || 'Contact university',
     acceptance: item.acceptance || 'Not published',
     match: 0,
-  })), [serverDashboard.recommendations])
-  const tasks: Task[] = serverDashboard.tasks.map((item) => ({ id: item.id, label: item.label, due: item.dueDate ?? undefined, tag: item.tag, done: item.completed }))
-  const [unread, setUnread] = useState(() => serverDashboard.notifications.filter((item) => !item.readAt).length)
-  const [notices, setNotices] = useState<Notice[]>(() => serverDashboard.notifications.map((item) => ({ id: item.id, kind: item.kind === 'DOCUMENT' ? 'doc' : item.kind.toLowerCase() as Notice['kind'], title: item.title, desc: item.description, time: 'Recently', read: Boolean(item.readAt) })))
+  })), [serverDashboard?.recommendations])
+  const tasks: Task[] = (serverDashboard?.tasks ?? []).map((item) => ({ id: item.id, label: item.label, due: item.dueDate ?? undefined, tag: item.tag, done: item.completed }))
+  const [unread, setUnread] = useState(() => (serverDashboard?.notifications ?? []).filter((item) => !item.readAt).length)
+  const [notices, setNotices] = useState<Notice[]>(() => (serverDashboard?.notifications ?? []).map((item) => ({ id: item.id, kind: item.kind === 'DOCUMENT' ? 'doc' : item.kind.toLowerCase() as Notice['kind'], title: item.title, desc: item.description, time: 'Recently', read: Boolean(item.readAt) })))
   const [showNotifs, setShowNotifs] = useState(false)
   const [showMobileMore, setShowMobileMore] = useState(false)
   const [showAssistance, setShowAssistance] = useState(false)
-  const requiredDocumentCount=REQUIRED_DOCUMENTS.filter(required=>serverDashboard.documents.some(document=>document.name===required.name&&document.status==='VERIFIED')).length
-  const requiredDocumentRows=REQUIRED_DOCUMENTS.map(required=>serverDashboard.documents.find(document=>document.name===required.name)).filter(Boolean)
-  const documentStats={uploaded:requiredDocumentRows.length,verified:requiredDocumentRows.filter(document=>document?.status==='VERIFIED').length,pending:requiredDocumentRows.filter(document=>document?.status==='PENDING').length,needed:requiredDocumentRows.filter(document=>document?.status==='NEEDED').length,total:REQUIRED_DOCUMENTS.length}
-  const requiredDocumentsComplete=requiredDocumentCount===REQUIRED_DOCUMENTS.length
+  const reqDocs = serverDashboard?.requiredDocuments ?? []
+  const docs = serverDashboard?.documents ?? []
+  const requiredDocumentCount=reqDocs.filter(required=>docs.some(document=>document.name===required.name&&document.status==='VERIFIED')).length
+  const requiredDocumentRows=reqDocs.map(required=>docs.find(document=>document.name===required.name)).filter(Boolean)
+  const documentStats={uploaded:requiredDocumentRows.length,verified:requiredDocumentRows.filter(document=>document?.status==='VERIFIED').length,pending:requiredDocumentRows.filter(document=>document?.status==='PENDING').length,needed:requiredDocumentRows.filter(document=>document?.status==='NEEDED').length,total:reqDocs.length}
+  const requiredDocumentsComplete=reqDocs.length>0&&requiredDocumentCount===reqDocs.length
 
   const unreadNotifs = notices.filter((n) => !n.read).length
 
@@ -112,17 +112,15 @@ export default function Dashboard() {
     await queryClient.invalidateQueries({ queryKey: ['auth'] })
   }
 
-  const handleSaveProfile = async (p: NonNullable<typeof profile>) => {
-    await saveMyProfileFn({ data: p })
+  const handleSaveAgencyProfile = async (details:StudentAgencyDetails) => {
+    await saveMyAgencyProfileFn({ data: details })
     await queryClient.invalidateQueries({ queryKey: ['student'] })
   }
 
-  const handleShortlistToggle = async (university: NonNullable<typeof profile>['universities'][number]) => {
+  const handleShortlistAdd = async (university: NonNullable<typeof profile>['universities'][number]) => {
     if (!profile) throw new Error('Complete your country and course selection first.')
-    const exists = profile.universities.some((item) => item.id === university.id)
-    if (!exists && profile.universities.length >= 3) throw new Error('You can shortlist up to three universities.')
-    const universities = exists ? profile.universities.filter((item) => item.id !== university.id) : [...profile.universities, university]
-    await saveMyProfileFn({ data: { ...profile, universities, notSure: false } })
+    if (profile.universities.some((item) => item.id === university.id)) return
+    await addMyShortlistedUniversityFn({ universityId: university.id })
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['student'] }),
       queryClient.invalidateQueries({ queryKey: ['student', 'dashboard'] }),
@@ -142,7 +140,7 @@ export default function Dashboard() {
       <div className="aurora w-[400px] h-[400px] bottom-[-20%] left-[15%] bg-indigo-600/10" />
 
       <div className="relative flex h-full">
-        <Sidebar tab={tab} onChange={setTab} unread={unread} profileComplete={student.profileComplete} />
+        <Sidebar tab={tab} onChange={setTab} unread={unread} onSignOut={signOut} />
 
         <div className="flex-1 flex flex-col h-full min-w-0 relative z-10">
           {/* top bar */}
@@ -245,18 +243,15 @@ export default function Dashboard() {
                     />
                   )}
                   {tab === 'applications' && <Applications applications={applications} documentsComplete={requiredDocumentsComplete} onNavigate={setTab} />}
-                  {tab === 'universities' && (
-                    <UniversitiesTab student={student} shortlisted={profile?.universities ?? []} recommendations={recommendations} onShortlistToggle={handleShortlistToggle} />
-                  )}
-                  {tab === 'documents' && <Documents documents={serverDashboard.documents} onChanged={()=>queryClient.invalidateQueries({queryKey:['student','dashboard']})} />}
+                  {tab === 'universities' && <UniversitiesTab student={student} shortlisted={profile?.universities ?? []} recommendations={recommendations} onShortlistToggle={handleShortlistAdd} />}
+                  {tab === 'documents' && <Documents documents={serverDashboard.documents} requiredDocuments={serverDashboard.requiredDocuments} onChanged={()=>queryClient.invalidateQueries({queryKey:['student','dashboard']})} />}
                   {tab === 'notifications' && <NotificationCenter notices={notices} onMarkAll={() => { setNotices((items) => items.map((item) => ({ ...item, read: true }))); setUnread(0) }} />}
                   {tab === 'settings' && (
                     <Settings
                       profile={profile}
                       account={account}
-                      countries={catalog.countries}
                       onSaveAccount={handleSaveAccount}
-                      onSaveProfile={handleSaveProfile}
+                      onSaveAgencyProfile={handleSaveAgencyProfile}
                       onSignOut={signOut}
                     />
                   )}

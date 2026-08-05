@@ -64,8 +64,10 @@ export const ModelName = {
   Country: 'Country',
   Course: 'Course',
   CourseFee: 'CourseFee',
+  ExchangeRate: 'ExchangeRate',
   StudentShortlist: 'StudentShortlist',
   Application: 'Application',
+  RequiredDocumentSetting: 'RequiredDocumentSetting',
   VisaAttempt: 'VisaAttempt',
   ApplicationOfferLetter: 'ApplicationOfferLetter',
   WorkflowFollowup: 'WorkflowFollowup',
@@ -211,11 +213,14 @@ export const StudentProfileScalarFieldEnum = {
   educationLevel: 'educationLevel',
   degree: 'degree',
   field: 'field',
+  feeMinInr: 'feeMinInr',
+  feeMaxInr: 'feeMaxInr',
   gpa: 'gpa',
   graduationYear: 'graduationYear',
   englishTest: 'englishTest',
   preferredIntake: 'preferredIntake',
   openToRecommendations: 'openToRecommendations',
+  agencyDetails: 'agencyDetails',
   completedAt: 'completedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -306,6 +311,8 @@ export const CourseFeeScalarFieldEnum = {
   courseId: 'courseId',
   amount: 'amount',
   currencyCode: 'currencyCode',
+  amountInr: 'amountInr',
+  exchangeRate: 'exchangeRate',
   effectiveFrom: 'effectiveFrom',
   effectiveTo: 'effectiveTo',
   createdBy: 'createdBy',
@@ -313,6 +320,18 @@ export const CourseFeeScalarFieldEnum = {
 } as const
 
 export type CourseFeeScalarFieldEnum = (typeof CourseFeeScalarFieldEnum)[keyof typeof CourseFeeScalarFieldEnum]
+
+
+export const ExchangeRateScalarFieldEnum = {
+  currencyCode: 'currencyCode',
+  rateToInr: 'rateToInr',
+  provider: 'provider',
+  providerDate: 'providerDate',
+  refreshedBy: 'refreshedBy',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExchangeRateScalarFieldEnum = (typeof ExchangeRateScalarFieldEnum)[keyof typeof ExchangeRateScalarFieldEnum]
 
 
 export const StudentShortlistScalarFieldEnum = {
@@ -347,6 +366,19 @@ export const ApplicationScalarFieldEnum = {
 } as const
 
 export type ApplicationScalarFieldEnum = (typeof ApplicationScalarFieldEnum)[keyof typeof ApplicationScalarFieldEnum]
+
+
+export const RequiredDocumentSettingScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  accept: 'accept',
+  active: 'active',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RequiredDocumentSettingScalarFieldEnum = (typeof RequiredDocumentSettingScalarFieldEnum)[keyof typeof RequiredDocumentSettingScalarFieldEnum]
 
 
 export const VisaAttemptScalarFieldEnum = {

@@ -107,6 +107,11 @@ export type Course = Prisma.CourseModel
  */
 export type CourseFee = Prisma.CourseFeeModel
 /**
+ * Model ExchangeRate
+ * 
+ */
+export type ExchangeRate = Prisma.ExchangeRateModel
+/**
  * Model StudentShortlist
  * 
  */
@@ -116,6 +121,11 @@ export type StudentShortlist = Prisma.StudentShortlistModel
  * 
  */
 export type Application = Prisma.ApplicationModel
+/**
+ * Model RequiredDocumentSetting
+ * 
+ */
+export type RequiredDocumentSetting = Prisma.RequiredDocumentSettingModel
 /**
  * Model VisaAttempt
  * A distinct visa journey for an application. Reapplications create another attempt.
