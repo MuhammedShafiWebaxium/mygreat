@@ -17,13 +17,14 @@ async function assertWorkflowAccess(actor:{id:string;role:UserRole},studentId:st
   throw new Error('FORBIDDEN')
 }
 
-export async function readWorkflowCase(actor:{id:string;role:UserRole},applicationId:string,workflowType:'APPLICATION'|'VISA',requestedVisaAttemptId?:string|null){
-  const [current]=await prisma.$queryRaw<Array<any>>(Prisma.sql`SELECT a.id,a.student_id AS "studentId",a.program,a.progress,a.next_action AS "nextAction",a.application_stage AS "applicationStage",a.offer_type AS "offerType",ol.id AS "offerLetterId",ol.file_name AS "offerLetterName",a.is_priority AS "isPriority",a.quoted_fee_amount AS "quotedFeeAmount",a.quoted_fee_currency AS "quotedFeeCurrency",a.updated_at AS "updatedAt",a.created_at AS "createdAt",s.name AS "studentName",s.email AS "studentEmail",sp.preferred_intake AS intake,u.name AS "universityName",u.city,c.name AS "countryName" FROM applications a JOIN students s ON s.id=a.student_id LEFT JOIN student_profiles sp ON sp.user_id=s.id JOIN universities u ON u.id=a.university_id JOIN countries c ON c.id=u.country_id LEFT JOIN application_offer_letters ol ON ol.application_id=a.id WHERE a.id=${applicationId}::uuid`)
+export async function readWorkflowCase(actor:{id:string;role:UserRole},applicationId:string,workflowType:'APPLICATION'|'VISA',requestedVisaAttemptId?:string|null,allowSopPending=false){
+  const [current]=await prisma.$queryRaw<Array<any>>(Prisma.sql`SELECT a.id,a.student_id AS "studentId",a.program,a.progress,a.next_action AS "nextAction",a.application_stage AS "applicationStage",a.offer_type AS "offerType",ol.id AS "offerLetterId",ol.file_name AS "offerLetterName",ol.offer_type AS "offerLetterType",a.is_priority AS "isPriority",a.quoted_fee_amount AS "quotedFeeAmount",a.quoted_fee_currency AS "quotedFeeCurrency",a.updated_at AS "updatedAt",a.created_at AS "createdAt",s.name AS "studentName",s.email AS "studentEmail",sp.preferred_intake AS intake,u.name AS "universityName",u.city,c.name AS "countryName" FROM applications a JOIN students s ON s.id=a.student_id LEFT JOIN student_profiles sp ON sp.user_id=s.id JOIN universities u ON u.id=a.university_id JOIN countries c ON c.id=u.country_id LEFT JOIN application_offer_letters ol ON ol.application_id=a.id WHERE a.id=${applicationId}::uuid`)
   if(!current)throw new Error('Application not found.')
   await assertWorkflowAccess(actor,current.studentId)
+  if(workflowType==='APPLICATION'&&!allowSopPending&&['SOP_PREPARATION','SOP_VERIFICATION','SOP_CORRECTION_REQUIRED'].includes(current.applicationStage))throw new Error('This application is locked until the SOP is approved.')
   if(workflowType==='VISA'&&current.applicationStage!=='MOVE_TO_VISA')throw new Error('Visa workflow is locked until the application reaches Move To Visa.')
   const [siblings,visaAttempts,tasks,documents]=await Promise.all([
-    prisma.$queryRaw<Array<any>>(Prisma.sql`SELECT a.id,a.program,a.application_stage AS "applicationStage",a.is_priority AS "isPriority",a.updated_at AS "updatedAt",u.name AS "universityName",c.name AS "countryName" FROM applications a JOIN universities u ON u.id=a.university_id JOIN countries c ON c.id=u.country_id WHERE a.student_id=${current.studentId}::uuid ORDER BY a.is_priority DESC,a.created_at ASC`),
+    prisma.$queryRaw<Array<any>>(Prisma.sql`SELECT a.id,a.program,a.application_stage AS "applicationStage",a.is_priority AS "isPriority",a.updated_at AS "updatedAt",u.name AS "universityName",c.name AS "countryName" FROM applications a JOIN universities u ON u.id=a.university_id JOIN countries c ON c.id=u.country_id WHERE a.student_id=${current.studentId}::uuid AND a.application_stage NOT IN ('SOP_PREPARATION','SOP_VERIFICATION','SOP_CORRECTION_REQUIRED') ORDER BY a.is_priority DESC,a.created_at ASC`),
     prisma.$queryRaw<Array<any>>(Prisma.sql`SELECT id,attempt_number AS "attemptNumber",is_current AS "isCurrent",current_stage AS "currentStage",outcome,created_at AS "createdAt" FROM visa_attempts WHERE application_id=${applicationId}::uuid ORDER BY attempt_number DESC`),
     prisma.task.findMany({where:{applicationId},orderBy:{createdAt:'desc'}}),
     prisma.document.findMany({where:{applicationId},orderBy:{createdAt:'desc'}}),
@@ -39,15 +40,22 @@ export async function readWorkflowCase(actor:{id:string;role:UserRole},applicati
     if(current.offerType==='UNCONDITIONAL')stages[stages.indexOf('CONDITIONAL_OFFER_RECEIVED')]='UNCONDITIONAL_OFFER_RECEIVED'
     if(currentStage==='APPLICATION_STUDENT_ACTION_REQUIRED')stages.splice(stages.indexOf('APPLICATION_SUBMISSION'),0,currentStage)
     if(currentStage==='APPLICATION_REJECTED_BY_UNIVERSITY')stages.splice(stages.indexOf('APPLICATION_SUBMISSION')+1,0,currentStage)
+  }else{
+    const unconditionalStageVisited=currentStage==='UNCONDITIONAL_OFFER_RECEIVED'||followups.some((event:any)=>event.stage==='UNCONDITIONAL_OFFER_RECEIVED')
+    if(current.offerType!=='CONDITIONAL'&&!unconditionalStageVisited)stages.splice(stages.indexOf('UNCONDITIONAL_OFFER_RECEIVED'),1)
   }
-  return {...current,workflowType,currentStage,stages,validNextStages:WORKFLOW_TRANSITIONS[currentStage]??[],siblings,visaAttempts,selectedVisaAttempt:visaAttempt,tasks,documents,events,canApprove:actor.role==='SUPER_ADMIN',canChangePriority:['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE'].includes(actor.role)}
+  let validNextStages=WORKFLOW_TRANSITIONS[currentStage]??[]
+  if(workflowType==='VISA'&&currentStage==='MEET_OFFER_CONDITIONS')validNextStages=current.offerType==='CONDITIONAL'?['UNCONDITIONAL_OFFER_RECEIVED']:['TUITION_FEE_PAYMENT']
+  return {...current,workflowType,currentStage,stages,validNextStages,siblings,visaAttempts,selectedVisaAttempt:visaAttempt,tasks,documents,events,canApprove:actor.role==='SUPER_ADMIN',canChangePriority:['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE'].includes(actor.role)}
 }
 
 export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRole},input:z.infer<typeof workflowCaseActionSchema>){
-  const detail=await readWorkflowCase(actor,input.applicationId,input.workflowType,input.visaAttemptId)
+  const detail=await readWorkflowCase(actor,input.applicationId,input.workflowType,input.visaAttemptId,Boolean(input.approvalRequestId)&&actor.role==='SUPER_ADMIN')
   const stage=detail.currentStage as string
   const target=input.targetStage
   if(!isValidWorkflowTransition(stage,target))throw new Error(`Invalid transition from ${stage} to ${target}.`)
+  if(input.workflowType==='VISA'&&stage==='MEET_OFFER_CONDITIONS'&&detail.offerType==='CONDITIONAL'&&target!=='MEET_OFFER_CONDITIONS'&&target!=='UNCONDITIONAL_OFFER_RECEIVED')throw new Error('Record the unconditional offer before continuing the visa workflow.')
+  if(input.workflowType==='VISA'&&stage==='MEET_OFFER_CONDITIONS'&&detail.offerType!=='CONDITIONAL'&&target==='UNCONDITIONAL_OFFER_RECEIVED')throw new Error('This application already has an unconditional offer.')
   if(stage==='APPLICATION_REJECTED_BY_UNIVERSITY')throw new Error('This application was finally rejected by the university and is closed to further follow-ups.')
   if(input.workflowType==='APPLICATION'&&stage==='APPLICATION_SUBMISSION'&&target==='APPLICATION_REJECTED'&&!input.rejectionType)throw new Error('Select the reason the university rejected this application.')
   if(input.rejectionType==='STUDENT_ACTION'&&!input.requiredDocumentIds?.length)throw new Error('Select at least one document the student must replace.')
@@ -63,8 +71,10 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
     if(Number(count)===0)throw new Error('Attach the prepared SOP before sending it for verification.')
   }
   const offerType=input.offerType??detail.offerType
+  if(input.workflowType==='APPLICATION'&&stage!=='APPLICATION_FOLLOW_UP'&&input.offerType&&input.offerType!==detail.offerType)throw new Error('The recorded offer is view-only after the offer-received stage.')
   if(input.workflowType==='APPLICATION'&&target==='MOVE_TO_VISA'&&!offerType)throw new Error('Select Conditional or Unconditional Offer Received before moving to visa.')
   if(input.workflowType==='APPLICATION'&&offerType&&!detail.offerLetterId)throw new Error('Upload the offer letter before saving the offer outcome.')
+  if(input.workflowType==='VISA'&&target==='UNCONDITIONAL_OFFER_RECEIVED'&&(input.offerType!=='UNCONDITIONAL'||detail.offerLetterType!=='UNCONDITIONAL'))throw new Error('Upload the unconditional offer letter before continuing.')
   if(!input.note&&target===stage&&!(input.offerType!==undefined&&input.offerType!==detail.offerType))throw new Error('Add notes for this follow-up.')
   let visaAttemptId=detail.selectedVisaAttempt?.id as string|undefined
   let persistedTarget=target==='APPLICATION_REJECTED'?(input.rejectionType==='UNIVERSITY_FINAL'?'APPLICATION_REJECTED_BY_UNIVERSITY':input.rejectionType==='STUDENT_ACTION'?'APPLICATION_STUDENT_ACTION_REQUIRED':'SOP_APPROVED'):target==='APPLICATION_ACCEPTED'?'APPLICATION_FOLLOW_UP':target
@@ -80,8 +90,8 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
       persistedTarget=restart
     }
     if(input.workflowType==='APPLICATION')await tx.$executeRaw(Prisma.sql`UPDATE applications SET application_stage=${persistedTarget}::application_status,offer_type=COALESCE(${input.offerType??null}::offer_type,offer_type),updated_at=NOW() WHERE id=${input.applicationId}::uuid`)
-    else await tx.$executeRaw(Prisma.sql`UPDATE visa_attempts SET current_stage=${persistedTarget}::visa_status,outcome=${input.outcome??null},updated_at=NOW() WHERE id=${visaAttemptId}::uuid`)
-    const applicationSummary:Record<string,{progress:number;nextAction:string}>={SOP_APPROVED:{progress:25,nextAction:'Correct and resubmit application'},APPLICATION_SUBMISSION:{progress:35,nextAction:'Application submitted'},APPLICATION_STUDENT_ACTION_REQUIRED:{progress:35,nextAction:'Urgent: replace requested documents'},APPLICATION_REJECTED_BY_UNIVERSITY:{progress:100,nextAction:'Application closed by university'},APPLICATION_ACCEPTED:{progress:60,nextAction:'Application follow-up'},APPLICATION_FOLLOW_UP:{progress:70,nextAction:'Application follow-up in progress'},CONDITIONAL_OFFER_RECEIVED:{progress:90,nextAction:'Meet conditional offer requirements'},UNCONDITIONAL_OFFER_RECEIVED:{progress:90,nextAction:'Unconditional offer received'},MOVE_TO_VISA:{progress:100,nextAction:'Continue to visa process'}}
+    else {await tx.$executeRaw(Prisma.sql`UPDATE visa_attempts SET current_stage=${persistedTarget}::visa_status,outcome=${input.outcome??null},updated_at=NOW() WHERE id=${visaAttemptId}::uuid`);if(persistedTarget==='UNCONDITIONAL_OFFER_RECEIVED')await tx.$executeRaw(Prisma.sql`UPDATE applications SET offer_type='UNCONDITIONAL',updated_at=NOW() WHERE id=${input.applicationId}::uuid`)}
+    const applicationSummary:Record<string,{progress:number;nextAction:string}>={SOP_APPROVED:{progress:25,nextAction:'Begin application submission'},APPLICATION_SUBMISSION:{progress:35,nextAction:'Application submitted'},APPLICATION_STUDENT_ACTION_REQUIRED:{progress:35,nextAction:'Urgent: replace requested documents'},APPLICATION_REJECTED_BY_UNIVERSITY:{progress:100,nextAction:'Application closed by university'},APPLICATION_ACCEPTED:{progress:60,nextAction:'Application follow-up'},APPLICATION_FOLLOW_UP:{progress:70,nextAction:'Application follow-up in progress'},CONDITIONAL_OFFER_RECEIVED:{progress:90,nextAction:'Meet conditional offer requirements'},UNCONDITIONAL_OFFER_RECEIVED:{progress:90,nextAction:'Unconditional offer received'},MOVE_TO_VISA:{progress:100,nextAction:'Continue to visa process'}}
     const visaSummary:Record<string,{nextAction:string}>={VISA_DOCUMENT_COLLECTION:{nextAction:'Collect visa documents'},VISA_SLOT_BOOKING:{nextAction:'Book visa appointment'},VISA_SUBMISSION:{nextAction:'Awaiting visa decision'},VISA_REAPPLY_OR_APPEAL:{nextAction:'Choose appeal or reapplication'},VISA_GRANTED:{nextAction:'Visa granted'}}
     const summary=input.workflowType==='APPLICATION'?applicationSummary[persistedTarget]:visaSummary[persistedTarget]
     if(summary)await tx.application.update({where:{id:input.applicationId},data:summary})
@@ -108,11 +118,11 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
     }
     await tx.auditLog.create({data:{actorId:actor.id,action:`${input.workflowType}_FOLLOW_UP_CREATED`,entityType:`${input.workflowType.toLowerCase()}_workflow`,entityId:input.applicationId,metadata:{from:stage,to:persistedTarget,outcome:input.outcome,note:input.note,visaAttemptId,reapplyMode:input.reapplyMode}}})
   })
-  return readWorkflowCase(actor,input.applicationId,input.workflowType,visaAttemptId)
+  return readWorkflowCase(actor,input.applicationId,input.workflowType,visaAttemptId,Boolean(input.approvalRequestId)&&actor.role==='SUPER_ADMIN')
 }
 
 export async function uploadSopFile(actor:{id:string;name:string;role:UserRole},applicationId:string,file:File,note:string){
-  const detail=await readWorkflowCase(actor,applicationId,'APPLICATION')
+  const detail=await readWorkflowCase(actor,applicationId,'APPLICATION',null,true)
   if(['APPLICATION_REJECTED_BY_UNIVERSITY','MOVE_TO_VISA'].includes(detail.currentStage))throw new Error('The SOP cannot be replaced after this application is closed or moved to visa.')
   if(file.size<=0||file.size>10*1024*1024)throw new Error('The SOP file must be between 1 byte and 10 MB.')
   const allowed=new Set(['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
@@ -123,12 +133,13 @@ export async function uploadSopFile(actor:{id:string;name:string;role:UserRole},
     const [followup]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO workflow_followups(student_id,application_id,workflow_type,stage,notes,created_by_id,created_by_name) VALUES(${detail.studentId}::uuid,${applicationId}::uuid,'APPLICATION',${detail.currentStage},${note||'SOP file attached.'},${actor.id}::uuid,${actor.name}) RETURNING id`)
     await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followup_files(followup_id,file_name,mime_type,size_bytes,file_data) VALUES(${followup.id}::uuid,${file.name},${file.type},${file.size},${bytes})`)
   })
-  return readWorkflowCase(actor,applicationId,'APPLICATION')
+  return readWorkflowCase(actor,applicationId,'APPLICATION',null,true)
 }
 
 export async function uploadOfferLetter(actor:{id:string;name:string;role:UserRole},applicationId:string,offerType:'CONDITIONAL'|'UNCONDITIONAL',file:File){
   const detail=await readWorkflowCase(actor,applicationId,'APPLICATION')
-  if(!['APPLICATION_FOLLOW_UP','CONDITIONAL_OFFER_RECEIVED','UNCONDITIONAL_OFFER_RECEIVED'].includes(detail.currentStage))throw new Error('Offer letters can only be uploaded during the offer follow-up stages.')
+  const visaUpgrade=detail.currentStage==='MOVE_TO_VISA'&&detail.offerType==='CONDITIONAL'&&offerType==='UNCONDITIONAL'&&Number((await prisma.$queryRaw<Array<{count:bigint}>>(Prisma.sql`SELECT COUNT(*)::bigint AS count FROM visa_attempts WHERE application_id=${applicationId}::uuid AND is_current=TRUE AND current_stage='MEET_OFFER_CONDITIONS'`))[0]?.count??0)>0
+  if(detail.currentStage!=='APPLICATION_FOLLOW_UP'&&!visaUpgrade)throw new Error('The offer letter is view-only after the offer-received stage.')
   if(file.size<=0||file.size>10*1024*1024)throw new Error('The offer letter must be between 1 byte and 10 MB.')
   const allowed=new Set(['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
   if(!allowed.has(file.type))throw new Error('Upload a PDF, DOC, or DOCX offer letter.')
@@ -215,10 +226,15 @@ async function assertPartnerCanAccessStudent(actorId: string, studentId: string)
 export async function createApplicationForStudent(
   actor: { id: string; role: UserRole; accountType: 'ADMIN' | 'PARTNER' | 'STUDENT' },
   input: { studentId: string; universityId: string; program: string; deadline?: string },
+  sopFile: File,
 ) {
   if (actor.accountType === 'PARTNER') await assertPartnerCanAccessStudent(actor.id, input.studentId)
   else if (actor.accountType !== 'ADMIN') throw new Error('FORBIDDEN')
   await assertRequiredDocumentsVerified(input.studentId)
+  if(sopFile.size<=0||sopFile.size>10*1024*1024)throw new Error('The SOP file must be between 1 byte and 10 MB.')
+  const allowedSopTypes=new Set(['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+  if(!allowedSopTypes.has(sopFile.type))throw new Error('Upload a PDF, DOC, or DOCX SOP file.')
+  const sopBytes=Buffer.from(await sopFile.arrayBuffer())
   const duplicate = await prisma.application.findFirst({
     where: { studentId: input.studentId, universityId: input.universityId, program: input.program },
     select: { id: true },
@@ -233,8 +249,14 @@ export async function createApplicationForStudent(
         applicationDeadline: input.deadline ? new Date(`${input.deadline}T00:00:00.000Z`) : null,
         admissionsExecutiveId: actor.role === 'ADMISSIONS_EXECUTIVE' ? actor.id : null,
         visaExecutiveId: actor.role === 'VISA_EXECUTIVE' ? actor.id : null,
+        applicationStage: 'SOP_VERIFICATION',
+        progress: 10,
+        nextAction: 'Pending Super Admin SOP verification',
       },
     })
+    const [followup]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO workflow_followups(student_id,application_id,workflow_type,stage,notes,created_by_id,created_by_name) VALUES(${input.studentId}::uuid,${created.id}::uuid,'APPLICATION','SOP_PREPARATION','SOP attached before application activation.',${actor.id}::uuid,${actor.name}) RETURNING id`)
+    await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followup_files(followup_id,file_name,mime_type,size_bytes,file_data) VALUES(${followup.id}::uuid,${sopFile.name},${sopFile.type},${sopFile.size},${sopBytes})`)
+    await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_approval_requests(student_id,application_id,followup_id,stage,requested_by_id,requested_by_name) VALUES(${input.studentId}::uuid,${created.id}::uuid,${followup.id}::uuid,'SOP_VERIFICATION',${actor.id}::uuid,${actor.name})`)
     await tx.$executeRaw(Prisma.sql`
       UPDATE applications a SET course_id=priced.course_id, quoted_fee_amount=priced.amount,
         quoted_fee_currency=priced.currency_code, fee_quoted_at=NOW()
@@ -297,7 +319,7 @@ export async function updateApplication(
 export async function readStudentDashboard(userId: string) {
   const [applicationRows, taskRows, documentRows, deadlineRows, notificationRows, profile, shortlist] = await Promise.all([
     prisma.application.findMany({
-      where: { studentId: userId },
+      where: { studentId: userId,applicationStage:{notIn:['SOP_PREPARATION','SOP_VERIFICATION','SOP_CORRECTION_REQUIRED']} },
       include: { university: true },
     }),
     prisma.task.findMany({ where: { userId } }),

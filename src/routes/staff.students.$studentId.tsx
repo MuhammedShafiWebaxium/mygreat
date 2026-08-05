@@ -255,6 +255,7 @@ function RequiredDocuments({
 
 function StudentDetail() {
   const student = Route.useLoaderData()
+  const visibleApplications=student.applications.filter(application=>!['SOP_PREPARATION','SOP_VERIFICATION','SOP_CORRECTION_REQUIRED'].includes(application.applicationStage))
   const router = useRouter()
   const country = student.profile?.destinationCountry as Country | null
   const review = async (documentId: string, status: 'VERIFIED' | 'NEEDED') => {
@@ -332,6 +333,7 @@ function StudentDetail() {
               ),
             ),
           ]}
+          pendingUniversityIds={[...new Set(student.applications.filter(application=>['SOP_PREPARATION','SOP_VERIFICATION','SOP_CORRECTION_REQUIRED'].includes(application.applicationStage)).map(application=>application.universityId))]}
           selectedCourse={student.profile?.field ?? ''}
         />
       </section>
@@ -342,7 +344,7 @@ function StudentDetail() {
           <h3 className="font-display text-xl">Applications</h3>
         </div>
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
-          {student.applications.map((application) => (
+          {visibleApplications.map((application) => (
             <div
               key={application.id}
               className={cn(
@@ -404,6 +406,7 @@ function StudentDetail() {
               </div>
             </div>
           ))}
+          {!visibleApplications.length&&<p className="text-xs text-white/35">No SOP-verified applications yet.</p>}
         </div>
       </section>
     </div>

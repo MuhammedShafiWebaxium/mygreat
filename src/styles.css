@@ -654,6 +654,46 @@
   box-shadow: 0 24px 60px -24px rgb(15 23 42 / 0.28);
 }
 
+.intake-dropdown-menu {
+  background: #0b1122;
+  border-color: rgb(255 255 255 / 0.12);
+  box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.8);
+}
+
+.intake-dropdown-option {
+  color: rgb(255 255 255 / 0.68);
+  background: transparent;
+}
+
+.intake-dropdown-option:hover,
+.intake-dropdown-option.is-selected {
+  color: #fcd34d;
+  background: rgb(251 191 36 / 0.1);
+}
+
+.light-theme .intake-dropdown-trigger {
+  color: #1e293b !important;
+  background: #f8fafc !important;
+  border-color: #d8dee9 !important;
+}
+
+.light-theme .intake-dropdown-menu {
+  background: #fff !important;
+  border-color: #d8dee9 !important;
+  box-shadow: 0 24px 55px -20px rgb(15 23 42 / 0.3);
+}
+
+.light-theme .intake-dropdown-option {
+  color: #475569 !important;
+  background: #fff !important;
+}
+
+.light-theme .intake-dropdown-option:hover,
+.light-theme .intake-dropdown-option.is-selected {
+  color: #b45309 !important;
+  background: #fff7ed !important;
+}
+
 .light-theme .onboarding-course-search {
   border-color: #e5e9f0 !important;
   background: #f8fafc !important;

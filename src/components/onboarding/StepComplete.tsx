@@ -84,13 +84,13 @@ export default function StepComplete({ data, onRestart }: Props) {
     {
       icon: WalletCards,
       label: 'Annual tuition preference',
-      value: data.feeMaxInr===100000000&&data.feeMinInr===0?'No preference':data.feeMaxInr===100000000?`₹${((data.feeMinInr??0)/100000).toLocaleString('en-IN')} lakh+`:`₹${((data.feeMinInr??0)/100000).toLocaleString('en-IN')}–${((data.feeMaxInr??0)/100000).toLocaleString('en-IN')} lakh`,
+      value: data.feeMaxInr===100000000?`₹${((data.feeMinInr??200000)/100000).toLocaleString('en-IN')}–50 lakh+`:`₹${((data.feeMinInr??0)/100000).toLocaleString('en-IN')}–${((data.feeMaxInr??0)/100000).toLocaleString('en-IN')} lakh`,
       sub: 'Approximate INR range using the latest admin-refreshed central-bank rates.',
     },
     {
       icon: Plane,
-      label: 'Preferred intake months',
-      value: data.intake.replaceAll('|', ', ') || '—',
+      label: 'Preferred intake',
+      value: data.intake.replace(':', ' · ').replaceAll('|', ', ') || '—',
       sub: data.englishTest && data.englishTest !== 'Not taken yet' ? data.englishTest : 'English test not taken yet',
     },
     {

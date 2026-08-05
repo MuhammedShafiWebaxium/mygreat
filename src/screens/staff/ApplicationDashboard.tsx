@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, ChevronsUpDown, FilePlus2, Plus, Search, X } from 'lucide-react'
+import { Check, ChevronsUpDown, FilePlus2, Plus, Search, Upload, X } from 'lucide-react'
 import { assignmentOptionsQuery, primaryApplicationQueueQuery, staffStudentsQuery } from '@/features/admin/admin.queries'
 import { Link } from '@/lib/navigation'
 import { currentUserQuery } from '@/features/auth/auth.queries'
@@ -26,6 +26,7 @@ export default function ApplicationDashboard() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [openSelect, setOpenSelect] = useState<'university' | 'program' | null>(null)
   const [draft, setDraft] = useState({ studentId: '', universityId: '', program: '' })
+  const [sopFile,setSopFile]=useState<File|null>(null)
   const { data: programs = [], isFetching: programsLoading } = useQuery({
     queryKey: ['staff', 'university-programs', draft.universityId],
     queryFn: () => getUniversityProgramsFn(draft.universityId),
@@ -35,10 +36,11 @@ export default function ApplicationDashboard() {
     await Promise.all([queryClient.invalidateQueries({ queryKey: ['staff', 'queue'] }),queryClient.invalidateQueries({ queryKey: ['staff', 'primary-applications'] })])
   }
   const create = useMutation({
-    mutationFn: () => staffCreateApplicationFn({ data: draft }),
+    mutationFn: () => {if(!sopFile)throw new Error('Attach the student SOP.');return staffCreateApplicationFn({ data: draft,file:sopFile })},
     onSuccess: async () => {
       setDraft({ studentId: '', universityId: '', program: '' })
-      setMessage('Application created.')
+      setSopFile(null)
+      setMessage('SOP submitted for Super Admin verification. The application will appear after approval.')
       setDrawerOpen(false)
       await refresh()
     },
@@ -84,9 +86,10 @@ export default function ApplicationDashboard() {
                 <label className="block"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.16em] text-white/35">Student</span><select value={draft.studentId} onChange={(event) => setDraft({ ...draft, studentId: event.target.value })} className="w-full rounded-xl border border-white/10 bg-[#0c1122] px-3 py-3 text-sm"><option value="">Select student</option>{students.map((student) => <option key={student.id} value={student.id}>{student.name}</option>)}</select></label>
                 <SearchableSelect label="University" placeholder="Search and select university" value={draft.universityId} options={options.universities.map((university) => ({ value: university.id, label: university.name, detail: university.city }))} onChange={(universityId) => setDraft({ ...draft, universityId, program: '' })} open={openSelect === 'university'} onOpenChange={(open) => setOpenSelect(open ? 'university' : null)} />
                 <SearchableSelect label="Program" placeholder={!draft.universityId ? 'Select a university first' : programsLoading ? 'Loading programs…' : 'Search and select program'} value={draft.program} options={programs.map((program) => ({ value: program.name, label: program.name, detail: program.level }))} onChange={(program) => setDraft({ ...draft, program })} disabled={!draft.universityId || programsLoading} emptyMessage="No active programs found for this university." open={openSelect === 'program'} onOpenChange={(open) => setOpenSelect(open ? 'program' : null)} />
+                <label className="block"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.16em] text-white/35">Statement of purpose · Required</span><span className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-amber-300/30 bg-amber-300/[.04] p-4 text-xs"><Upload className="size-4 text-amber-300"/><span className="min-w-0 flex-1 truncate">{sopFile?.name||'Choose SOP (PDF, DOC, or DOCX)'}</span><input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={event=>setSopFile(event.target.files?.[0]||null)}/></span><span className="mt-2 block text-[9px] leading-4 text-white/35">The application remains hidden until Super Admin SOP approval.</span></label>
               </div>
               {create.error && <p className="mt-4 rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-xs text-rose-300">{create.error.message}</p>}
-              <div className="mt-auto flex gap-3 border-t border-white/[.08] pt-5"><button type="button" onClick={() => setDrawerOpen(false)} className="flex-1 rounded-xl border border-white/10 px-4 py-3 text-xs font-semibold text-white/60">Cancel</button><button disabled={!draft.studentId || !draft.universityId || draft.program.trim().length < 2 || create.isPending} className="flex-[1.4] rounded-xl bg-amber-400 px-4 py-3 text-xs font-bold text-[#10172a] disabled:opacity-40">{create.isPending ? 'Creating…' : 'Create application'}</button></div>
+              <div className="mt-auto flex gap-3 border-t border-white/[.08] pt-5"><button type="button" onClick={() => {setDrawerOpen(false);setSopFile(null)}} className="flex-1 rounded-xl border border-white/10 px-4 py-3 text-xs font-semibold text-white/60">Cancel</button><button disabled={!draft.studentId || !draft.universityId || draft.program.trim().length < 2 || !sopFile || create.isPending} className="flex-[1.4] rounded-xl bg-amber-400 px-4 py-3 text-xs font-bold text-[#10172a] disabled:opacity-40">{create.isPending ? 'Submitting…' : 'Submit for SOP verification'}</button></div>
             </form>
           </motion.aside>
         </motion.div>

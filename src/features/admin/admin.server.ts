@@ -174,7 +174,7 @@ export async function readStaffQueue(actor: { id: string; role: UserRole }) {
       : adminRoles.includes(actor.role as AdminRole) || actor.role === 'RECEPTION_EXECUTIVE' ? {} : null
   if (!where) throw new Error('FORBIDDEN')
   const rows = await prisma.application.findMany({
-    where, include: { student: { select: { name: true } }, university: { select: { name: true } } },
+    where: {...where,applicationStage:{notIn:['SOP_PREPARATION','SOP_VERIFICATION','SOP_CORRECTION_REQUIRED']}}, include: { student: { select: { name: true } }, university: { select: { name: true } } },
     orderBy: { student: { name: 'asc' } },
   })
   const workflowMeta=rows.length?await prisma.$queryRaw<Array<{id:string;isPriority:boolean;visaAttemptCount:number;visaStatus:string|null}>>(Prisma.sql`SELECT a.id,a.is_priority AS "isPriority",COUNT(v.id)::int AS "visaAttemptCount",MAX(v.current_stage::text) FILTER(WHERE v.is_current=TRUE) AS "visaStatus" FROM applications a LEFT JOIN visa_attempts v ON v.application_id=a.id WHERE a.id IN (${Prisma.join(rows.map(row=>Prisma.sql`${row.id}::uuid`))}) GROUP BY a.id,a.is_priority`):[]

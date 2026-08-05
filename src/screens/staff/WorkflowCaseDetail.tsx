@@ -104,6 +104,8 @@ export default function WorkflowCaseDetail({
       }
       if (workflowType === 'APPLICATION' && offerType && offerFile)
         await uploadOfferLetterFn(applicationId, offerType, offerFile)
+      if (workflowType === 'VISA' && target === 'UNCONDITIONAL_OFFER_RECEIVED' && offerFile)
+        await uploadOfferLetterFn(applicationId, 'UNCONDITIONAL', offerFile)
       return actOnWorkflowCaseFn({
         applicationId,
         visaAttemptId,
@@ -111,7 +113,9 @@ export default function WorkflowCaseDetail({
         targetStage: target,
         note,
         offerType:
-          workflowType === 'APPLICATION' &&
+          workflowType === 'VISA' && target === 'UNCONDITIONAL_OFFER_RECEIVED'
+            ? 'UNCONDITIONAL'
+            : workflowType === 'APPLICATION' &&
           ['APPLICATION_FOLLOW_UP','CONDITIONAL_OFFER_RECEIVED','UNCONDITIONAL_OFFER_RECEIVED'].includes(data.currentStage)
             ? offerType || null
             : undefined,
@@ -166,7 +170,7 @@ export default function WorkflowCaseDetail({
     currentIndex = progressStages.indexOf(data.currentStage)
   const validTargets = [data.currentStage, ...data.validNextStages].filter(
     (stage: string) =>
-      !['SOP_APPROVED', 'SOP_CORRECTION_REQUIRED'].includes(stage) &&
+      !['SOP_PREPARATION','SOP_VERIFICATION','SOP_APPROVED', 'SOP_CORRECTION_REQUIRED'].includes(stage) &&
       (data.canApprove || !decisionStages.has(stage)) &&
       !(
         workflowType === 'VISA' &&
@@ -361,7 +365,7 @@ export default function WorkflowCaseDetail({
               Stage
               <select
                 value={target}
-                onChange={(event) => setTarget(event.target.value)}
+                onChange={(event) => {setTarget(event.target.value);if(workflowType==='VISA'&&event.target.value==='UNCONDITIONAL_OFFER_RECEIVED')setOfferType('UNCONDITIONAL')}}
                 className="mt-1 w-full rounded-xl border border-white/10 bg-[#0c1122] p-3 text-xs"
               >
                 {['SOP_APPROVED', 'VISA_LEVEL_2_VERIFICATION'].includes(
@@ -390,16 +394,14 @@ export default function WorkflowCaseDetail({
                     <p className="text-[9px] font-semibold text-white/45">
                       Offer received
                     </p>
-                    <span className="text-[8px] text-white/30">
-                      {target === 'MOVE_TO_VISA' ? 'REQUIRED' : 'OPTIONAL'}
-                    </span>
+                    {target === 'MOVE_TO_VISA' && <span className="text-[8px] text-white/30">REQUIRED</span>}
                   </div>
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     {(['CONDITIONAL', 'UNCONDITIONAL'] as const).map((type) => (
                       <button
                         type="button"
                         key={type}
-                        disabled={data.currentStage==='MOVE_TO_VISA'}
+                        disabled={data.currentStage!=='APPLICATION_FOLLOW_UP'}
                         onClick={() => {
                           setOfferType(type)
                           if (type !== data.offerType) setOfferFile(null)
@@ -417,7 +419,7 @@ export default function WorkflowCaseDetail({
                       </button>
                     ))}
                   </div>
-                  {offerType && data.currentStage!=='MOVE_TO_VISA' && (
+                  {offerType && data.currentStage==='APPLICATION_FOLLOW_UP' && (
                     <label className="mt-3 flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-amber-300/30 p-3 text-[9px]">
                       <Upload className="size-3.5 text-amber-300" />
                       <span className="flex-1 truncate">
@@ -438,6 +440,7 @@ export default function WorkflowCaseDetail({
                   {data.offerLetterId&&<div className="mt-3 grid grid-cols-2 gap-2"><a target="_blank" rel="noreferrer" href={`/api/workflow?offerLetterId=${encodeURIComponent(data.offerLetterId)}&preview=1`} className="flex items-center justify-center gap-2 rounded-lg border border-sky-300/25 py-2.5 text-[9px] font-semibold text-sky-300"><FileText className="size-3.5"/>View letter</a><a href={`/api/workflow?offerLetterId=${encodeURIComponent(data.offerLetterId)}`} className="flex items-center justify-center gap-2 rounded-lg border border-amber-300/25 py-2.5 text-[9px] font-semibold text-amber-300"><Download className="size-3.5"/>Download</a></div>}
                 </div>
               )}
+            {workflowType==='VISA'&&data.offerType==='CONDITIONAL'&&target==='UNCONDITIONAL_OFFER_RECEIVED'&&<div className="rounded-xl border border-amber-400/20 bg-amber-400/[.04] p-4"><p className="text-[10px] font-bold text-amber-200">Unconditional offer letter · Required</p><p className="mt-1 text-[9px] leading-4 text-white/40">Upload the final unconditional offer before continuing to tuition fee payment.</p><label className="mt-3 flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-amber-300/30 p-3 text-[9px]"><Upload className="size-3.5 text-amber-300"/><span className="min-w-0 flex-1 truncate">{offerFile?.name||'Upload unconditional offer (PDF, DOC, DOCX)'}</span><input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={event=>setOfferFile(event.target.files?.[0]||null)}/></label></div>}
             {workflowType === 'APPLICATION' &&
               target === 'SOP_VERIFICATION' &&
               data.currentStage !== 'SOP_VERIFICATION' && (
@@ -487,6 +490,7 @@ export default function WorkflowCaseDetail({
               disabled={
                 followup.isPending ||
                 !target ||
+                (workflowType==='VISA'&&target==='UNCONDITIONAL_OFFER_RECEIVED'&&!offerFile) ||
                 (workflowType === 'APPLICATION' &&
                   target === 'MOVE_TO_VISA' &&
                   !offerType) ||

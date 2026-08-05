@@ -8,6 +8,12 @@ test('SOP correction preserves the verification loop',()=>{
   assert.equal(isValidWorkflowTransition('APPLICATION_SUBMISSION','APPLICATION_REJECTED'),true)
 })
 
+test('application follow-up requires an offer before moving to visa',()=>{
+  assert.equal(isValidWorkflowTransition('APPLICATION_FOLLOW_UP','MOVE_TO_VISA'),false)
+  assert.equal(isValidWorkflowTransition('CONDITIONAL_OFFER_RECEIVED','MOVE_TO_VISA'),true)
+  assert.equal(isValidWorkflowTransition('UNCONDITIONAL_OFFER_RECEIVED','MOVE_TO_VISA'),true)
+})
+
 test('application resubmission returns to submission',()=>{
 })
 

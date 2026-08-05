@@ -64,6 +64,16 @@ function Chip({ active, onClick, children, disabled = false, title }: { active: 
   )
 }
 
+function TuitionRange({minimum,maximum,onChange}:{minimum:number;maximum:number;onChange:(minimum:number,maximum:number)=>void}){
+  const left=((minimum-2)/49)*100,right=((maximum-2)/49)*100
+  const rangeClass='pointer-events-none absolute inset-x-0 top-1/2 h-2 w-full -translate-y-1/2 appearance-none bg-transparent outline-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-amber-400 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-lg [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-amber-400 [&::-moz-range-thumb]:bg-white'
+  return <div><div className="relative h-8"><div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-white/10"/><div className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-amber-400" style={{left:`${left}%`,right:`${100-right}%`}}/><input aria-label="Minimum annual tuition" type="range" min={2} max={50} step={1} value={minimum} onChange={event=>onChange(Math.min(Number(event.target.value),maximum-1),maximum)} className={rangeClass}/><input aria-label="Maximum annual tuition" type="range" min={3} max={51} step={1} value={maximum} onChange={event=>onChange(minimum,Math.max(Number(event.target.value),minimum+1))} className={rangeClass}/></div><div className="mt-2 flex justify-between text-[10px] text-white/35"><span>₹2 lakh</span><span>₹50 lakh+</span></div></div>
+}
+
+function IntakeDropdown({label,value,placeholder,options,open,disabled=false,onOpen,onSelect}:{label:string;value:string;placeholder:string;options:string[];open:boolean;disabled?:boolean;onOpen:()=>void;onSelect:(value:string)=>void}){
+  return <div className="relative"><span className="mb-2 block text-[10px] font-semibold text-white/40">{label}</span><button type="button" disabled={disabled} onClick={onOpen} className="intake-dropdown-trigger flex w-full items-center rounded-xl border border-white/10 bg-white/[.035] px-3 py-3 text-left text-sm text-white outline-none transition hover:border-amber-400/30 disabled:cursor-not-allowed disabled:opacity-45"><span className={cn('min-w-0 flex-1',!value&&'text-white/35')}>{value||placeholder}</span><ChevronDown className={cn('size-4 text-white/35 transition',open&&'rotate-180')}/></button>{open&&!disabled&&<div className="intake-dropdown-menu scrollbar-thin absolute inset-x-0 top-full z-[100] mt-2 max-h-60 overflow-y-auto rounded-xl border border-white/10 p-2 shadow-2xl">{options.map(option=><button type="button" key={option} onClick={()=>onSelect(option)} className={cn('intake-dropdown-option flex w-full items-center rounded-lg px-3 py-2.5 text-left text-xs transition',value===option&&'is-selected')}>{option}{value===option&&<Check className="ml-auto size-3.5"/>}</button>)}</div>}</div>
+}
+
 const fade: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: (i: number) => ({
@@ -104,14 +114,22 @@ export default function StepEducation(props: Props) {
   const [visibleCourseCount,setVisibleCourseCount]=useState(50)
   const [courseOpen,setCourseOpen]=useState(false)
   const [activeTest,setActiveTest]=useState('')
-  const selectedIntakeMonths=intake==='Flexible'?[]:intake.split('|').filter(Boolean)
+  const [intakeDropdown,setIntakeDropdown]=useState<'year'|'month'|null>(null)
+  const intakeParts=intake.includes(':')?intake.split(':'):['',intake]
+  const storedIntakeYear=intakeParts[0]??''
+  const selectedIntakeMonths=(intakeParts[1]??'').split('|').filter(Boolean)
+  const [intakeYear,setIntakeYear]=useState(storedIntakeYear)
+  const today=new Date(),currentIntakeYear=today.getFullYear(),currentIntakeMonthIndex=today.getMonth()
+  const intakeYears=Array.from({length:5},(_,index)=>String(currentIntakeYear+index))
+  const availableIntakeMonths=intakeYear===String(currentIntakeYear)?INTAKE_MONTHS.slice(currentIntakeMonthIndex):INTAKE_MONTHS
   const availableDegrees=useMemo(()=>DEGREES.filter(degreeName=>courses.some(course=>course.level.toLowerCase()===degreeName.toLowerCase())),[courses])
   const orderedDegrees=useMemo(()=>[...DEGREES].sort((left,right)=>Number(!availableDegrees.includes(left))-Number(!availableDegrees.includes(right))),[availableDegrees])
-  const matchingCourses=useMemo(()=>courses.filter(course=>{const noPreference=feeMinInr===0&&feeMaxInr===100000000,feeMatches=feeMaxInr===null||noPreference||(course.feeInrValues??[]).some(fee=>fee>=(feeMinInr??0)&&fee<=feeMaxInr),intakeMatches=intake==='Flexible'||selectedIntakeMonths.some(month=>course.intakeMonths?.includes(month));return feeMatches&&intakeMatches&&course.level.toLowerCase()===degree.toLowerCase()&&course.name.toLowerCase().includes(debouncedCourseQuery.toLowerCase())}),[courses,debouncedCourseQuery,degree,feeMinInr,feeMaxInr,intake])
+  const matchingCourses=useMemo(()=>courses.filter(course=>{const feeMatches=(course.feeInrValues??[]).some(fee=>fee>=(feeMinInr??200000)&&fee<=(feeMaxInr??8000000)),intakeMatches=intake==='Flexible'||selectedIntakeMonths.some(month=>course.intakeMonths?.includes(month));return feeMatches&&intakeMatches&&course.level.toLowerCase()===degree.toLowerCase()&&course.name.toLowerCase().includes(debouncedCourseQuery.toLowerCase())}),[courses,debouncedCourseQuery,degree,feeMinInr,feeMaxInr,intake])
   const filteredCourses=useMemo(()=>matchingCourses.slice(0,visibleCourseCount),[matchingCourses,visibleCourseCount])
   const selectedTests=readEnglishTests(englishTest)
   const orderedTests=useMemo(()=>Object.entries(selectedTests).sort(([left],[right])=>Number(left===activeTest)-Number(right===activeTest)),[englishTest,activeTest])
   useEffect(()=>{if(activeTest&&!selectedTests[activeTest])setActiveTest(Object.keys(selectedTests)[0]??'')},[englishTest,activeTest])
+  useEffect(()=>{if(storedIntakeYear)setIntakeYear(storedIntakeYear)},[storedIntakeYear])
   useEffect(()=>{const timer=window.setTimeout(()=>setDebouncedCourseQuery(courseQuery),250);return()=>window.clearTimeout(timer)},[courseQuery])
   useEffect(()=>setVisibleCourseCount(50),[debouncedCourseQuery,degree])
   const loadMoreCourses=(element:HTMLDivElement)=>{if(element.scrollHeight-element.scrollTop-element.clientHeight<48)setVisibleCourseCount(count=>Math.min(count+50,matchingCourses.length))}
@@ -124,7 +142,6 @@ export default function StepEducation(props: Props) {
   }
   const setTestScore=(test:string,score:number)=>onChange({englishTest:writeEnglishTests({...selectedTests,[test]:score})})
   const toggleCourse=(name:string)=>onChange({fields:fields.includes(name)?fields.filter(item=>item!==name):fields.length<3?[...fields,name]:fields})
-  const toggleIntake=(month:string)=>{if(month==='Flexible'){onChange({intake:'Flexible',fields:[]});return}const next=selectedIntakeMonths.includes(month)?selectedIntakeMonths.filter(item=>item!==month):selectedIntakeMonths.length<3?[...selectedIntakeMonths,month]:selectedIntakeMonths;onChange({intake:next.join('|'),fields:[]})}
 
   return (
     <div>
@@ -178,16 +195,16 @@ export default function StepEducation(props: Props) {
         <motion.section custom={2} variants={fade} initial="hidden" animate="show">
           <SectionLabel icon={WalletCards}>Preferred annual tuition fee</SectionLabel>
           <p className="mb-3 text-[11px] text-white/40">Approximate INR values based on the latest admin-refreshed central-bank rates.</p>
-          <div className="grid gap-2.5 sm:grid-cols-3">{[
-            ['Up to ₹10 lakh',0,1000000],['₹10–20 lakh',1000000,2000000],['₹20–30 lakh',2000000,3000000],['₹30–40 lakh',3000000,4000000],['₹40 lakh+',4000000,100000000],['No preference',0,100000000],
-          ].map(([label,min,max])=><Chip key={String(label)} active={feeMinInr===min&&feeMaxInr===max} onClick={()=>onChange({feeMinInr:Number(min),feeMaxInr:Number(max),fields:[]})}>{label}</Chip>)}</div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2"><label className="text-[10px] font-semibold text-white/40">Custom minimum (₹ lakh)<input type="number" min="0" step="1" value={feeMinInr===null?'':feeMinInr/100000} onChange={event=>onChange({feeMinInr:event.target.value===''?null:Number(event.target.value)*100000,fields:[]})} className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/[.035] px-3 py-2.5 text-sm text-white outline-none focus:border-amber-400/40"/></label><label className="text-[10px] font-semibold text-white/40">Custom maximum (₹ lakh)<input type="number" min="0" step="1" value={feeMaxInr===null||feeMaxInr===100000000?'':feeMaxInr/100000} onChange={event=>onChange({feeMaxInr:event.target.value===''?null:Number(event.target.value)*100000,fields:[]})} className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/[.035] px-3 py-2.5 text-sm text-white outline-none focus:border-amber-400/40"/></label></div>
+          <div className="glass-panel rounded-2xl p-5">
+            <div className="mb-5 flex items-end justify-between gap-4"><span className="font-display text-3xl font-medium text-gradient-gold">₹{((feeMinInr??200000)/100000).toFixed(0)}–{feeMaxInr===100000000?'50 lakh+':`${((feeMaxInr??5000000)/100000).toFixed(0)} lakh`}</span><span className="mb-1 text-xs text-white/40">per year</span></div>
+            <TuitionRange minimum={(feeMinInr??200000)/100000} maximum={feeMaxInr===100000000?51:Math.min(51,(feeMaxInr??5000000)/100000)} onChange={(minimum,maximum)=>onChange({feeMinInr:minimum*100000,feeMaxInr:maximum===51?100000000:maximum*100000,fields:[]})}/>
+          </div>
         </motion.section>
 
-        <motion.section custom={3} variants={fade} initial="hidden" animate="show">
+        <motion.section custom={3} variants={fade} initial="hidden" animate="show" className={cn('relative',intakeDropdown?'z-[80]':'z-10')}>
           <SectionLabel icon={Plane}>Preferred intake months</SectionLabel>
-          <p className="mb-3 text-[11px] text-white/40">Choose up to three months, or select Flexible to see every available intake.</p>
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">{[...INTAKE_MONTHS,'Flexible'].map(month=><Chip key={month} active={month==='Flexible'?intake==='Flexible':selectedIntakeMonths.includes(month)} disabled={month!=='Flexible'&&intake!=='Flexible'&&!selectedIntakeMonths.includes(month)&&selectedIntakeMonths.length>=3} onClick={()=>toggleIntake(month)}>{month}</Chip>)}</div>
+          <p className="mb-3 text-[11px] text-white/40">Choose an intake year and month. Available courses will be filtered by the selected month.</p>
+          <div className="glass-panel grid gap-4 rounded-2xl p-5 sm:grid-cols-2"><IntakeDropdown label="Intake year" value={intakeYear} placeholder="Select year" options={intakeYears} open={intakeDropdown==='year'} onOpen={()=>setIntakeDropdown(value=>value==='year'?null:'year')} onSelect={year=>{const validMonths=year===String(currentIntakeYear)?INTAKE_MONTHS.slice(currentIntakeMonthIndex):INTAKE_MONTHS,month=selectedIntakeMonths[0];setIntakeYear(year);setIntakeDropdown(null);onChange({intake:month&&validMonths.includes(month)?`${year}:${month}`:'',fields:[]})}}/><IntakeDropdown label="Intake month" value={availableIntakeMonths.includes(selectedIntakeMonths[0]??'')?(selectedIntakeMonths[0]??''):''} placeholder="Select month" options={availableIntakeMonths} disabled={!intakeYear} open={intakeDropdown==='month'} onOpen={()=>setIntakeDropdown(value=>value==='month'?null:'month')} onSelect={month=>{setIntakeDropdown(null);onChange({intake:`${intakeYear}:${month}`,fields:[]})}}/></div>
         </motion.section>
 
         {/* Course */}
@@ -195,7 +212,7 @@ export default function StepEducation(props: Props) {
           <SectionLabel icon={Award}>Course you want to study</SectionLabel>
           <div className="relative">
             <button type="button" disabled={!degree||feeMaxInr===null||!intake} onClick={()=>setCourseOpen(value=>!value)} className="flex w-full items-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-left text-sm transition hover:border-white/25 disabled:cursor-not-allowed disabled:opacity-55">
-              <span className={cn('min-w-0 flex-1 truncate',fields.length?'text-white':'text-white/30')}>{fields.length?`${fields.length} course${fields.length===1?'':'s'} selected`:(!degree?'Select a course level first':feeMaxInr===null?'Choose a fee range first':!intake?'Choose preferred intake months first':'Search and select up to 3 courses')}</span><ChevronDown className={cn('size-4 text-white/35 transition',courseOpen&&'rotate-180')} />
+              <span className={cn('min-w-0 flex-1 truncate',fields.length?'text-white':'text-white/30')}>{fields.length?`${fields.length} course${fields.length===1?'':'s'} selected`:(!degree?'Select a course level first':feeMaxInr===null?'Choose a fee range first':!intake?'Choose preferred intake year and month first':'Search and select up to 3 courses')}</span><ChevronDown className={cn('size-4 text-white/35 transition',courseOpen&&'rotate-180')} />
             </button>
             {courseOpen&&<div className="onboarding-course-menu absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0b1122] shadow-2xl"><div className="onboarding-course-search relative border-b border-white/[.07] p-3"><Search className="absolute left-6 top-1/2 size-4 -translate-y-1/2 text-white/30"/><input autoFocus value={courseQuery} onChange={event=>setCourseQuery(event.target.value)} placeholder="Search courses…" className="w-full rounded-xl border border-white/10 bg-white/[.04] py-3 pl-10 pr-3 text-sm outline-none focus:border-amber-400/40"/></div><div onScroll={event=>loadMoreCourses(event.currentTarget)} className="onboarding-course-options scrollbar-thin max-h-72 overflow-y-auto p-2">{coursesLoading?<p className="p-5 text-center text-xs text-white/40">Loading courses…</p>:courseQuery!==debouncedCourseQuery?<p className="p-5 text-center text-xs text-white/40">Searching…</p>:filteredCourses.length?<>{filteredCourses.map(course=>{const active=fields.includes(course.name),availableCountries=countries.filter(country=>course.countryIds?.includes(country.id));return <button type="button" disabled={!active&&fields.length>=3} key={course.name} data-selected={active} onClick={()=>toggleCourse(course.name)} className={cn('onboarding-course-option flex w-full items-center rounded-xl px-3 py-2.5 text-left text-xs transition disabled:cursor-not-allowed disabled:opacity-40',active?'bg-amber-400/10 text-amber-200':'text-white/65')}><span className="min-w-0 flex-1"><span className="block truncate">{course.name}</span><span className="mt-1 block truncate text-[10px] text-white/35">{availableCountries.map(country=>`${country.flag} ${country.name}`).join(' · ')||'Selected destinations'}</span></span><span className="ml-3 shrink-0 text-[10px] text-white/30">{course.universityIds.length} universities</span>{active&&<Check className="ml-2 size-3.5 shrink-0 text-amber-300"/>}</button>})}{filteredCourses.length<matchingCourses.length&&<p className="py-3 text-center text-[10px] text-white/35">Scroll to load more courses…</p>}</>:<p className="p-5 text-center text-xs text-white/40">No courses match “{courseQuery}”.</p>}</div><div className="flex justify-between border-t border-white/[.07] px-4 py-3 text-[11px] text-white/40"><span>{fields.length}/3 selected</span><span>Showing {filteredCourses.length} of {matchingCourses.length}</span></div></div>}
           </div>
