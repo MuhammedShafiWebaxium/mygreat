@@ -18,9 +18,13 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 
 const initialData: OnboardingData = {
   country: null,
+  countries: [],
   educationLevel: '',
   degree: '',
   field: '',
+  fields: [],
+  feeMinInr: null,
+  feeMaxInr: null,
   gpa: 3.4,
   gradYear: '',
   englishTest: '',
@@ -48,25 +52,36 @@ export default function Onboarding({ catalog }: { catalog:{ countries:Country[];
     saveOnboarding(data)
   }, [data])
   useEffect(()=>{
-    if(!data.country){setCourses([]);return}
+    if(!data.countries.length){setCourses([]);return}
     let active=true
     setCoursesLoading(true)
-    getOnboardingCoursesFn({data:data.country.id}).then(result=>{if(active)setCourses(result)}).catch(()=>{if(active)setCourses([])}).finally(()=>{if(active)setCoursesLoading(false)})
+    Promise.all(data.countries.map(country=>getOnboardingCoursesFn({data:country.id}).then(items=>items.map(item=>({...item,countryIds:[country.id]}))))).then(groups=>{if(!active)return;const merged=new Map<string,OnboardingCourseOption>();groups.flat().forEach(course=>{const key=`${course.level.toLowerCase()}:${course.name.toLowerCase()}`,current=merged.get(key);merged.set(key,current?{...current,universityIds:[...new Set([...current.universityIds,...course.universityIds])],universities:[...new Map([...(current.universities??[]),...(course.universities??[])].map(university=>[university.id,university])).values()],countryIds:[...new Set([...(current.countryIds??[]),...(course.countryIds??[])])],offerings:[...(current.offerings??[]),...(course.offerings??[])],minFeeInr:Math.min(current.minFeeInr??Infinity,course.minFeeInr??Infinity),feeInrValues:[...new Set([...(current.feeInrValues??[]),...(course.feeInrValues??[])])],universityFeeValuesInr:{...(current.universityFeeValuesInr??{}),...(course.universityFeeValuesInr??{})},intakeMonths:[...new Set([...(current.intakeMonths??[]),...(course.intakeMonths??[])])],universityIntakeMonths:{...(current.universityIntakeMonths??{}),...(course.universityIntakeMonths??{})}}:course)});setCourses([...merged.values()].map(course=>course.minFeeInr===Infinity?{...course,minFeeInr:undefined}:course))}).catch(()=>{if(active)setCourses([])}).finally(()=>{if(active)setCoursesLoading(false)})
     return()=>{active=false}
-  },[data.country?.id])
+  },[data.countries.map(country=>country.id).join(',')])
 
   const canContinue = useMemo(() => {
     switch (step) {
       case 0:
-        return data.country !== null
+        return data.countries.length > 0
       case 1:
-        return Boolean(data.educationLevel && data.degree && data.field && data.gradYear && data.intake)
+        return Boolean(data.educationLevel && data.degree && data.feeMinInr!==null && data.feeMaxInr!==null && data.feeMaxInr>=data.feeMinInr && data.fields.length && data.gradYear && data.intake)
       case 2:
         return data.notSure || data.universities.length > 0
       default:
         return true
     }
   }, [step, data])
+
+  const eligibleUniversities = useMemo(() => {
+    if (step !== 2) return []
+    const selectedNames=new Set(data.fields.map(name=>name.toLowerCase()))
+    const eligible=new Map<string,University>()
+    for(const course of courses){
+      if(course.level.toLowerCase()!==data.degree.toLowerCase()||!selectedNames.has(course.name.toLowerCase()))continue
+      for(const university of course.universities??[])eligible.set(university.id,university)
+    }
+    return [...eligible.values()].sort((a,b)=>a.name.localeCompare(b.name))
+  },[step,courses,data.fields,data.degree])
 
   const goTo = (next: number) => {
     setDirection(next > step ? 1 : -1)
@@ -75,15 +90,11 @@ export default function Onboarding({ catalog }: { catalog:{ countries:Country[];
   }
 
   const selectCountry = (country: Country) => {
-    setData((d) => ({
-      ...d,
-      country: d.country?.id === country.id ? d.country : country,
-      // reset shortlist if the country actually changed
-      universities: d.country?.id === country.id ? d.universities : [],
-      notSure: d.country?.id === country.id ? d.notSure : false,
-      field: d.country?.id === country.id ? d.field : '',
-      degree: d.country?.id === country.id ? d.degree : '',
-    }))
+    setData((d) => {
+      const exists=d.countries.some(item=>item.id===country.id)
+      const countries=exists?d.countries.filter(item=>item.id!==country.id):d.countries.length<3?[...d.countries,country]:d.countries
+      return {...d,countries,country:countries[0]??null,universities:[],notSure:false,field:'',fields:[],degree:''}
+    })
   }
 
   const toggleUniversity = (u: University) => {
@@ -118,27 +129,34 @@ export default function Onboarding({ catalog }: { catalog:{ countries:Country[];
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ type: 'spring', stiffness: 130, damping: 22 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
                 >
-                  {step === 0 && <StepCountry countries={catalog.countries} selected={data.country} onSelect={selectCountry} />}
+                  {step === 0 && <StepCountry countries={catalog.countries} selected={data.countries} onSelect={selectCountry} />}
                   {step === 1 && (
                     <StepEducation
                       educationLevel={data.educationLevel}
                       degree={data.degree}
                       field={data.field}
+                      fields={data.fields}
+                      countries={data.countries}
+                      feeMinInr={data.feeMinInr}
+                      feeMaxInr={data.feeMaxInr}
                       courses={courses}
                       coursesLoading={coursesLoading}
                       gpa={data.gpa}
                       gradYear={data.gradYear}
                       englishTest={data.englishTest}
                       intake={data.intake}
-                      onChange={(patch) => setData((d) => ({ ...d, ...patch, ...((patch.field !== undefined && patch.field !== d.field) || (patch.degree !== undefined && patch.degree !== d.degree) ? { universities: [], notSure: false } : {}) }))}
+                      onChange={(patch) => setData((d) => ({ ...d, ...patch, ...(patch.fields ? { field: patch.fields[0]??'' } : {}), ...((patch.fields !== undefined) || (patch.degree !== undefined && patch.degree !== d.degree) ? { universities: [], notSure: false } : {}) }))}
                     />
                   )}
                   {step === 2 && data.country && (
                     <StepUniversity
                       country={data.country}
-                      universities={catalog.universities.filter(university=>courses.find(course=>course.name===data.field&&course.level===data.degree)?.universityIds.includes(university.id))}
+                      countries={data.countries}
+                      fields={data.fields}
+                      degree={data.degree}
+                      universities={eligibleUniversities}
                       selected={data.universities}
                       notSure={data.notSure}
                       onToggle={toggleUniversity}

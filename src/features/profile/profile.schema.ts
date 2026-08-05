@@ -24,9 +24,13 @@ export const universitySchema = z.object({
 
 export const onboardingSchema: z.ZodType<OnboardingData> = z.object({
   country: countrySchema.nullable(),
+  countries: z.array(countrySchema).max(3).default([]),
   educationLevel: z.string().max(100),
   degree: z.string().max(160),
   field: z.string().max(1000),
+  fields: z.array(z.string().min(1).max(1000)).max(3).default([]),
+  feeMinInr: z.number().min(0).max(100000000).nullable().default(null),
+  feeMaxInr: z.number().min(0).max(100000000).nullable().default(null),
   gpa: z.number().min(0).max(4),
   gradYear: z.string().max(20),
   englishTest: z.string().max(500),

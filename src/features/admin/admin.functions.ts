@@ -57,3 +57,6 @@ export const processCourseImportBatchFn = (data:{jobId:string;startRow:number;ro
 export const readCatalogImportJobFn = (jobId:string) => request<CatalogImportJob>('readCatalogImportJob',{jobId})
 export const listCatalogImportJobsFn = () => request<CatalogImportJob[]>('catalogImportJobs')
 export const listCatalogImportErrorsFn = (jobId:string) => request<CatalogImportError[]>('catalogImportErrors',{jobId})
+export type ExchangeRateSettings={provider:string;sourceUrl:string;rates:Array<{currencyCode:string;rateToInr:number;provider:string;providerDate:string;updatedAt:string}>;coverage:{total:number;converted:number}}
+export const getExchangeRateSettingsFn=()=>request<ExchangeRateSettings>('exchangeRates')
+export const refreshExchangeRatesFn=()=>request<ExchangeRateSettings>('refreshExchangeRates',{})

@@ -8,6 +8,7 @@ import { assignStudentSchema } from '@/features/workflow/workflow.schema'
 import { countrySchema, courseSchema, deleteSchema, feeSchema, universitySchema } from '@/features/university-management/university.schema'
 import { deleteEntity, listCatalog, saveCountry, saveCourse, saveUniversity, setCourseFee } from '@/features/university-management/university.server'
 import { createCourseImportJob, listImportErrors, listImportJobs, processCourseImportBatch, readImportJob } from '@/features/university-management/import.server'
+import { readExchangeRateSettings, refreshExchangeRates } from '@/features/exchange-rates/exchange-rates.server'
 
 export async function GET(request: Request) {
   try {
@@ -18,6 +19,7 @@ export async function GET(request: Request) {
       return Response.json(await listCatalog())
     }
     if (action === 'catalogImportJobs') { assertRole(user.role,['SUPER_ADMIN']); return Response.json(await listImportJobs(user.id)) }
+    if (action === 'exchangeRates') { assertRole(user.role,['SUPER_ADMIN']); return Response.json(await readExchangeRateSettings()) }
     if (action === 'listStaff') {
       assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN'])
       return Response.json(await listStaffUsers(user))
@@ -61,6 +63,7 @@ export async function POST(request: Request) {
     if (action === 'saveCourse') { assertRole(user.role, ['SUPER_ADMIN']); return Response.json(await saveCourse(user.id, courseSchema.parse(body))) }
     if (action === 'setCourseFee') { assertRole(user.role, ['SUPER_ADMIN']); return Response.json(await setCourseFee(user.id, feeSchema.parse(body))) }
     if (action === 'deleteCatalogEntity') { assertRole(user.role, ['SUPER_ADMIN']); const parsed = deleteSchema.parse(body); return Response.json(await deleteEntity(user.id, parsed.entity, parsed.id)) }
+    if (action === 'refreshExchangeRates') { assertRole(user.role,['SUPER_ADMIN']); return Response.json(await refreshExchangeRates(user.id)) }
     if (action === 'createStaff') {
       assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN'])
       return Response.json(await createStaffUser(user, createStaffSchema.parse(body)))

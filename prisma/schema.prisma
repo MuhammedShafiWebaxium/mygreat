@@ -244,6 +244,8 @@ model StudentProfile {
   educationLevel        String    @default("") @map("education_level")
   degree                String    @default("")
   field                 String    @default("")
+  feeMinInr             Decimal?  @map("fee_min_inr") @db.Decimal(14, 2)
+  feeMaxInr             Decimal?  @map("fee_max_inr") @db.Decimal(14, 2)
   gpa                   Decimal?  @db.Decimal(3, 2)
   graduationYear        String    @default("") @map("graduation_year")
   englishTest           String    @default("") @map("english_test")
@@ -350,6 +352,8 @@ model CourseFee {
   courseId      String   @map("course_id") @db.Uuid
   amount        Decimal  @db.Decimal(12, 2)
   currencyCode  String   @map("currency_code") @db.VarChar(3)
+  amountInr     Decimal? @map("amount_inr") @db.Decimal(14, 2)
+  exchangeRate  Decimal? @map("exchange_rate") @db.Decimal(18, 8)
   effectiveFrom DateTime @map("effective_from") @db.Timestamptz(6)
   effectiveTo   DateTime? @map("effective_to") @db.Timestamptz(6)
   createdBy     String?  @map("created_by") @db.Uuid
@@ -358,6 +362,17 @@ model CourseFee {
 
   @@index([courseId, effectiveFrom])
   @@map("course_fees")
+}
+
+model ExchangeRate {
+  currencyCode String   @id @map("currency_code") @db.VarChar(3)
+  rateToInr    Decimal  @map("rate_to_inr") @db.Decimal(18, 8)
+  provider     String
+  providerDate DateTime @map("provider_date") @db.Date
+  refreshedBy  String?  @map("refreshed_by") @db.Uuid
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("exchange_rates")
 }
 
 model StudentShortlist {

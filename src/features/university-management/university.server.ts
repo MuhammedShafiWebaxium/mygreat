@@ -42,8 +42,11 @@ export async function saveCourse(actorId: string, data: { id?: string; universit
 }
 export async function setCourseFee(actorId: string, data: { courseId: string; amount: number; currencyCode: string; effectiveFrom: Date }) {
   return prisma.$transaction(async tx => {
+    const [rate]=await tx.$queryRaw<Array<{rateToInr:string}>>(Prisma.sql`SELECT rate_to_inr::text AS "rateToInr" FROM exchange_rates WHERE currency_code=${data.currencyCode.toUpperCase()}`)
+    const rateToInr=rate?Number(rate.rateToInr):null
+    await tx.$executeRaw(Prisma.sql`DELETE FROM course_fees WHERE course_id=${data.courseId}::uuid AND effective_from=${data.effectiveFrom}`)
     await tx.$executeRaw(Prisma.sql`UPDATE course_fees SET effective_to=${data.effectiveFrom} WHERE course_id=${data.courseId}::uuid AND effective_to IS NULL AND effective_from < ${data.effectiveFrom}`)
-    const [fee] = await tx.$queryRaw<any[]>(Prisma.sql`INSERT INTO course_fees(course_id,amount,currency_code,effective_from,created_by) VALUES(${data.courseId}::uuid,${data.amount},${data.currencyCode.toUpperCase()},${data.effectiveFrom},${actorId}::uuid) RETURNING *`)
+    const [fee] = await tx.$queryRaw<any[]>(Prisma.sql`INSERT INTO course_fees(course_id,amount,currency_code,amount_inr,exchange_rate,effective_from,created_by) VALUES(${data.courseId}::uuid,${data.amount},${data.currencyCode.toUpperCase()},${rateToInr?data.amount*rateToInr:null},${rateToInr},${data.effectiveFrom},${actorId}::uuid) RETURNING *`)
     await tx.auditLog.create({ data: { actorId, action: 'COURSE_FEE_SET', entityType: 'course', entityId: data.courseId, metadata: { amount: data.amount, currency: data.currencyCode } } })
     return fee
   })

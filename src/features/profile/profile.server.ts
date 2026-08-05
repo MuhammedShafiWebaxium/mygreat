@@ -25,11 +25,17 @@ export async function readStudentProfile(userId: string) {
     },
   })
 
+  const country=(profile.destinationCountry as Country | null) ?? null
+  const fields=profile.field.split(',').map(value=>value.trim()).filter(Boolean).slice(0,3)
   return {
-    country: (profile.destinationCountry as Country | null) ?? null,
+    country,
+    countries: country ? [country] : [],
     educationLevel: profile.educationLevel,
     degree: profile.degree,
     field: profile.field,
+    fields,
+    feeMinInr: profile.feeMinInr===null?null:Number(profile.feeMinInr),
+    feeMaxInr: profile.feeMaxInr===null?null:Number(profile.feeMaxInr),
     gpa: Number(profile.gpa ?? 0),
     gradYear: profile.graduationYear,
     englishTest: profile.englishTest,
@@ -50,7 +56,9 @@ export async function writeStudentProfile(userId: string, input: OnboardingInput
           : Prisma.JsonNull,
         educationLevel: input.educationLevel,
         degree: input.degree,
-        field: input.field,
+        field: input.fields.join(', ') || input.field,
+        feeMinInr: input.feeMinInr,
+        feeMaxInr: input.feeMaxInr,
         gpa: input.gpa,
         graduationYear: input.gradYear,
         englishTest: input.englishTest,
@@ -64,7 +72,9 @@ export async function writeStudentProfile(userId: string, input: OnboardingInput
           : Prisma.JsonNull,
         educationLevel: input.educationLevel,
         degree: input.degree,
-        field: input.field,
+        field: input.fields.join(', ') || input.field,
+        feeMinInr: input.feeMinInr,
+        feeMaxInr: input.feeMaxInr,
         gpa: input.gpa,
         graduationYear: input.gradYear,
         englishTest: input.englishTest,

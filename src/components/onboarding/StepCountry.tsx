@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   countries: Country[]
-  selected: Country | null
+  selected: Country[]
   onSelect: (c: Country) => void
 }
 
@@ -32,7 +32,7 @@ export default function StepCountry({ countries, selected, onSelect }: Props) {
       <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.75rem] leading-tight font-light">
         Where do you want to <span className="text-gradient-gold font-medium">study?</span>
       </h2>
-      <p className="text-white/50 mt-3 text-[15px]">Choose the country that feels like your next home.</p>
+      <p className="text-white/50 mt-3 text-[15px]">Choose up to three countries that feel like your next home.</p>
 
       <div className="relative mt-7 mb-6">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35" />
@@ -51,7 +51,8 @@ export default function StepCountry({ countries, selected, onSelect }: Props) {
         className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3.5"
       >
         {filtered.map((c) => {
-          const active = selected?.id === c.id
+          const active = selected.some(({ id }) => id === c.id)
+          const disabled = !active && selected.length >= 3
           return (
             <motion.button
               key={c.id}
@@ -59,8 +60,9 @@ export default function StepCountry({ countries, selected, onSelect }: Props) {
               whileHover={{ y: -4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onSelect(c)}
+              disabled={disabled}
               className={cn(
-                'relative text-left rounded-2xl p-5 border transition-all duration-300 group overflow-hidden',
+                'relative text-left rounded-2xl p-5 border transition-all duration-300 group overflow-hidden disabled:cursor-not-allowed disabled:opacity-45',
                 active
                   ? 'bg-amber-400/[0.08] border-amber-400/70 shadow-[0_8px_40px_-8px_rgba(242,179,61,0.35)]'
                   : 'bg-white/[0.03] border-white/10 hover:border-white/25 hover:bg-white/[0.05]'
@@ -90,6 +92,8 @@ export default function StepCountry({ countries, selected, onSelect }: Props) {
           )
         })}
       </motion.div>
+
+      <p className="mt-4 text-xs text-white/40">{selected.length}/3 countries selected</p>
 
       {filtered.length === 0 && (
         <p className="text-white/40 text-sm text-center py-14">No countries match “{query}”.</p>

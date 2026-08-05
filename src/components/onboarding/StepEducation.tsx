@@ -1,15 +1,20 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion, type Variants } from 'framer-motion'
-import { GraduationCap, BookOpen, CalendarDays, Languages, Plane, Award, Check, Search, ChevronDown, Lightbulb, X } from 'lucide-react'
+import { createPortal } from 'react-dom'
+import { GraduationCap, BookOpen, CalendarDays, Languages, Plane, Award, Check, Search, ChevronDown, Lightbulb, X, WalletCards } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
-import { EDUCATION_LEVELS, DEGREES, GRAD_YEARS, ENGLISH_TESTS, INTAKES } from '@/data/onboarding'
-import type { OnboardingCourseOption } from '@/types'
+import { EDUCATION_LEVELS, DEGREES, GRAD_YEARS, ENGLISH_TESTS, INTAKE_MONTHS } from '@/data/onboarding'
+import type { Country, OnboardingCourseOffering, OnboardingCourseOption } from '@/types'
 import { cn } from '@/lib/utils'
 
 interface Props {
   educationLevel: string
   degree: string
   field: string
+  fields: string[]
+  countries: Country[]
+  feeMinInr: number | null
+  feeMaxInr: number | null
   courses: OnboardingCourseOption[]
   coursesLoading: boolean
   gpa: number
@@ -20,6 +25,9 @@ interface Props {
     educationLevel: string
     degree: string
     field: string
+    fields: string[]
+    feeMinInr: number | null
+    feeMaxInr: number | null
     gpa: number
     gradYear: string
     englishTest: string
@@ -81,17 +89,32 @@ function writeEnglishTests(tests:Record<string,number>) {
   return Object.entries(tests).map(([name,score])=>`${name}: ${score}`).join('; ')
 }
 
+const show=(value:string|number|undefined)=>value===0?'0':value||'Not provided'
+const fee=(offering:OnboardingCourseOffering)=>{const original=offering.feeAmount&&offering.feeCurrency?`${offering.feeCurrency} ${Number(offering.feeAmount).toLocaleString()}`:show(offering.tuitionFee);return offering.amountInr?`${original} · ≈₹${Number(offering.amountInr).toLocaleString('en-IN',{maximumFractionDigits:0})}`:original}
+
+export function CourseComparisonModal({fields,degree,courses,countries,universityIds,onClose}:{fields:string[];degree:string;courses:OnboardingCourseOption[];countries:Country[];universityIds?:string[];onClose:()=>void}) {
+  useEffect(()=>{const previous=document.body.style.overflow;document.body.style.overflow='hidden';const close=(event:KeyboardEvent)=>event.key==='Escape'&&onClose();window.addEventListener('keydown',close);return()=>{document.body.style.overflow=previous;window.removeEventListener('keydown',close)}},[onClose])
+  return createPortal(<div className={cn('course-compare-overlay fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm',document.querySelector('.light-theme')&&'light-theme')}><section role="dialog" aria-modal="true" aria-labelledby="course-comparison-title" className="course-compare-modal flex h-screen w-screen flex-col overflow-hidden border-white/10 bg-[#0b1122] shadow-2xl"><header className="course-compare-header flex shrink-0 items-start border-b border-white/[.08] px-5 py-4 sm:px-8 sm:py-5"><div><h3 id="course-comparison-title" className="font-display text-2xl sm:text-3xl">Complete course comparison</h3><p className="mt-1 text-xs text-white/40">Every available course detail for your selected universities.</p></div><button type="button" aria-label="Close comparison" onClick={onClose} className="course-compare-close ml-auto grid size-10 place-items-center rounded-xl border border-white/10 text-white/50 hover:text-white"><X className="size-5"/></button></header><div className="course-compare-body flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"><div className="mx-auto grid w-full max-w-[1800px] gap-5 lg:grid-cols-2 xl:grid-cols-3">{fields.map(name=>{const course=courses.find(item=>item.name===name&&item.level.toLowerCase()===degree.toLowerCase()),offerings=(course?.offerings??[]).filter(offering=>!universityIds?.length||universityIds.includes(offering.universityId));return <article key={name} className="course-compare-course overflow-hidden rounded-2xl border border-white/10 bg-white/[.025]"><div className="course-compare-course-header border-b border-white/[.08] bg-amber-400/[.06] p-5"><p className="text-[10px] font-bold uppercase tracking-[.15em] text-amber-300">{show(course?.level)}</p><h4 className="mt-1 text-base font-semibold leading-6">{name}</h4><p className="mt-2 text-[11px] text-white/40">{offerings.length} selected universit{offerings.length===1?'y':'ies'} · {countries.filter(country=>offerings.some(offering=>offering.countryId===country.id)).map(country=>`${country.flag} ${country.name}`).join(', ')}</p></div><div className="divide-y divide-white/[.08]">{offerings.map(offering=><section key={offering.courseId} className="course-compare-offering p-5"><div className="flex items-start justify-between gap-3"><div><h5 className="text-sm font-semibold text-white/85">{offering.universityName}</h5><p className="mt-1 text-[11px] text-white/40">{countries.find(country=>country.id===offering.countryId)?.flag} {offering.city} · {show(offering.campus)}</p></div><strong className="shrink-0 text-sm text-amber-300">{fee(offering)}</strong></div><dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 text-[11px]">{[['Course code',offering.code],['Duration',offering.durationMonths?`${offering.durationMonths} months`:''],['Intake',[...offering.intakeMonth,offering.intakeYear].filter(Boolean).join(' ')],['Ranking',offering.ranking],['IELTS minimum',offering.ieltsMin],['TOEFL minimum',offering.toeflMin],['PTE minimum',offering.pteMin],['Deadline',offering.applicationDeadline],['Scholarship',offering.scholarshipAvailable],['Backlogs',offering.backlogRange],['Application mode',offering.applicationMode],['English proficiency',offering.englishProficiency]].map(([label,value])=><div key={label}><dt className="text-white/30">{label}</dt><dd className="mt-1 leading-5 text-white/70">{show(value as string)}</dd></div>)}</dl>{[['Requirements',offering.requirements],['Entry requirements',offering.entryRequirements],['Remarks',offering.remarks]].map(([label,value])=><div key={label} className="mt-4 rounded-xl bg-white/[.035] p-3 text-[11px]"><p className="font-semibold text-white/35">{label}</p><p className="mt-1 leading-5 text-white/65">{show(value)}</p></div>)}</section>)}{!offerings.length&&<p className="p-6 text-center text-xs text-white/40">This course is not offered by the selected universities.</p>}</div></article>})}</div></div></section></div>,document.body)
+}
+
 export default function StepEducation(props: Props) {
-  const { educationLevel, degree, field, courses, coursesLoading, gpa, gradYear, englishTest, intake, onChange } = props
+  const { educationLevel, degree, fields, countries, feeMinInr, feeMaxInr, courses, coursesLoading, gpa, gradYear, englishTest, intake, onChange } = props
   const [courseQuery,setCourseQuery]=useState('')
+  const [debouncedCourseQuery,setDebouncedCourseQuery]=useState('')
+  const [visibleCourseCount,setVisibleCourseCount]=useState(50)
   const [courseOpen,setCourseOpen]=useState(false)
   const [activeTest,setActiveTest]=useState('')
+  const selectedIntakeMonths=intake==='Flexible'?[]:intake.split('|').filter(Boolean)
   const availableDegrees=useMemo(()=>DEGREES.filter(degreeName=>courses.some(course=>course.level.toLowerCase()===degreeName.toLowerCase())),[courses])
   const orderedDegrees=useMemo(()=>[...DEGREES].sort((left,right)=>Number(!availableDegrees.includes(left))-Number(!availableDegrees.includes(right))),[availableDegrees])
-  const filteredCourses=useMemo(()=>courses.filter(course=>course.level.toLowerCase()===degree.toLowerCase()&&course.name.toLowerCase().includes(courseQuery.toLowerCase())),[courses,courseQuery,degree])
+  const matchingCourses=useMemo(()=>courses.filter(course=>{const noPreference=feeMinInr===0&&feeMaxInr===100000000,feeMatches=feeMaxInr===null||noPreference||(course.feeInrValues??[]).some(fee=>fee>=(feeMinInr??0)&&fee<=feeMaxInr),intakeMatches=intake==='Flexible'||selectedIntakeMonths.some(month=>course.intakeMonths?.includes(month));return feeMatches&&intakeMatches&&course.level.toLowerCase()===degree.toLowerCase()&&course.name.toLowerCase().includes(debouncedCourseQuery.toLowerCase())}),[courses,debouncedCourseQuery,degree,feeMinInr,feeMaxInr,intake])
+  const filteredCourses=useMemo(()=>matchingCourses.slice(0,visibleCourseCount),[matchingCourses,visibleCourseCount])
   const selectedTests=readEnglishTests(englishTest)
   const orderedTests=useMemo(()=>Object.entries(selectedTests).sort(([left],[right])=>Number(left===activeTest)-Number(right===activeTest)),[englishTest,activeTest])
   useEffect(()=>{if(activeTest&&!selectedTests[activeTest])setActiveTest(Object.keys(selectedTests)[0]??'')},[englishTest,activeTest])
+  useEffect(()=>{const timer=window.setTimeout(()=>setDebouncedCourseQuery(courseQuery),250);return()=>window.clearTimeout(timer)},[courseQuery])
+  useEffect(()=>setVisibleCourseCount(50),[debouncedCourseQuery,degree])
+  const loadMoreCourses=(element:HTMLDivElement)=>{if(element.scrollHeight-element.scrollTop-element.clientHeight<48)setVisibleCourseCount(count=>Math.min(count+50,matchingCourses.length))}
   const toggleTest=(test:string)=>{
     if(test==='Not taken yet'){setActiveTest('');onChange({englishTest:englishTest==='Not taken yet'?'':'Not taken yet'});return}
     const next={...selectedTests}
@@ -100,6 +123,8 @@ export default function StepEducation(props: Props) {
     onChange({englishTest:writeEnglishTests(next)})
   }
   const setTestScore=(test:string,score:number)=>onChange({englishTest:writeEnglishTests({...selectedTests,[test]:score})})
+  const toggleCourse=(name:string)=>onChange({fields:fields.includes(name)?fields.filter(item=>item!==name):fields.length<3?[...fields,name]:fields})
+  const toggleIntake=(month:string)=>{if(month==='Flexible'){onChange({intake:'Flexible',fields:[]});return}const next=selectedIntakeMonths.includes(month)?selectedIntakeMonths.filter(item=>item!==month):selectedIntakeMonths.length<3?[...selectedIntakeMonths,month]:selectedIntakeMonths;onChange({intake:next.join('|'),fields:[]})}
 
   return (
     <div>
@@ -142,23 +167,39 @@ export default function StepEducation(props: Props) {
 
         {/* Degree */}
         <motion.section custom={1} variants={fade} initial="hidden" animate="show">
-          <SectionLabel icon={BookOpen}><span>Degree you want to pursue</span><span className="group relative inline-flex align-middle"><button type="button" aria-label="Why are some degree options disabled?" className="ml-1 inline-flex rounded-full text-amber-400 outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"><Lightbulb className="size-3.5"/></button><span role="tooltip" className="onboarding-level-tooltip pointer-events-none absolute left-1/2 top-full z-40 mt-2 hidden w-64 -translate-x-1/2 rounded-xl border border-white/10 bg-[#0b1122] px-3 py-2 text-left text-[10px] font-normal leading-4 text-white/65 shadow-xl group-hover:block group-focus-within:block">Disabled levels have no active courses in your selected country.</span></span></SectionLabel>
+          <SectionLabel icon={BookOpen}><span>Degree you want to pursue</span><span className="group relative inline-flex align-middle"><button type="button" aria-label="Why are some degree options disabled?" className="ml-1 inline-flex rounded-full text-amber-400 outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"><Lightbulb className="size-3.5"/></button><span role="tooltip" className="onboarding-level-tooltip pointer-events-none absolute left-1/2 top-full z-40 mt-2 hidden w-64 -translate-x-1/2 rounded-xl border border-white/10 bg-[#0b1122] px-3 py-2 text-left text-[10px] font-normal leading-4 text-white/65 shadow-xl group-hover:block group-focus-within:block">Disabled levels have no active courses in your selected countries.</span></span></SectionLabel>
           <div className="flex flex-wrap gap-2.5">
             {orderedDegrees.map((d) => (
-              <Chip key={d} active={degree === d} disabled={coursesLoading || !availableDegrees.includes(d)} title={!coursesLoading && !availableDegrees.includes(d) ? `No ${d} courses are currently available in the selected country.` : undefined} onClick={() => onChange({ degree: d, field: '' })}>{d}</Chip>
+              <Chip key={d} active={degree === d} disabled={coursesLoading || !availableDegrees.includes(d)} title={!coursesLoading && !availableDegrees.includes(d) ? `No ${d} courses are currently available in the selected countries.` : undefined} onClick={() => onChange({ degree: d, field: '', fields: [] })}>{d}</Chip>
             ))}
           </div>
         </motion.section>
 
-        {/* Course */}
         <motion.section custom={2} variants={fade} initial="hidden" animate="show">
+          <SectionLabel icon={WalletCards}>Preferred annual tuition fee</SectionLabel>
+          <p className="mb-3 text-[11px] text-white/40">Approximate INR values based on the latest admin-refreshed central-bank rates.</p>
+          <div className="grid gap-2.5 sm:grid-cols-3">{[
+            ['Up to ₹10 lakh',0,1000000],['₹10–20 lakh',1000000,2000000],['₹20–30 lakh',2000000,3000000],['₹30–40 lakh',3000000,4000000],['₹40 lakh+',4000000,100000000],['No preference',0,100000000],
+          ].map(([label,min,max])=><Chip key={String(label)} active={feeMinInr===min&&feeMaxInr===max} onClick={()=>onChange({feeMinInr:Number(min),feeMaxInr:Number(max),fields:[]})}>{label}</Chip>)}</div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2"><label className="text-[10px] font-semibold text-white/40">Custom minimum (₹ lakh)<input type="number" min="0" step="1" value={feeMinInr===null?'':feeMinInr/100000} onChange={event=>onChange({feeMinInr:event.target.value===''?null:Number(event.target.value)*100000,fields:[]})} className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/[.035] px-3 py-2.5 text-sm text-white outline-none focus:border-amber-400/40"/></label><label className="text-[10px] font-semibold text-white/40">Custom maximum (₹ lakh)<input type="number" min="0" step="1" value={feeMaxInr===null||feeMaxInr===100000000?'':feeMaxInr/100000} onChange={event=>onChange({feeMaxInr:event.target.value===''?null:Number(event.target.value)*100000,fields:[]})} className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/[.035] px-3 py-2.5 text-sm text-white outline-none focus:border-amber-400/40"/></label></div>
+        </motion.section>
+
+        <motion.section custom={3} variants={fade} initial="hidden" animate="show">
+          <SectionLabel icon={Plane}>Preferred intake months</SectionLabel>
+          <p className="mb-3 text-[11px] text-white/40">Choose up to three months, or select Flexible to see every available intake.</p>
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">{[...INTAKE_MONTHS,'Flexible'].map(month=><Chip key={month} active={month==='Flexible'?intake==='Flexible':selectedIntakeMonths.includes(month)} disabled={month!=='Flexible'&&intake!=='Flexible'&&!selectedIntakeMonths.includes(month)&&selectedIntakeMonths.length>=3} onClick={()=>toggleIntake(month)}>{month}</Chip>)}</div>
+        </motion.section>
+
+        {/* Course */}
+        <motion.section custom={4} variants={fade} initial="hidden" animate="show">
           <SectionLabel icon={Award}>Course you want to study</SectionLabel>
           <div className="relative">
-            <button type="button" disabled={!degree} onClick={()=>setCourseOpen(value=>!value)} className="flex w-full items-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-left text-sm transition hover:border-white/25 disabled:cursor-not-allowed disabled:opacity-55">
-              <span className={cn('min-w-0 flex-1 truncate',field?'text-white':'text-white/30')}>{field||(degree?'Search and select a course':'Select a course level first')}</span><ChevronDown className={cn('size-4 text-white/35 transition',courseOpen&&'rotate-180')} />
+            <button type="button" disabled={!degree||feeMaxInr===null||!intake} onClick={()=>setCourseOpen(value=>!value)} className="flex w-full items-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-left text-sm transition hover:border-white/25 disabled:cursor-not-allowed disabled:opacity-55">
+              <span className={cn('min-w-0 flex-1 truncate',fields.length?'text-white':'text-white/30')}>{fields.length?`${fields.length} course${fields.length===1?'':'s'} selected`:(!degree?'Select a course level first':feeMaxInr===null?'Choose a fee range first':!intake?'Choose preferred intake months first':'Search and select up to 3 courses')}</span><ChevronDown className={cn('size-4 text-white/35 transition',courseOpen&&'rotate-180')} />
             </button>
-            {courseOpen&&<div className="onboarding-course-menu absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0b1122] shadow-2xl"><div className="onboarding-course-search relative border-b border-white/[.07] p-3"><Search className="absolute left-6 top-1/2 size-4 -translate-y-1/2 text-white/30"/><input autoFocus value={courseQuery} onChange={event=>setCourseQuery(event.target.value)} placeholder="Search courses…" className="w-full rounded-xl border border-white/10 bg-white/[.04] py-3 pl-10 pr-3 text-sm outline-none focus:border-amber-400/40"/></div><div className="onboarding-course-options scrollbar-thin max-h-72 overflow-y-auto p-2">{coursesLoading?<p className="p-5 text-center text-xs text-white/40">Loading courses…</p>:filteredCourses.length?filteredCourses.map(course=><button type="button" key={course.name} data-selected={field===course.name} onClick={()=>{onChange({field:course.name});setCourseQuery('');setCourseOpen(false)}} className={cn('onboarding-course-option flex w-full items-center rounded-xl px-3 py-2.5 text-left text-xs transition',field===course.name?'bg-amber-400/10 text-amber-200':'text-white/65')}><span className="flex-1">{course.name}</span><span className="ml-3 text-[10px] text-white/30">{course.universityIds.length} universities</span>{field===course.name&&<Check className="ml-2 size-3.5 text-amber-300"/>}</button>):<p className="p-5 text-center text-xs text-white/40">No courses match “{courseQuery}”.</p>}</div></div>}
+            {courseOpen&&<div className="onboarding-course-menu absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0b1122] shadow-2xl"><div className="onboarding-course-search relative border-b border-white/[.07] p-3"><Search className="absolute left-6 top-1/2 size-4 -translate-y-1/2 text-white/30"/><input autoFocus value={courseQuery} onChange={event=>setCourseQuery(event.target.value)} placeholder="Search courses…" className="w-full rounded-xl border border-white/10 bg-white/[.04] py-3 pl-10 pr-3 text-sm outline-none focus:border-amber-400/40"/></div><div onScroll={event=>loadMoreCourses(event.currentTarget)} className="onboarding-course-options scrollbar-thin max-h-72 overflow-y-auto p-2">{coursesLoading?<p className="p-5 text-center text-xs text-white/40">Loading courses…</p>:courseQuery!==debouncedCourseQuery?<p className="p-5 text-center text-xs text-white/40">Searching…</p>:filteredCourses.length?<>{filteredCourses.map(course=>{const active=fields.includes(course.name),availableCountries=countries.filter(country=>course.countryIds?.includes(country.id));return <button type="button" disabled={!active&&fields.length>=3} key={course.name} data-selected={active} onClick={()=>toggleCourse(course.name)} className={cn('onboarding-course-option flex w-full items-center rounded-xl px-3 py-2.5 text-left text-xs transition disabled:cursor-not-allowed disabled:opacity-40',active?'bg-amber-400/10 text-amber-200':'text-white/65')}><span className="min-w-0 flex-1"><span className="block truncate">{course.name}</span><span className="mt-1 block truncate text-[10px] text-white/35">{availableCountries.map(country=>`${country.flag} ${country.name}`).join(' · ')||'Selected destinations'}</span></span><span className="ml-3 shrink-0 text-[10px] text-white/30">{course.universityIds.length} universities</span>{active&&<Check className="ml-2 size-3.5 shrink-0 text-amber-300"/>}</button>})}{filteredCourses.length<matchingCourses.length&&<p className="py-3 text-center text-[10px] text-white/35">Scroll to load more courses…</p>}</>:<p className="p-5 text-center text-xs text-white/40">No courses match “{courseQuery}”.</p>}</div><div className="flex justify-between border-t border-white/[.07] px-4 py-3 text-[11px] text-white/40"><span>{fields.length}/3 selected</span><span>Showing {filteredCourses.length} of {matchingCourses.length}</span></div></div>}
           </div>
+          {fields.length>0&&<div className="mt-4 flex flex-wrap items-center gap-2">{fields.map(name=><button type="button" key={name} onClick={()=>toggleCourse(name)} className="inline-flex items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/[.08] px-3 py-2 text-xs text-amber-100">{name}<X className="size-3"/></button>)}</div>}
         </motion.section>
 
         {/* GPA + grad year */}
@@ -192,8 +233,8 @@ export default function StepEducation(props: Props) {
           </div>
         </motion.section>
 
-        {/* English + intake */}
-        <motion.section custom={4} variants={fade} initial="hidden" animate="show" className="grid sm:grid-cols-2 gap-8">
+        {/* English */}
+        <motion.section custom={6} variants={fade} initial="hidden" animate="show">
           <div>
             <SectionLabel icon={Languages} optional>English proficiency test</SectionLabel>
             <div className="flex flex-wrap gap-2.5">
@@ -202,14 +243,6 @@ export default function StepEducation(props: Props) {
               ))}
             </div>
             {orderedTests.length>0&&<div className="mt-5 px-1 pb-1 pt-7">{orderedTests.map(([test,score],index)=>{const config=TEST_CONFIG[test as keyof typeof TEST_CONFIG],active=test===activeTest||(!activeTest&&index===orderedTests.length-1);if(!config)return null;return <motion.div layout key={test} style={{zIndex:index+1}} className={cn('english-test-card relative rounded-2xl border border-white/10 bg-[#10172b] px-4 shadow-xl transition-colors',index>0&&'-mt-7',active?'pb-5 pt-4 ring-1 ring-amber-400/40':'h-16 cursor-pointer pt-3')} onClick={()=>!active&&setActiveTest(test)}><div className="flex items-center gap-3"><button type="button" onClick={()=>setActiveTest(test)} className="min-w-0 flex-1 text-left"><span className="block text-[10px] uppercase tracking-[.16em] text-white/35">English test</span><span className="mt-0.5 block text-xs font-semibold text-white/75">{test}</span></button><span className="font-display text-2xl font-medium text-gradient-gold">{score}</span><button type="button" aria-label={`Remove ${test}`} onClick={event=>{event.stopPropagation();toggleTest(test)}} className="grid size-7 place-items-center rounded-lg text-white/30 transition hover:bg-white/[.07] hover:text-rose-300"><X className="size-3.5"/></button></div>{active&&<motion.div initial={{opacity:0,y:-4}} animate={{opacity:1,y:0}} className="mt-5"><Slider value={[score]} min={config.min} max={config.max} step={config.step} onValueChange={([value])=>setTestScore(test,value)}/><div className="mt-2 flex justify-between text-[10px] text-white/30"><span>{config.min}</span><span>{config.max}</span></div></motion.div>}</motion.div>})}</div>}
-          </div>
-          <div>
-            <SectionLabel icon={Plane}>Preferred intake</SectionLabel>
-            <div className="flex flex-wrap gap-2.5">
-              {INTAKES.map((t) => (
-                <Chip key={t} active={intake === t} onClick={() => onChange({ intake: t })}>{t}</Chip>
-              ))}
-            </div>
           </div>
         </motion.section>
       </div>

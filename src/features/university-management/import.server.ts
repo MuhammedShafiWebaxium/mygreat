@@ -2,7 +2,7 @@ import '@tanstack/react-start/server-only'
 import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/db/client.server'
 import { courseSchema } from './university.schema'
-import { saveCourse } from './university.server'
+import { saveCourse, setCourseFee } from './university.server'
 
 export type ImportJob = { id:string; entityType:string; fileName:string; totalRows:number; processedRows:number; createdRows:number; updatedRows:number; skippedRows:number; failedRows:number; status:string; createdAt:Date; completedAt:Date|null }
 type CourseRow = Record<string,string>
@@ -34,15 +34,23 @@ export async function processCourseImportBatch(actorId:string,jobId:string,start
   if(job.status==='COMPLETED') return readImportJob(actorId,jobId)
   const universities=await prisma.$queryRaw<Array<{id:string;name:string}>>(Prisma.sql`SELECT id,name FROM universities WHERE active=TRUE`)
   const universityMap=new Map(universities.map(university=>[university.name.trim().toLowerCase(),university]))
+  const existingCourses=await prisma.$queryRaw<Array<{id:string;universityId:string;code:string}>>(Prisma.sql`SELECT id::text,university_id AS "universityId",LOWER(TRIM(code)) AS code FROM courses`)
+  const courseMap=new Map(existingCourses.map(course=>[`${course.universityId}|${course.code}`,course]))
   let created=0,updated=0,failed=0
   for(const [offset,row] of rows.entries()) {
     const rowNumber=startRow+offset
     try {
       const university=universityMap.get(String(row.universityName??'').trim().toLowerCase())
       if(!university) throw new Error(`Unknown university: ${row.universityName||'not provided'}`)
-      const parsed=courseSchema.parse({...row,universityId:university.id,durationMonths:Number(row.durationMonths||0),intakeMonth:splitList(row.intakeMonth),active:bool(row.active)})
-      await saveCourse(actorId,parsed)
-      created++
+      const feeAmount=Number(String(row.feeAmount??'').replace(/,/g,'')),currencyCode=String(row.currencyCode??'').trim().toUpperCase()
+      if(!Number.isFinite(feeAmount)||feeAmount<=0)throw new Error('feeAmount is required and must be a positive number without a currency symbol.')
+      if(!/^[A-Z]{3}$/.test(currencyCode))throw new Error('currencyCode is required and must be a 3-letter ISO code such as USD, GBP, or INR.')
+      const key=`${university.id}|${String(row.code??'').trim().toLowerCase()}`,existing=courseMap.get(key)
+      const parsed=courseSchema.parse({...row,id:existing?.id,universityId:university.id,durationMonths:Number(row.durationMonths||0),intakeMonth:normalizeIntakeMonths(row.intakeMonth),tuitionFee:row.tuitionFee||`${currencyCode} ${feeAmount}`,active:bool(row.active)})
+      const saved=await saveCourse(actorId,parsed)
+      await setCourseFee(actorId,{courseId:saved.id,amount:feeAmount,currencyCode,effectiveFrom:new Date(row.effectiveFrom||Date.now())})
+      courseMap.set(key,{id:saved.id,universityId:university.id,code:String(row.code).trim().toLowerCase()})
+      if(existing)updated++;else created++
     } catch(error) {
       failed++
       const message=error instanceof Error?error.message:'Invalid row.'
@@ -63,5 +71,6 @@ export async function readImportJob(actorId:string,jobId:string) {
 
 export async function listImportJobs(actorId:string) { await ensureImportSchema(); return prisma.$queryRaw<ImportJob[]>(Prisma.sql`SELECT id,entity_type AS "entityType",file_name AS "fileName",total_rows AS "totalRows",processed_rows AS "processedRows",created_rows AS "createdRows",updated_rows AS "updatedRows",skipped_rows AS "skippedRows",failed_rows AS "failedRows",status,created_at AS "createdAt",completed_at AS "completedAt" FROM catalog_import_jobs WHERE actor_id=${actorId}::uuid ORDER BY created_at DESC LIMIT 20`) }
 export async function listImportErrors(actorId:string,jobId:string) { await ensureImportSchema(); return prisma.$queryRaw<Array<{rowNumber:number;message:string;rowData:CourseRow}>>(Prisma.sql`SELECT e.row_number AS "rowNumber",e.message,e.row_data AS "rowData" FROM catalog_import_errors e JOIN catalog_import_jobs j ON j.id=e.job_id WHERE e.job_id=${jobId}::uuid AND j.actor_id=${actorId}::uuid ORDER BY e.row_number`) }
-function splitList(value:string){return String(value??'').replace(/\\n/g,'\n').split(/[,;\n]/).map(item=>item.trim()).filter(Boolean)}
+function normalizeIntakeMonths(value:string){return String(value??'').replace(/\\n/g,'\n').split(/[,;\n]/).map(item=>normalizeMonth(item)).filter(Boolean)}
+function normalizeMonth(value:string){const key=value.trim().toLowerCase().slice(0,3),months:Record<string,string>={jan:'January',feb:'February',mar:'March',apr:'April',may:'May',jun:'June',jul:'July',aug:'August',sep:'September',oct:'October',nov:'November',dec:'December',fal:'September',spr:'January'};return months[key]??''}
 function bool(value?:string){return !['false','0','no','inactive'].includes(String(value??'true').toLowerCase())}

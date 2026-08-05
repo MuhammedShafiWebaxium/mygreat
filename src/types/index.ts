@@ -25,13 +25,55 @@ export interface OnboardingCourseOption {
   name: string
   level: string
   universityIds: string[]
+  countryIds?: string[]
+  minFeeInr?: number
+    feeInrValues?: number[]
+    universityFeesInr?: Record<string, number>
+    universityFeeValuesInr?: Record<string, number[]>
+    intakeMonths?: string[]
+    universityIntakeMonths?: Record<string, string[]>
+    universities?: University[]
+    offerings?: OnboardingCourseOffering[]
+}
+
+export interface OnboardingCourseOffering {
+  courseId: string
+  universityId: string
+  universityName: string
+  countryId: string
+  city: string
+  code: string
+  campus: string
+  durationMonths: number
+  intakeMonth: string[]
+  intakeYear: string
+  tuitionFee: string
+  feeAmount: string
+  feeCurrency: string
+  amountInr: string
+  ranking: string
+  ieltsMin: string
+  toeflMin: string
+  pteMin: string
+  applicationDeadline: string
+  scholarshipAvailable: string
+  requirements: string
+  entryRequirements: string
+  backlogRange: string
+  applicationMode: string
+  englishProficiency: string
+  remarks: string
 }
 
 export interface OnboardingData {
   country: Country | null
+  countries: Country[]
   educationLevel: string
   degree: string
   field: string
+  fields: string[]
+  feeMinInr: number | null
+  feeMaxInr: number | null
   gpa: number
   gradYear: string
   englishTest: string

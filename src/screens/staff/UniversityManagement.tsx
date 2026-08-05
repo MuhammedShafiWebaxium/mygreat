@@ -19,12 +19,12 @@ const emptyFilters: Filters = { status: 'all', country: '', university: '', leve
 const columns: Record<Tab, string[]> = {
   countries: ['name', 'code', 'currencyCode', 'active'],
   universities: ['name', 'city', 'countryName', 'website', 'rankings', 'active'],
-  courses: ['universityName', 'name', 'code', 'level', 'durationMonths', 'campus', 'intakeMonth', 'intakeYear', 'tuitionFee', 'ielts', 'ieltsMin', 'toefl', 'toeflMin', 'pte', 'pteMin', 'applicationDeadline', 'scholarshipAvailable', 'requirements', 'backlogRange', 'remarks', 'applicationMode', 'englishProficiency', 'entryRequirements', 'effectiveFrom', 'active'],
+  courses: ['universityName', 'name', 'code', 'level', 'durationMonths', 'campus', 'intakeMonth', 'intakeYear', 'feeAmount', 'currencyCode', 'tuitionFee', 'ielts', 'ieltsMin', 'toefl', 'toeflMin', 'pte', 'pteMin', 'applicationDeadline', 'scholarshipAvailable', 'requirements', 'backlogRange', 'remarks', 'applicationMode', 'englishProficiency', 'entryRequirements', 'effectiveFrom', 'active'],
 }
 const samples: Record<Tab,string[]> = {
   countries:['Canada','CA','CAD','true'],
   universities:['University of Toronto','Toronto','Canada','https://www.utoronto.ca','QS World Ranking | 25; Webometrics World Ranking | 20','true'],
-  courses:['University of Toronto','Computer Science','CS101','Undergraduate','48','St. George','January, May, September','2027','CAD 45,000','6.5','6.0','90','80','65','58','2027-05-31','Yes','Bachelor degree','0-5','International applicants welcome','Online','IELTS/TOEFL/PTE accepted','Relevant bachelor degree',new Date().toISOString().slice(0,10),'true'],
+  courses:['University of Toronto','Computer Science','CS101','Undergraduate','48','St. George','January, May, September','2027','45000','CAD','CAD 45,000','6.5','6.0','90','80','65','58','2027-05-31','Yes','Bachelor degree','0-5','International applicants welcome','Online','IELTS/TOEFL/PTE accepted','Relevant bachelor degree',new Date().toISOString().slice(0,10),'true'],
 }
 
 export default function UniversityManagement() {
@@ -166,7 +166,7 @@ export default function UniversityManagement() {
       const universityMap=new Map(data.universities.map(university=>[university.name.toLowerCase(),university]))
       for (const [index,row] of universityRows.entries()) { const country=countryMap.get((row.countryName||row.countryCode||'').toLowerCase()); if(!row.name||!country) throw new Error(`Universities row ${index+2}: university name or country is invalid.`); const existing=universityMap.get(row.name.toLowerCase()); const saved:any=await saveUniversityFn({ ...row,id:existing?.id,countryId:country.id,rank:0,rankings:parseRankings(row.rankings),active:bool(row.active) }); universityMap.set(row.name.toLowerCase(),{...saved,id:saved.id,name:row.name}); imported++; setImportProgress({label:'Importing universities',current:imported,total}) }
       const courseMap=new Map(data.courses.map(course=>[`${course.universityName.toLowerCase()}|${course.code.toLowerCase()}`,course]))
-      for (const [index,row] of courseRows.entries()) { const university=universityMap.get(row.universityName?.trim().toLowerCase()); if(!row.name||!row.code||!university) throw new Error(`Courses row ${index+2}: course, code, or university is invalid.`); const key=`${row.universityName.trim().toLowerCase()}|${row.code.trim().toLowerCase()}`,existing=courseMap.get(key); const saved:any=await saveCourseFn({...row,id:existing?.id,universityId:university.id,durationMonths:Number(row.durationMonths),intakeMonth:splitList(row.intakeMonth),active:bool(row.active)}); courseMap.set(key,{...existing,...saved,id:saved.id,universityId:university.id,universityName:row.universityName,code:row.code} as any); if(row.feeAmount&&!existing) await setCourseFeeFn({courseId:saved.id,amount:Number(row.feeAmount),currencyCode:row.currencyCode,effectiveFrom:new Date(row.effectiveFrom||Date.now()).toISOString()}); imported++; setImportProgress({label:'Importing courses',current:imported,total}) }
+      for (const [index,row] of courseRows.entries()) { const university=universityMap.get(row.universityName?.trim().toLowerCase()),feeAmount=Number(String(row.feeAmount??'').replaceAll(',','')),currencyCode=String(row.currencyCode??'').trim().toUpperCase(); if(!row.name||!row.code||!university) throw new Error(`Courses row ${index+2}: course, code, or university is invalid.`);if(!Number.isFinite(feeAmount)||feeAmount<=0)throw new Error(`Courses row ${index+2}: feeAmount is required and must be positive.`);if(!/^[A-Z]{3}$/.test(currencyCode))throw new Error(`Courses row ${index+2}: currencyCode must be a 3-letter ISO code.`); const key=`${row.universityName.trim().toLowerCase()}|${row.code.trim().toLowerCase()}`,existing=courseMap.get(key); const saved:any=await saveCourseFn({...row,id:existing?.id,universityId:university.id,durationMonths:Number(row.durationMonths),intakeMonth:splitList(row.intakeMonth),tuitionFee:row.tuitionFee||`${currencyCode} ${feeAmount}`,active:bool(row.active)}); courseMap.set(key,{...existing,...saved,id:saved.id,universityId:university.id,universityName:row.universityName,code:row.code} as any); await setCourseFeeFn({courseId:saved.id,amount:feeAmount,currencyCode,effectiveFrom:new Date(row.effectiveFrom||Date.now()).toISOString()}); imported++; setImportProgress({label:'Importing courses',current:imported,total}) }
       await refresh(); setNotice(`Full catalog imported: ${countryRows.length} countries, ${universityRows.length} universities, and ${courseRows.length} courses.`)
     } catch(error) { setNotice(error instanceof Error?error.message:'Catalog import failed.') }
     if(catalogInput.current) catalogInput.current.value=''
@@ -262,7 +262,8 @@ async function downloadImportErrors(job:CatalogImportJob) {
   download(new Blob([csv],{type:'text/csv;charset=utf-8'}),`${job.fileName.replace(/\.[^.]+$/,'')}-errors.csv`)
 }
 function csvCell(value:string) { return /[",\r\n]/.test(value)?`"${value.replace(/"/g,'""')}"`:value }
-function splitList(value: string) { return String(value ?? '').split(/[,;\n]/).map(item=>item.trim()).filter(Boolean) }
+function splitList(value: string) { return String(value ?? '').split(/[,;\n]/).map(item=>normalizeMonth(item)).filter(Boolean) }
+function normalizeMonth(value:string){const key=value.trim().toLowerCase().slice(0,3),months:Record<string,string>={jan:'January',feb:'February',mar:'March',apr:'April',may:'May',jun:'June',jul:'July',aug:'August',sep:'September',oct:'October',nov:'November',dec:'December',fal:'September',spr:'January'};return months[key]??''}
 function parseRankings(value: string) {
   return String(value ?? '')
     .replace(/\\r\\n|\\n|\\r/g, '\n')

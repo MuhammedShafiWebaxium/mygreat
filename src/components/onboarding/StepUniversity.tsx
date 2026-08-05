@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
-import { Search, Check, Trophy, HelpCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Check, Trophy, HelpCircle, ChevronLeft, ChevronRight, GitCompareArrows } from 'lucide-react'
 import { MAX_UNIVERSITY_PICKS } from '@/data/onboarding'
-import type { Country, University } from '@/types'
+import type { Country, OnboardingCourseOption, University } from '@/types'
+import { CourseComparisonModal } from './StepEducation'
+import { getOnboardingCourseDetailsFn } from '@/features/onboarding/onboarding.functions'
 import { cn } from '@/lib/utils'
 
 interface Props {
   country: Country
+  countries: Country[]
+  fields: string[]
+  degree: string
   universities: University[]
   selected: University[]
   notSure: boolean
@@ -14,24 +19,26 @@ interface Props {
   onNotSure: () => void
 }
 
-const container: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } }
+const container: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.015 } } }
 const item: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 160, damping: 20 } },
 }
 
-export default function StepUniversity({ country, universities, selected, notSure, onToggle, onNotSure }: Props) {
+export default function StepUniversity({ country, countries, fields, degree, universities, selected, notSure, onToggle, onNotSure }: Props) {
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(1)
+  const [compareOpen, setCompareOpen] = useState(false)
+  const [comparisonCourses, setComparisonCourses] = useState<OnboardingCourseOption[]>([])
+  const [comparisonLoading, setComparisonLoading] = useState(false)
   const pageSize = 10
-  const list = universities.filter(
-    (u) => u.countryId === country.id && u.name.toLowerCase().includes(query.toLowerCase())
-  )
+  const list = universities.filter((u) => u.name.toLowerCase().includes(query.toLowerCase()))
   const pageCount = Math.max(1, Math.ceil(list.length / pageSize))
   const visible = list.slice((page - 1) * pageSize, page * pageSize)
   useEffect(() => setPage(1), [country.id, query])
   useEffect(() => { if (page > pageCount) setPage(pageCount) }, [page, pageCount])
   const full = selected.length >= MAX_UNIVERSITY_PICKS
+  const openComparison=async()=>{setComparisonLoading(true);try{setComparisonCourses(await getOnboardingCourseDetailsFn({data:{countryIds:countries.map(item=>item.id),names:fields,level:degree,universityIds:selected.map(item=>item.id)}}));setCompareOpen(true)}catch{setComparisonCourses([]);setCompareOpen(true)}finally{setComparisonLoading(false)}}
 
   return (
     <div>
@@ -41,7 +48,7 @@ export default function StepUniversity({ country, universities, selected, notSur
       </h2>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mt-3">
         <p className="text-white/50 text-[15px]">
-          Universities in {country.flag} {country.name} offering your selected course — shortlist up to {MAX_UNIVERSITY_PICKS}.
+          Universities in your selected destinations offering your selected courses — shortlist up to {MAX_UNIVERSITY_PICKS}.
         </p>
         <span
           className={cn(
@@ -52,6 +59,10 @@ export default function StepUniversity({ country, universities, selected, notSur
           {selected.length} of {MAX_UNIVERSITY_PICKS} selected
         </span>
       </div>
+
+      {selected.length>0&&fields.length>0&&<button type="button" disabled={comparisonLoading} onClick={openComparison} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-amber-400/35 bg-amber-400/[.07] px-5 py-3.5 text-sm font-semibold text-amber-300 transition hover:bg-amber-400/[.12] disabled:cursor-wait disabled:opacity-60"><GitCompareArrows className="size-4"/>{comparisonLoading?'Loading comparison…':'Compare selected courses and universities'}</button>}
+
+      {compareOpen&&<CourseComparisonModal fields={fields} degree={degree} courses={comparisonCourses} countries={countries} universityIds={selected.map(university=>university.id)} onClose={()=>setCompareOpen(false)}/>}
 
       <motion.button
         variants={item}
@@ -78,7 +89,7 @@ export default function StepUniversity({ country, universities, selected, notSur
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={`Search universities in ${country.name}…`}
+          placeholder="Search eligible universities…"
           className="w-full bg-white/[0.04] border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-sm placeholder:text-white/30 outline-none focus:border-amber-400/50 focus:bg-white/[0.06] transition-colors"
         />
       </div>

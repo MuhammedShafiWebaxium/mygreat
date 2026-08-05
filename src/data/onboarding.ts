@@ -90,6 +90,7 @@ export const GRAD_YEARS = ['2023', '2024', '2025', '2026', '2027', '2028']
 
 export const ENGLISH_TESTS = ['Not taken yet', 'IELTS', 'TOEFL', 'PTE', 'Duolingo']
 
-export const INTAKES = ['Fall 2026', 'Spring 2027', 'Fall 2027', 'Spring 2028']
+export const INTAKE_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
+export const INTAKES = INTAKE_MONTHS
 
 export const MAX_UNIVERSITY_PICKS = 3

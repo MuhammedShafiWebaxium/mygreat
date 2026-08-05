@@ -6,7 +6,7 @@ import { useRouter } from '@/lib/navigation'
 import { motion, type Variants } from 'framer-motion'
 import {
   Check, MapPin, GraduationCap, Plane, Building2, ArrowRight, RotateCcw,
-  User, Mail, Lock, Eye, EyeOff, ShieldCheck, LayoutDashboard, Inbox,
+  User, Mail, Lock, Eye, EyeOff, ShieldCheck, LayoutDashboard, Inbox, WalletCards,
 } from 'lucide-react'
 import type { OnboardingData } from '@/types'
 import { saveAccount } from '@/lib/store'
@@ -73,18 +73,24 @@ export default function StepComplete({ data, onRestart }: Props) {
     {
       icon: MapPin,
       label: 'Destination',
-      value: data.country ? `${data.country.flag}  ${data.country.name}` : '—',
+      value: data.countries.length ? data.countries.map(country=>`${country.flag} ${country.name}`).join(', ') : data.country ? `${data.country.flag}  ${data.country.name}` : '—',
     },
     {
       icon: GraduationCap,
       label: 'Selected course',
-      value: data.field || '—',
+      value: data.fields.length ? data.fields.join(', ') : data.field || '—',
       sub: [data.gpa ? `GPA ${data.gpa.toFixed(1)}` : '', data.gradYear ? `Class of ${data.gradYear}` : ''].filter(Boolean).join(' · '),
     },
     {
+      icon: WalletCards,
+      label: 'Annual tuition preference',
+      value: data.feeMaxInr===100000000&&data.feeMinInr===0?'No preference':data.feeMaxInr===100000000?`₹${((data.feeMinInr??0)/100000).toLocaleString('en-IN')} lakh+`:`₹${((data.feeMinInr??0)/100000).toLocaleString('en-IN')}–${((data.feeMaxInr??0)/100000).toLocaleString('en-IN')} lakh`,
+      sub: 'Approximate INR range using the latest admin-refreshed central-bank rates.',
+    },
+    {
       icon: Plane,
-      label: 'Intake',
-      value: data.intake || '—',
+      label: 'Preferred intake months',
+      value: data.intake.replaceAll('|', ', ') || '—',
       sub: data.englishTest && data.englishTest !== 'Not taken yet' ? data.englishTest : 'English test not taken yet',
     },
     {
