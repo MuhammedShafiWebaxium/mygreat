@@ -33,7 +33,7 @@ export function buildStudent(p: OnboardingData, account: Account | null): Studen
     name,
     firstName: first,
     initials: initialsOf(name) || 'FS',
-    target: [p.degree, p.field].filter(Boolean).join(' in ') || 'Program exploring',
+    target: p.degree || 'Study Abroad',
     country: p.country?.name ?? 'Anywhere',
     flag: p.country?.flag ?? '🌍',
     intake: p.intake || 'Upcoming',

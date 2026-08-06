@@ -256,14 +256,19 @@ export const ADVISOR = {
   nextSlot: 'Tomorrow · 4:30 PM',
 }
 
-export function daysUntil(iso: string): number {
+export function daysUntil(iso?: string | null): number {
+  if (!iso) return 0
   const now = new Date()
-  const target = new Date(iso + 'T00:00:00')
+  const target = new Date(iso.includes('T') ? iso : iso + 'T00:00:00')
+  if (isNaN(target.getTime())) return 0
   return Math.max(0, Math.ceil((target.getTime() - now.getTime()) / 86400000))
 }
 
-export function fmtDate(iso: string): string {
-  return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', {
+export function fmtDate(iso?: string | null): string {
+  if (!iso) return ''
+  const d = new Date(iso.includes('T') ? iso : iso + 'T00:00:00')
+  if (isNaN(d.getTime())) return ''
+  return d.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

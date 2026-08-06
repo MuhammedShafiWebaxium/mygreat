@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ArrowRight,
   AlertTriangle,
+  Calendar,
   Check,
   Clock3,
   Download,
@@ -324,13 +325,9 @@ export default function WorkflowCaseDetail({
                 <span
                   className={cn(
                     'relative z-10 mx-auto grid size-8 place-items-center rounded-full border text-[10px]',
-                    index < currentIndex ||
-                      (index === currentIndex &&
-                        index === progressStages.length - 1)
-                      ? 'border-emerald-400 bg-emerald-400 text-slate-950'
-                      : index === currentIndex
-                        ? 'workflow-progress-current border-amber-400 bg-amber-400 text-slate-950'
-                        : 'workflow-progress-upcoming border-white/12 bg-[#0b1122] text-white/30',
+                    index <= currentIndex
+                      ? 'border-emerald-400 bg-emerald-400 text-slate-950 font-bold shadow-[0_0_12px_rgba(52,211,153,0.3)]'
+                      : 'workflow-progress-upcoming border-white/12 bg-[#0b1122] text-white/30',
                   )}
                 >
                   {index <= currentIndex ? (
@@ -465,6 +462,24 @@ export default function WorkflowCaseDetail({
               placeholder="Notes or description"
               className="w-full rounded-xl border border-white/10 bg-white/[.035] p-3 text-xs outline-none"
             />
+            {workflowType === 'VISA' && target === 'VISA_SLOT_BOOKING' && (
+              <div className="rounded-2xl border border-amber-400/30 bg-amber-400/[0.06] p-4 space-y-2">
+                <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                  <Calendar className="size-4" />
+                  <span>Select Booked Visa Slot Appointment Date & Time *</span>
+                </div>
+                <p className="text-[9.5px] text-white/50 leading-relaxed">
+                  Specify the exact date and time for the student's visa slot appointment.
+                </p>
+                <input
+                  required
+                  type="datetime-local"
+                  value={expected}
+                  onChange={(event) => setExpected(event.target.value)}
+                  className="mt-1 w-full rounded-xl border border-amber-400/40 bg-[#090f20] p-3 text-xs text-white outline-none focus:border-amber-400"
+                />
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <label className="text-[9px] text-white/40">
                 Expected completion
@@ -490,6 +505,7 @@ export default function WorkflowCaseDetail({
                 followup.isPending ||
                 !target ||
                 (workflowType==='VISA'&&target==='UNCONDITIONAL_OFFER_RECEIVED'&&!offerFile) ||
+                (workflowType==='VISA'&&target==='VISA_SLOT_BOOKING'&&!expected) ||
                 (workflowType === 'APPLICATION' &&
                   target === 'MOVE_TO_VISA' &&
                   !offerType) ||

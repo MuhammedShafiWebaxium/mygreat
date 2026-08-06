@@ -47,7 +47,146 @@ export async function readWorkflowCase(actor:{id:string;role:UserRole},applicati
   }
   let validNextStages=workflowType==='VISA'&&currentStage==='UNCONDITIONAL_OFFER_RECEIVED'?['TUITION_FEE_PAYMENT']:WORKFLOW_TRANSITIONS[currentStage]??[]
   if(workflowType==='VISA'&&currentStage==='MEET_OFFER_CONDITIONS')validNextStages=current.offerType==='CONDITIONAL'?['UNCONDITIONAL_OFFER_RECEIVED']:['TUITION_FEE_PAYMENT']
-  return {...current,workflowType,currentStage,stages,validNextStages,siblings,visaAttempts,selectedVisaAttempt:visaAttempt,tasks,documents,events,requiredDocuments:await listRequiredDocumentSettings(true),canApprove:actor.role==='SUPER_ADMIN',canChangePriority:['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE'].includes(actor.role)}
+
+  const [offerAcceptedFollowup, tuitionDoc] = await Promise.all([
+    prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`SELECT id FROM workflow_followups WHERE application_id=${applicationId}::uuid AND stage='OFFER_ACCEPTED'`),
+    prisma.document.findFirst({
+      where: { userId: current.studentId, name: { contains: 'Tuition Fee', mode: 'insensitive' } },
+      select: { status: true, name: true },
+    }),
+  ])
+
+  const hasStudentAcceptedOffer = Boolean(offerAcceptedFollowup.length)
+  const tuitionFeeDocStatus = tuitionDoc ? tuitionDoc.status : 'MISSING'
+
+  return {...current,workflowType,currentStage,stages,validNextStages,siblings,visaAttempts,selectedVisaAttempt:visaAttempt,tasks,documents,events,hasStudentAcceptedOffer,tuitionFeeDocStatus,requiredDocuments:await listRequiredDocumentSettings(true),canApprove:actor.role==='SUPER_ADMIN',canChangePriority:['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE'].includes(actor.role)}
+}
+
+export async function assertVisaStageStrictChecks({
+  studentId,
+  applicationId,
+  currentStage,
+  targetStage,
+  workflowType,
+}: {
+  studentId: string
+  applicationId: string
+  currentStage: string
+  targetStage: string
+  workflowType: 'APPLICATION' | 'VISA'
+}) {
+  // 1. OFFER ACCEPTANCE & ACKNOWLEDGEMENT CHECK
+  // When advancing past offer stage (e.g. APPLICATION -> MOVE_TO_VISA or VISA -> stage past MEET_OFFER_CONDITIONS / UNCONDITIONAL_OFFER_RECEIVED)
+  const isLeavingOfferStage =
+    (workflowType === 'APPLICATION' && targetStage === 'MOVE_TO_VISA') ||
+    (workflowType === 'VISA' && ['MEET_OFFER_CONDITIONS', 'UNCONDITIONAL_OFFER_RECEIVED'].includes(currentStage) && !['MEET_OFFER_CONDITIONS', 'UNCONDITIONAL_OFFER_RECEIVED'].includes(targetStage))
+
+  if (isLeavingOfferStage) {
+    const offerFollowup = await prisma.$queryRaw<Array<{ id: string }>>(
+      Prisma.sql`SELECT id FROM workflow_followups WHERE application_id=${applicationId}::uuid AND stage='OFFER_ACCEPTED'`
+    )
+    if (!offerFollowup.length) {
+      throw new Error('The student must formally accept the offer and submit their acknowledgement letter from the student portal before proceeding to visa processing.')
+    }
+  }
+
+  // 2. TUITION FEE PAYMENT RECEIPT & VERIFICATION CHECK
+  // When advancing past Tuition Fee Payment stage (e.g. VISA stage leaving MEET_OFFER_CONDITIONS / UNCONDITIONAL_OFFER_RECEIVED / TUITION_FEE_PAYMENT towards VISA_DOCUMENT_COLLECTION or further)
+  const isAdvancingPastTuitionFee =
+    workflowType === 'VISA' &&
+    ['MEET_OFFER_CONDITIONS', 'UNCONDITIONAL_OFFER_RECEIVED', 'TUITION_FEE_PAYMENT'].includes(currentStage) &&
+    ['VISA_DOCUMENT_COLLECTION', 'VISA_SLOT_BOOKING', 'VISA_SUBMISSION', 'VISA_LEVEL_1_VERIFICATION', 'VISA_LEVEL_2_VERIFICATION', 'VISA_GRANTED'].includes(targetStage)
+
+  if (isAdvancingPastTuitionFee) {
+    const tuitionDoc = await prisma.document.findFirst({
+      where: {
+        userId: studentId,
+        name: { contains: 'Tuition Fee', mode: 'insensitive' },
+      },
+    })
+    if (!tuitionDoc) {
+      throw new Error('The student must upload their Tuition Fee Payment Receipt before advancing to visa document collection.')
+    }
+    if (tuitionDoc.status !== 'VERIFIED') {
+      throw new Error('The Tuition Fee Payment Receipt must be reviewed and VERIFIED by staff before advancing to visa document collection.')
+    }
+  }
+
+  // 3. VISA DOCUMENTS COLLECTION STRICT VERIFICATION CHECK
+  // When advancing from VISA_DOCUMENT_COLLECTION (or past it towards VISA_SLOT_BOOKING, VISA_SUBMISSION, VISA_LEVEL_1_VERIFICATION, VISA_LEVEL_2_VERIFICATION, VISA_GRANTED)
+  const isAdvancingPastVisaDocCollection =
+    workflowType === 'VISA' &&
+    ['VISA_DOCUMENT_COLLECTION'].includes(currentStage) &&
+    ['VISA_SLOT_BOOKING', 'VISA_SUBMISSION', 'VISA_LEVEL_1_VERIFICATION', 'VISA_LEVEL_2_VERIFICATION', 'VISA_GRANTED'].includes(targetStage)
+
+  if (isAdvancingPastVisaDocCollection) {
+    const [allRequired, profile, application] = await Promise.all([
+      listRequiredDocumentSettings(true),
+      prisma.studentProfile.findUnique({ where: { userId: studentId } }),
+      prisma.application.findUnique({ where: { id: applicationId }, include: { university: { include: { country: true } } } }),
+    ])
+
+    const studentCountries = new Set<string>()
+    if (application?.university?.country?.code) {
+      for (const code of normalizeCountryCode(application.university.country.code)) studentCountries.add(code)
+    }
+
+    const visaActiveCountries = new Set<string>(studentCountries)
+    const studentProgramLevels = detectStudentProgramLevels(profile, application ? [application] : [])
+
+    const visaRequired = filterStudentRequiredDocuments(allRequired, {
+      studentCountries,
+      hasApplications: true,
+      visaActiveCountries,
+      studentProgramLevels,
+    }).filter((doc) => doc.stage === 'VISA_PROCESSING')
+
+    if (visaRequired.length > 0) {
+      const requiredNames = visaRequired.map((doc) => doc.name)
+      const userDocs = await prisma.document.findMany({
+        where: { userId: studentId, name: { in: requiredNames } },
+      })
+      const userDocsByName = new Map(userDocs.map((d) => [d.name, d]))
+
+      const unverified: string[] = []
+      for (const reqDoc of visaRequired) {
+        const uDoc = userDocsByName.get(reqDoc.name)
+        if (!uDoc) {
+          unverified.push(`${reqDoc.name} (Missing)`)
+        } else if (uDoc.status !== 'VERIFIED') {
+          unverified.push(`${reqDoc.name} (Unverified)`)
+        }
+      }
+
+      if (unverified.length > 0) {
+        throw new Error(
+          `All required visa documents must be approved before advancing. Unverified documents (${unverified.length}): ${unverified.join(', ')}.`
+        )
+      }
+    }
+  }
+
+  // 4. VISA SERVICE CHARGE RECEIPT VERIFICATION CHECK
+  // When advancing past VISA_SERVICE_CHARGE to VISA_SLOT_BOOKING or further
+  const isAdvancingPastServiceCharge =
+    workflowType === 'VISA' &&
+    ['VISA_SERVICE_CHARGE'].includes(currentStage) &&
+    ['VISA_SLOT_BOOKING', 'VISA_LEVEL_1_VERIFICATION', 'VISA_LEVEL_2_VERIFICATION', 'VISA_SUBMISSION', 'VISA_GRANTED'].includes(targetStage)
+
+  if (isAdvancingPastServiceCharge) {
+    const serviceDoc = await prisma.document.findFirst({
+      where: {
+        userId: studentId,
+        name: { contains: 'Visa Service Charge', mode: 'insensitive' },
+      },
+    })
+    if (!serviceDoc) {
+      throw new Error('The student must upload their Visa Service Charge Receipt before advancing to visa slot booking.')
+    }
+    if (serviceDoc.status !== 'VERIFIED') {
+      throw new Error('The Visa Service Charge Receipt must be reviewed and VERIFIED by staff before advancing to visa slot booking.')
+    }
+  }
 }
 
 export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRole},input:z.infer<typeof workflowCaseActionSchema>){
@@ -55,6 +194,15 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
   const stage=detail.currentStage as string
   const target=input.targetStage
   if(!isValidWorkflowTransition(stage,target,input.workflowType))throw new Error(`Invalid transition from ${stage} to ${target}.`)
+
+  await assertVisaStageStrictChecks({
+    studentId: detail.studentId,
+    applicationId: input.applicationId,
+    currentStage: stage,
+    targetStage: target,
+    workflowType: input.workflowType,
+  })
+
   if(input.workflowType==='VISA'&&stage==='MEET_OFFER_CONDITIONS'&&detail.offerType==='CONDITIONAL'&&target!=='MEET_OFFER_CONDITIONS'&&target!=='UNCONDITIONAL_OFFER_RECEIVED')throw new Error('Record the unconditional offer before continuing the visa workflow.')
   if(input.workflowType==='VISA'&&stage==='MEET_OFFER_CONDITIONS'&&detail.offerType!=='CONDITIONAL'&&target==='UNCONDITIONAL_OFFER_RECEIVED')throw new Error('This application already has an unconditional offer.')
   if(stage==='APPLICATION_REJECTED_BY_UNIVERSITY')throw new Error('This application was finally rejected by the university and is closed to further follow-ups.')
@@ -67,13 +215,17 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
     if(!pending.length)throw new Error('This SOP approval request is no longer pending.')
   }
   if(input.workflowType==='VISA'&&['VISA_LEVEL_1_VERIFICATION','VISA_LEVEL_2_VERIFICATION'].includes(target)&&actor.role!=='SUPER_ADMIN')throw new Error('Visa verification levels can only be changed through Super Admin approval.')
+  if(input.workflowType==='VISA'&&target==='VISA_SLOT_BOOKING'&&!input.expectedCompletionAt)throw new Error('Select the date and time of the booked visa slot appointment.')
   if(input.workflowType==='APPLICATION'&&target==='SOP_VERIFICATION'&&stage!==target){
     const [{count}]=await prisma.$queryRaw<Array<{count:bigint}>>(Prisma.sql`SELECT COUNT(*)::bigint AS count FROM workflow_followup_files wf JOIN workflow_followups f ON f.id=wf.followup_id WHERE f.application_id=${input.applicationId}::uuid AND f.workflow_type='APPLICATION' AND f.stage IN ('SOP_PREPARATION','SOP_CORRECTION_REQUIRED')`)
     if(Number(count)===0)throw new Error('Attach the prepared SOP before sending it for verification.')
   }
   const offerType=input.offerType??detail.offerType
   if(input.workflowType==='APPLICATION'&&stage!=='APPLICATION_FOLLOW_UP'&&input.offerType&&input.offerType!==detail.offerType)throw new Error('The recorded offer is view-only after the offer-received stage.')
-  if(input.workflowType==='APPLICATION'&&target==='MOVE_TO_VISA'&&!offerType)throw new Error('Select Conditional or Unconditional Offer Received before moving to visa.')
+  if(input.workflowType==='APPLICATION'&&target==='MOVE_TO_VISA'){
+    if(!offerType)throw new Error('Select Conditional or Unconditional Offer Received before moving to visa.')
+    await assertNoOtherActiveVisaApplication(detail.studentId, input.applicationId)
+  }
   if(input.workflowType==='APPLICATION'&&offerType&&!detail.offerLetterId)throw new Error('Upload the offer letter before saving the offer outcome.')
   if(input.workflowType==='VISA'&&target==='UNCONDITIONAL_OFFER_RECEIVED'&&(input.offerType!=='UNCONDITIONAL'||detail.offerLetterType!=='UNCONDITIONAL'))throw new Error('Upload the unconditional offer letter before continuing.')
   if(!input.note&&target===stage&&!(input.offerType!==undefined&&input.offerType!==detail.offerType))throw new Error('Add notes for this follow-up.')
@@ -181,17 +333,37 @@ export async function createApplication(userId: string, input: z.infer<typeof cr
     select: { universityId: true },
   })
   if (!shortlisted) throw new Error('Add the university to your shortlist first.')
-  const application = await prisma.application.create({
-    data: {
-      studentId: userId,
-      universityId: input.universityId,
-      program: input.program,
-      applicationDeadline: input.deadline ? new Date(`${input.deadline}T00:00:00.000Z`) : null,
-    },
-  })
-  await prisma.$executeRaw(Prisma.sql`UPDATE applications SET is_priority=TRUE WHERE id=${application.id}::uuid AND (SELECT COUNT(*) FROM applications WHERE student_id=${userId}::uuid)=1`)
-  await snapshotCourseFee(application.id, input.universityId, input.program)
-  return application
+
+  const rawCourses = input.program.split(',').map((s) => s.trim()).filter(Boolean)
+  const courses = rawCourses.length > 0 ? rawCourses : [input.program]
+
+  const createdApplications = []
+  for (const prog of courses) {
+    const duplicate = await prisma.application.findFirst({
+      where: { studentId: userId, universityId: input.universityId, program: prog },
+      select: { id: true },
+    })
+    if (duplicate) continue
+
+    const application = await prisma.application.create({
+      data: {
+        studentId: userId,
+        universityId: input.universityId,
+        program: prog,
+        applicationDeadline: input.deadline ? new Date(`${input.deadline}T00:00:00.000Z`) : null,
+      },
+    })
+    await prisma.$executeRaw(
+      Prisma.sql`UPDATE applications SET is_priority=TRUE WHERE id=${application.id}::uuid AND (SELECT COUNT(*) FROM applications WHERE student_id=${userId}::uuid)=1`
+    )
+    await snapshotCourseFee(application.id, input.universityId, prog)
+    createdApplications.push(application)
+  }
+
+  if (createdApplications.length === 0) {
+    throw new Error('Applications for the selected course(s) already exist.')
+  }
+  return createdApplications[0]
 }
 
 async function snapshotCourseFee(applicationId: string, universityId: string, program: string) {
@@ -225,57 +397,87 @@ async function assertPartnerCanAccessStudent(actorId: string, studentId: string)
 }
 
 export async function createApplicationForStudent(
-  actor: { id: string; name:string; role: UserRole; accountType: 'ADMIN' | 'PARTNER' | 'STUDENT' },
+  actor: { id: string; name: string; role: UserRole; accountType: 'ADMIN' | 'PARTNER' | 'STUDENT' },
   input: { studentId: string; universityId: string; program: string; deadline?: string },
   sopFile: File,
 ) {
   if (actor.accountType === 'PARTNER') await assertPartnerCanAccessStudent(actor.id, input.studentId)
   else if (actor.accountType !== 'ADMIN') throw new Error('FORBIDDEN')
   await assertRequiredDocumentsVerified(input.studentId)
-  if(sopFile.size<=0||sopFile.size>10*1024*1024)throw new Error('The SOP file must be between 1 byte and 10 MB.')
-  const allowedSopTypes=new Set(['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
-  if(!allowedSopTypes.has(sopFile.type))throw new Error('Upload a PDF, DOC, or DOCX SOP file.')
-  const sopBytes=Buffer.from(await sopFile.arrayBuffer())
-  const duplicate = await prisma.application.findFirst({
-    where: { studentId: input.studentId, universityId: input.universityId, program: input.program },
-    select: { id: true },
-  })
-  if (duplicate) throw new Error('An application for this university and program already exists.')
-  const application = await prisma.$transaction(async (tx) => {
-    const created = await tx.application.create({
-      data: {
-        studentId: input.studentId,
-        universityId: input.universityId,
-        program: input.program,
-        applicationDeadline: input.deadline ? new Date(`${input.deadline}T00:00:00.000Z`) : null,
-        admissionsExecutiveId: actor.role === 'ADMISSIONS_EXECUTIVE' ? actor.id : null,
-        visaExecutiveId: actor.role === 'VISA_EXECUTIVE' ? actor.id : null,
-        applicationStage: 'SOP_VERIFICATION',
-        progress: 10,
-        nextAction: 'Pending Super Admin SOP verification',
-      },
+  if (sopFile.size <= 0 || sopFile.size > 10 * 1024 * 1024) throw new Error('The SOP file must be between 1 byte and 10 MB.')
+  const allowedSopTypes = new Set([
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ])
+  if (!allowedSopTypes.has(sopFile.type)) throw new Error('Upload a PDF, DOC, or DOCX SOP file.')
+  const sopBytes = Buffer.from(await sopFile.arrayBuffer())
+
+  const rawCourses = input.program.split(',').map((s) => s.trim()).filter(Boolean)
+  const courses = rawCourses.length > 0 ? rawCourses : [input.program]
+
+  const createdApps = []
+
+  for (const prog of courses) {
+    const duplicate = await prisma.application.findFirst({
+      where: { studentId: input.studentId, universityId: input.universityId, program: prog },
+      select: { id: true },
     })
-    const [followup]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO workflow_followups(id,student_id,application_id,workflow_type,stage,notes,created_by_id,created_by_name) VALUES(gen_random_uuid(),${input.studentId}::uuid,${created.id}::uuid,'APPLICATION','SOP_PREPARATION','SOP attached before application activation.',${actor.id}::uuid,${actor.name}) RETURNING id`)
-    await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followup_files(id,followup_id,file_name,mime_type,size_bytes,file_data) VALUES(gen_random_uuid(),${followup.id}::uuid,${sopFile.name},${sopFile.type},${sopFile.size},${sopBytes})`)
-    await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_approval_requests(id,student_id,application_id,followup_id,stage,requested_by_id,requested_by_name) VALUES(gen_random_uuid(),${input.studentId}::uuid,${created.id}::uuid,${followup.id}::uuid,'SOP_VERIFICATION',${actor.id}::uuid,${actor.name})`)
-    await tx.$executeRaw(Prisma.sql`
-      UPDATE applications a SET course_id=priced.course_id, quoted_fee_amount=priced.amount,
-        quoted_fee_currency=priced.currency_code, fee_quoted_at=NOW()
-      FROM (SELECT c.id course_id, f.amount, f.currency_code FROM courses c JOIN course_fees f ON f.course_id=c.id
-        WHERE c.university_id=${input.universityId} AND LOWER(c.name)=LOWER(${input.program}) AND c.active=TRUE
-          AND f.effective_from<=NOW() AND (f.effective_to IS NULL OR f.effective_to>NOW()) ORDER BY f.effective_from DESC LIMIT 1) priced
-      WHERE a.id=${created.id}::uuid
-    `)
-    await tx.$executeRaw(Prisma.sql`UPDATE applications SET is_priority=TRUE WHERE id=${created.id}::uuid AND (SELECT COUNT(*) FROM applications WHERE student_id=${input.studentId}::uuid)=1`)
-    await tx.auditLog.create({
-      data: {
-        actorId: actor.id, action: 'APPLICATION_CREATED', entityType: 'application',
-        entityId: created.id, metadata: { studentId: input.studentId },
-      },
+    if (duplicate) continue
+
+    const application = await prisma.$transaction(async (tx) => {
+      const created = await tx.application.create({
+        data: {
+          studentId: input.studentId,
+          universityId: input.universityId,
+          program: prog,
+          applicationDeadline: input.deadline ? new Date(`${input.deadline}T00:00:00.000Z`) : null,
+          admissionsExecutiveId: actor.role === 'ADMISSIONS_EXECUTIVE' ? actor.id : null,
+          visaExecutiveId: actor.role === 'VISA_EXECUTIVE' ? actor.id : null,
+          applicationStage: 'SOP_VERIFICATION',
+          progress: 10,
+          nextAction: 'Pending Super Admin SOP verification',
+        },
+      })
+      const [followup] = await tx.$queryRaw<Array<{ id: string }>>(
+        Prisma.sql`INSERT INTO workflow_followups(id,student_id,application_id,workflow_type,stage,notes,created_by_id,created_by_name) VALUES(gen_random_uuid(),${input.studentId}::uuid,${created.id}::uuid,'APPLICATION','SOP_PREPARATION','SOP attached before application activation.',${actor.id}::uuid,${actor.name}) RETURNING id`
+      )
+      await tx.$executeRaw(
+        Prisma.sql`INSERT INTO workflow_followup_files(id,followup_id,file_name,mime_type,size_bytes,file_data) VALUES(gen_random_uuid(),${followup.id}::uuid,${sopFile.name},${sopFile.type},${sopFile.size},${sopBytes})`
+      )
+      await tx.$executeRaw(
+        Prisma.sql`INSERT INTO workflow_approval_requests(id,student_id,application_id,followup_id,stage,requested_by_id,requested_by_name) VALUES(gen_random_uuid(),${input.studentId}::uuid,${created.id}::uuid,${followup.id}::uuid,'SOP_VERIFICATION',${actor.id}::uuid,${actor.name})`
+      )
+      await tx.$executeRaw(Prisma.sql`
+        UPDATE applications a SET course_id=priced.course_id, quoted_fee_amount=priced.amount,
+          quoted_fee_currency=priced.currency_code, fee_quoted_at=NOW()
+        FROM (SELECT c.id course_id, f.amount, f.currency_code FROM courses c JOIN course_fees f ON f.course_id=c.id
+          WHERE c.university_id=${input.universityId} AND LOWER(c.name)=LOWER(${prog}) AND c.active=TRUE
+            AND f.effective_from<=NOW() AND (f.effective_to IS NULL OR f.effective_to>NOW()) ORDER BY f.effective_from DESC LIMIT 1) priced
+        WHERE a.id=${created.id}::uuid
+      `)
+      await tx.$executeRaw(
+        Prisma.sql`UPDATE applications SET is_priority=TRUE WHERE id=${created.id}::uuid AND (SELECT COUNT(*) FROM applications WHERE student_id=${input.studentId}::uuid)=1`
+      )
+      await tx.auditLog.create({
+        data: {
+          actorId: actor.id,
+          action: 'APPLICATION_CREATED',
+          entityType: 'application',
+          entityId: created.id,
+          metadata: { studentId: input.studentId, program: prog },
+        },
+      })
+      return created
     })
-    return created
-  })
-  return application
+    createdApps.push(application)
+  }
+
+  if (createdApps.length === 0) {
+    throw new Error('An application for the selected course(s) already exists.')
+  }
+
+  return createdApps[0]
 }
 
 export async function updateApplication(
@@ -400,7 +602,18 @@ export async function readStudentDashboard(userId: string) {
         take: 50,
       })
     : []
+  const activeVisaAppRow = allStudentApps.find((app) => {
+    const vStage = visaStageByApplication.get(app.id)
+    return (
+      app.applicationStage === 'MOVE_TO_VISA' ||
+      (vStage && vStage !== 'VISA_REAPPLY_OR_APPEAL')
+    )
+  })
+
   const dashboardData = {
+    activeVisaApplicationId: activeVisaAppRow?.id ?? null,
+    activeVisaProgramName: activeVisaAppRow?.program ?? null,
+    activeVisaUniversityName: activeVisaAppRow?.university?.name ?? null,
     applications: (applicationRows ?? []).map(({ university, ...application }) => ({
       id: application.id,
       universityId: university?.id ?? '',
@@ -431,6 +644,111 @@ export async function setTaskCompleted(userId: string, taskId: string, completed
   })
   if (!result.count) throw new Error('Task not found.')
   return prisma.task.findUniqueOrThrow({ where: { id: taskId } })
+}
+
+export async function assertNoOtherActiveVisaApplication(studentId: string, currentApplicationId: string) {
+  const activeVisaApp = await prisma.application.findFirst({
+    where: {
+      studentId,
+      id: { not: currentApplicationId },
+      OR: [
+        { applicationStage: 'MOVE_TO_VISA' },
+        {
+          visaAttempts: {
+            some: {
+              isCurrent: true,
+              currentStage: { notIn: ['VISA_REAPPLY_OR_APPEAL'] },
+            },
+          },
+        },
+      ],
+    },
+    include: { university: true },
+  })
+
+  if (activeVisaApp) {
+    throw new Error(
+      `You already have an active offer being processed for visa (${activeVisaApp.program} at ${activeVisaApp.university.name}). You can only proceed with one offer letter at a time.`
+    )
+  }
+}
+
+export async function acceptStudentOffer(
+  userId: string,
+  userName: string,
+  applicationId: string,
+  acknowledgmentLetter: string,
+  acceptedCourse?: string | null,
+  file?: File | null
+) {
+  if (!applicationId) throw new Error('Application ID is required.')
+  const app = await prisma.application.findFirst({
+    where: { id: applicationId, studentId: userId },
+    include: { university: true },
+  })
+  if (!app) throw new Error('Application not found.')
+
+  await assertNoOtherActiveVisaApplication(userId, applicationId)
+
+  const currentStage = app.applicationStage
+  let newStage = currentStage
+  if (['CONDITIONAL_OFFER_RECEIVED', 'UNCONDITIONAL_OFFER_RECEIVED', 'APPLICATION_ACCEPTED'].includes(currentStage)) {
+    newStage = 'MOVE_TO_VISA'
+  }
+
+  const finalProgram = acceptedCourse?.trim() || app.program
+
+  await prisma.application.update({
+    where: { id: applicationId },
+    data: {
+      program: finalProgram,
+      applicationStage: newStage,
+      nextAction: 'Offer accepted — Proceed with tuition fee deposit & visa documents',
+      progress: Math.max(app.progress, 75),
+    },
+  })
+
+  const existingVisa = await prisma.visaAttempt.findFirst({
+    where: { applicationId, isCurrent: true },
+  })
+  if (!existingVisa) {
+    await prisma.$executeRaw(
+      Prisma.sql`INSERT INTO visa_attempts (id, application_id, attempt_number, is_current, current_stage, created_at, updated_at)
+                 VALUES (gen_random_uuid(), ${applicationId}::uuid, 1, TRUE, 'MEET_OFFER_CONDITIONS'::visa_status, NOW(), NOW())`
+    )
+  }
+
+  const followupId = crypto.randomUUID()
+  const noteText = acknowledgmentLetter.trim() || 'Student accepted admission offer and confirmed interest.'
+  await prisma.$executeRaw(
+    Prisma.sql`INSERT INTO workflow_followups (
+      id, student_id, application_id, workflow_type, stage, outcome, notes, created_by_id, created_by_name, followed_up_at, created_at
+    ) VALUES (
+      ${followupId}::uuid, ${userId}::uuid, ${applicationId}::uuid, 'APPLICATION', 'OFFER_ACCEPTED', 'OFFER_ACCEPTED', ${noteText}, ${userId}::uuid, ${userName}, NOW(), NOW()
+    )`
+  )
+
+  if (file) {
+    const fileBytes = Buffer.from(await file.arrayBuffer())
+    await prisma.$executeRaw(
+      Prisma.sql`INSERT INTO workflow_followup_files (
+        id, followup_id, file_name, mime_type, size_bytes, file_data, created_at
+      ) VALUES (
+        gen_random_uuid(), ${followupId}::uuid, ${file.name}, ${file.type || 'application/pdf'}, ${file.size}, ${fileBytes}, NOW()
+      )`
+    )
+  }
+
+  await prisma.notification.create({
+    data: {
+      userId,
+      kind: 'OFFER',
+      title: 'Offer Accepted Successfully',
+      description: `You have accepted the offer for ${app.program} at ${app.university?.name || 'University'}. Your acknowledgement letter has been recorded.`,
+    },
+  })
+
+  return { success: true, applicationId }
 }
 
 async function assertRequiredDocumentsVerified(userId: string) {

@@ -141,6 +141,7 @@ export async function seedDefaultCountryChecklists() {
     { id: 'itr-tax', name: 'ITR (Income Tax Returns)', accept: '.pdf', active: true, sortOrder: 80, category: 'FINANCIAL', stage: 'VISA_PROCESSING', countryCode: 'USA,CAN,DEU,AUS,IRL,NZL' },
     { id: 'same-name-affidavit', name: 'Same Name Certificate / Affidavit', accept: '.pdf', active: true, sortOrder: 85, category: 'PERSONAL', stage: 'VISA_PROCESSING', countryCode: 'GBR,USA,CAN,DEU,AUS,IRL,NZL' },
     { id: 'tuition-receipt', name: 'Tuition Fee Payment Receipt', accept: '.pdf', active: true, sortOrder: 90, category: 'FINANCIAL', stage: 'VISA_PROCESSING', countryCode: 'GBR,CAN,DEU,IRL' },
+    { id: 'visa-service-charge-receipt', name: 'Visa Service Charge Receipt', accept: '.pdf,.jpg,.jpeg,.png', active: true, sortOrder: 92, category: 'FINANCIAL', stage: 'VISA_PROCESSING', countryCode: null },
     { id: 'pcc-cert', name: 'PCC (Police Clearance Certificate)', accept: '.pdf', active: true, sortOrder: 95, category: 'PERSONAL', stage: 'VISA_PROCESSING', countryCode: 'IRL,NZL' },
 
     // --- 🇬🇧 UNITED KINGDOM (GBR) SPECIFIC ---

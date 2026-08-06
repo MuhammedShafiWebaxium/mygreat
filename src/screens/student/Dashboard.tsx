@@ -74,7 +74,7 @@ export default function Dashboard() {
     city: item.city,
     program: item.program,
     rank: item.rank,
-    status: ['CONDITIONAL_OFFER_RECEIVED','MOVE_TO_VISA'].includes(item.status) ? 'offer' : item.status === 'APPLICATION_FOLLOW_UP' ? 'under-review' : item.status === 'APPLICATION_ACCEPTED' ? 'submitted' : 'in-progress',
+    status: ['CONDITIONAL_OFFER_RECEIVED', 'UNCONDITIONAL_OFFER_RECEIVED', 'APPLICATION_ACCEPTED', 'MOVE_TO_VISA'].includes(item.status) ? 'offer' : item.status === 'APPLICATION_FOLLOW_UP' ? 'under-review' : 'in-progress',
     progress: item.progress,
     nextAction: item.nextAction,
     deadline: item.deadline ?? undefined,
@@ -228,8 +228,6 @@ export default function Dashboard() {
             <div className="hidden min-w-0 lg:block">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300/70">Student portal</span>
-                <span className="size-1 rounded-full bg-white/15" />
-                <span className="truncate text-[10px] text-white/28">{student.target}</span>
               </div>
               <h1 className="mt-0.5 truncate font-display text-xl text-white/90">{TAB_TITLES[tab]}</h1>
               <p className="mt-0.5 truncate text-[10.5px] text-white/32">{TAB_DESCRIPTIONS[tab]}</p>
@@ -318,7 +316,7 @@ export default function Dashboard() {
                       onNavigate={setTab}
                     />
                   )}
-                  {tab === 'applications' && <Applications applications={applications} documentsComplete={requiredDocumentsComplete} onNavigate={setTab} />}
+                  {tab === 'applications' && <Applications applications={applications} documentsComplete={requiredDocumentsComplete} onNavigate={setTab} onChanged={() => queryClient.invalidateQueries({ queryKey: ['student', 'dashboard'] })} />}
                   {tab === 'universities' && <UniversitiesTab student={student} shortlisted={profile?.universities ?? []} recommendations={recommendations} onShortlistToggle={handleShortlistAdd} />}
                   {tab === 'documents' && <Documents documents={serverDashboard.documents} requiredDocuments={serverDashboard.requiredDocuments} onChanged={()=>queryClient.invalidateQueries({queryKey:['student','dashboard']})} />}
                   {tab === 'notifications' && (

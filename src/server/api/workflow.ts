@@ -1,6 +1,6 @@
 import { assertRole, requireUser } from '@/features/auth/authorization.server'
 import { applicationUpdateSchema, createApplicationSchema, priorityApplicationSchema, staffCreateApplicationSchema, taskToggleSchema, workflowCaseActionSchema } from '@/features/workflow/workflow.schema'
-import { actOnWorkflowCase, createApplication, createApplicationForStudent, readDocumentFile, readOfferLetterFile, readStudentDashboard, readWorkflowApprovalQueue, readWorkflowCase, readWorkflowFile, reviewDocument, setPriorityApplication, setTaskCompleted, updateApplication, uploadOfferLetter, uploadRequiredDocument, uploadSopFile } from '@/features/workflow/workflow.server'
+import { acceptStudentOffer, actOnWorkflowCase, createApplication, createApplicationForStudent, readDocumentFile, readOfferLetterFile, readStudentDashboard, readWorkflowApprovalQueue, readWorkflowCase, readWorkflowFile, reviewDocument, setPriorityApplication, setTaskCompleted, updateApplication, uploadOfferLetter, uploadRequiredDocument, uploadSopFile } from '@/features/workflow/workflow.server'
 import { apiError } from '@/lib/api'
 
 export async function GET(request?:Request) {
@@ -30,7 +30,21 @@ export async function GET(request?:Request) {
 export async function POST(request: Request) {
   try {
     const user = await requireUser()
-    if(request.headers.get('content-type')?.includes('multipart/form-data')){const form=await request.formData(),file=form.get('file');if(!(file instanceof File))throw new Error('Select a file to upload.');if(form.get('workflowAction')==='createApplicationWithSop'){assertRole(user.role,['SUPER_ADMIN','MARKETING_EXECUTIVE','FINANCE_EXECUTIVE','SUPPORT_EXECUTIVE','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE','VISA_EXECUTIVE','RECEPTION_EXECUTIVE']);const data=staffCreateApplicationSchema.parse({studentId:form.get('studentId'),universityId:form.get('universityId'),program:form.get('program'),deadline:form.get('deadline')||undefined});return Response.json(await createApplicationForStudent(user,data,file))}if(form.get('workflowAction')==='uploadSop'){assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE']);return Response.json(await uploadSopFile(user,String(form.get('applicationId')||''),file,String(form.get('note')||'')))}if(form.get('workflowAction')==='uploadOfferLetter'){assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE']);const offerType=String(form.get('offerType'));if(offerType!=='CONDITIONAL'&&offerType!=='UNCONDITIONAL')throw new Error('Select an offer type.');return Response.json(await uploadOfferLetter(user,String(form.get('applicationId')||''),offerType,file))}assertRole(user.role,['STUDENT']);return Response.json(await uploadRequiredDocument(user.id,String(form.get('documentType')||''),file))}
+    if(request.headers.get('content-type')?.includes('multipart/form-data')){
+      const form=await request.formData()
+      if(form.get('workflowAction')==='acceptOffer'){
+        assertRole(user.role,['STUDENT'])
+        const fileObj = form.get('file')
+        const file = fileObj instanceof File && fileObj.size > 0 ? fileObj : null
+        return Response.json(await acceptStudentOffer(user.id, user.name, String(form.get('applicationId')||''), String(form.get('acknowledgmentLetter')||''), String(form.get('acceptedCourse')||''), file))
+      }
+      const file=form.get('file')
+      if(!(file instanceof File))throw new Error('Select a file to upload.')
+      if(form.get('workflowAction')==='createApplicationWithSop'){assertRole(user.role,['SUPER_ADMIN','MARKETING_EXECUTIVE','FINANCE_EXECUTIVE','SUPPORT_EXECUTIVE','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE','VISA_EXECUTIVE','RECEPTION_EXECUTIVE']);const data=staffCreateApplicationSchema.parse({studentId:form.get('studentId'),universityId:form.get('universityId'),program:form.get('program'),deadline:form.get('deadline')||undefined});return Response.json(await createApplicationForStudent(user,data,file))}
+      if(form.get('workflowAction')==='uploadSop'){assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE']);return Response.json(await uploadSopFile(user,String(form.get('applicationId')||''),file,String(form.get('note')||'')))}
+      if(form.get('workflowAction')==='uploadOfferLetter'){assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE']);const offerType=String(form.get('offerType'));if(offerType!=='CONDITIONAL'&&offerType!=='UNCONDITIONAL')throw new Error('Select an offer type.');return Response.json(await uploadOfferLetter(user,String(form.get('applicationId')||''),offerType,file))}
+      assertRole(user.role,['STUDENT']);return Response.json(await uploadRequiredDocument(user.id,String(form.get('documentType')||''),file))
+    }
     const body = await request.json()
     if(body.action==='workflowCaseAction'){
       assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE','VISA_EXECUTIVE'])
