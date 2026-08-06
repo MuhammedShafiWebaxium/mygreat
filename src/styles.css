@@ -477,6 +477,54 @@
   border-color: #e4e8f0 !important;
 }
 
+.staff-workspace.light-theme .staff-ticket-backdrop {
+  background: rgb(15 23 42 / 0.38) !important;
+}
+
+.staff-workspace.light-theme .staff-ticket-modal {
+  color: #172033 !important;
+  background: #fff !important;
+  border-color: #d8dee8 !important;
+  box-shadow: 0 26px 70px -30px rgb(15 23 42 / 0.4) !important;
+}
+
+.staff-workspace.light-theme .staff-ticket-control {
+  color: #172033 !important;
+  background: #f8fafc !important;
+  border-color: #d8dee8 !important;
+  color-scheme: light;
+}
+
+.staff-workspace.light-theme .staff-ticket-control::placeholder {
+  color: #94a3b8 !important;
+}
+
+.staff-workspace.light-theme .support-alert-error {
+  color: #9f1239 !important;
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+}
+
+.staff-workspace.light-theme .support-alert-info {
+  color: #075985 !important;
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+}
+
+.staff-workspace.light-theme .support-alert-warning {
+  color: #9a3412 !important;
+  background-color: #fff7ed !important;
+  border-color: #fed7aa !important;
+}
+
+.staff-workspace.light-theme .support-alert-warning .text-orange-200 {
+  color: #9a3412 !important;
+}
+
+.staff-workspace.light-theme .support-alert-warning .text-white\/45 {
+  color: #7c2d12 !important;
+}
+
 .staff-workspace.light-theme .staff-application-drawer {
   background: #fff !important;
   border-color: #e4e8f0 !important;
@@ -657,6 +705,33 @@
 .student-dashboard.light-theme .assistance-chat-input::placeholder {
   color: rgb(148 163 184);
 }
+
+.student-dashboard.light-theme .assistance-chat-error {
+  color: #9f1239 !important;
+  background: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+}
+
+.student-dashboard.light-theme .assistance-chat-resolution-pending {
+  background: #fff7ed !important;
+  border-color: #fdba74 !important;
+}
+
+.student-dashboard.light-theme .assistance-chat-resolution-pending > p:first-child { color: #9a3412 !important; }
+.student-dashboard.light-theme .assistance-chat-resolution-pending > p:nth-child(2) { color: #475569 !important; }
+.student-dashboard.light-theme .assistance-chat-resolution-pending button:first-child {
+  color: #be123c !important;
+  background: #fff !important;
+  border-color: #fda4af !important;
+}
+
+.student-dashboard.light-theme .assistance-chat-resolved {
+  background: #ecfdf5 !important;
+  border-color: #6ee7b7 !important;
+}
+
+.student-dashboard.light-theme .assistance-chat-resolved > p:first-child { color: #047857 !important; }
+.student-dashboard.light-theme .assistance-chat-resolved > p:nth-child(2) { color: #475569 !important; }
 
 .onboarding-course-menu {
   background: rgb(11 17 34 / 0.98);

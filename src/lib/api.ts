@@ -7,7 +7,7 @@ export function apiError(error: unknown) {
       ? error.message
       : 'Unexpected server error.'
   const status = message === 'Authentication required.' ? 401
-    : message.startsWith('This action requires') ? 403
+    : message === 'FORBIDDEN' || message.startsWith('This action requires') ? 403
       : error instanceof ZodError ? 400 : 500
   return Response.json({ error: message }, { status })
 }

@@ -28,8 +28,13 @@ export type NotificationMinAggregateOutputType = {
   id: string | null
   userId: string | null
   kind: $Enums.NotificationKind | null
+  type: string | null
   title: string | null
   description: string | null
+  link: string | null
+  relatedId: string | null
+  isRead: boolean | null
+  isDeleted: boolean | null
   readAt: Date | null
   createdAt: Date | null
 }
@@ -38,8 +43,13 @@ export type NotificationMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   kind: $Enums.NotificationKind | null
+  type: string | null
   title: string | null
   description: string | null
+  link: string | null
+  relatedId: string | null
+  isRead: boolean | null
+  isDeleted: boolean | null
   readAt: Date | null
   createdAt: Date | null
 }
@@ -48,8 +58,13 @@ export type NotificationCountAggregateOutputType = {
   id: number
   userId: number
   kind: number
+  type: number
   title: number
   description: number
+  link: number
+  relatedId: number
+  isRead: number
+  isDeleted: number
   readAt: number
   createdAt: number
   _all: number
@@ -60,8 +75,13 @@ export type NotificationMinAggregateInputType = {
   id?: true
   userId?: true
   kind?: true
+  type?: true
   title?: true
   description?: true
+  link?: true
+  relatedId?: true
+  isRead?: true
+  isDeleted?: true
   readAt?: true
   createdAt?: true
 }
@@ -70,8 +90,13 @@ export type NotificationMaxAggregateInputType = {
   id?: true
   userId?: true
   kind?: true
+  type?: true
   title?: true
   description?: true
+  link?: true
+  relatedId?: true
+  isRead?: true
+  isDeleted?: true
   readAt?: true
   createdAt?: true
 }
@@ -80,8 +105,13 @@ export type NotificationCountAggregateInputType = {
   id?: true
   userId?: true
   kind?: true
+  type?: true
   title?: true
   description?: true
+  link?: true
+  relatedId?: true
+  isRead?: true
+  isDeleted?: true
   readAt?: true
   createdAt?: true
   _all?: true
@@ -163,8 +193,13 @@ export type NotificationGroupByOutputType = {
   id: string
   userId: string
   kind: $Enums.NotificationKind
+  type: string | null
   title: string
   description: string
+  link: string | null
+  relatedId: string | null
+  isRead: boolean
+  isDeleted: boolean
   readAt: Date | null
   createdAt: Date
   _count: NotificationCountAggregateOutputType | null
@@ -194,8 +229,13 @@ export type NotificationWhereInput = {
   id?: Prisma.UuidFilter<"Notification"> | string
   userId?: Prisma.UuidFilter<"Notification"> | string
   kind?: Prisma.EnumNotificationKindFilter<"Notification"> | $Enums.NotificationKind
+  type?: Prisma.StringNullableFilter<"Notification"> | string | null
   title?: Prisma.StringFilter<"Notification"> | string
   description?: Prisma.StringFilter<"Notification"> | string
+  link?: Prisma.StringNullableFilter<"Notification"> | string | null
+  relatedId?: Prisma.UuidNullableFilter<"Notification"> | string | null
+  isRead?: Prisma.BoolFilter<"Notification"> | boolean
+  isDeleted?: Prisma.BoolFilter<"Notification"> | boolean
   readAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
   user?: Prisma.XOR<Prisma.StudentScalarRelationFilter, Prisma.StudentWhereInput>
@@ -205,8 +245,13 @@ export type NotificationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  type?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  link?: Prisma.SortOrderInput | Prisma.SortOrder
+  relatedId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isRead?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
   readAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.StudentOrderByWithRelationInput
@@ -219,8 +264,13 @@ export type NotificationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.NotificationWhereInput | Prisma.NotificationWhereInput[]
   userId?: Prisma.UuidFilter<"Notification"> | string
   kind?: Prisma.EnumNotificationKindFilter<"Notification"> | $Enums.NotificationKind
+  type?: Prisma.StringNullableFilter<"Notification"> | string | null
   title?: Prisma.StringFilter<"Notification"> | string
   description?: Prisma.StringFilter<"Notification"> | string
+  link?: Prisma.StringNullableFilter<"Notification"> | string | null
+  relatedId?: Prisma.UuidNullableFilter<"Notification"> | string | null
+  isRead?: Prisma.BoolFilter<"Notification"> | boolean
+  isDeleted?: Prisma.BoolFilter<"Notification"> | boolean
   readAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
   user?: Prisma.XOR<Prisma.StudentScalarRelationFilter, Prisma.StudentWhereInput>
@@ -230,8 +280,13 @@ export type NotificationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  type?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  link?: Prisma.SortOrderInput | Prisma.SortOrder
+  relatedId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isRead?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
   readAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.NotificationCountOrderByAggregateInput
@@ -246,8 +301,13 @@ export type NotificationScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"Notification"> | string
   userId?: Prisma.UuidWithAggregatesFilter<"Notification"> | string
   kind?: Prisma.EnumNotificationKindWithAggregatesFilter<"Notification"> | $Enums.NotificationKind
+  type?: Prisma.StringNullableWithAggregatesFilter<"Notification"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"Notification"> | string
   description?: Prisma.StringWithAggregatesFilter<"Notification"> | string
+  link?: Prisma.StringNullableWithAggregatesFilter<"Notification"> | string | null
+  relatedId?: Prisma.UuidNullableWithAggregatesFilter<"Notification"> | string | null
+  isRead?: Prisma.BoolWithAggregatesFilter<"Notification"> | boolean
+  isDeleted?: Prisma.BoolWithAggregatesFilter<"Notification"> | boolean
   readAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Notification"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Notification"> | Date | string
 }
@@ -255,8 +315,13 @@ export type NotificationScalarWhereWithAggregatesInput = {
 export type NotificationCreateInput = {
   id?: string
   kind?: $Enums.NotificationKind
+  type?: string | null
   title: string
   description: string
+  link?: string | null
+  relatedId?: string | null
+  isRead?: boolean
+  isDeleted?: boolean
   readAt?: Date | string | null
   createdAt?: Date | string
   user: Prisma.StudentCreateNestedOneWithoutNotificationsInput
@@ -266,8 +331,13 @@ export type NotificationUncheckedCreateInput = {
   id?: string
   userId: string
   kind?: $Enums.NotificationKind
+  type?: string | null
   title: string
   description: string
+  link?: string | null
+  relatedId?: string | null
+  isRead?: boolean
+  isDeleted?: boolean
   readAt?: Date | string | null
   createdAt?: Date | string
 }
@@ -275,8 +345,13 @@ export type NotificationUncheckedCreateInput = {
 export type NotificationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.StudentUpdateOneRequiredWithoutNotificationsNestedInput
@@ -286,8 +361,13 @@ export type NotificationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -296,8 +376,13 @@ export type NotificationCreateManyInput = {
   id?: string
   userId: string
   kind?: $Enums.NotificationKind
+  type?: string | null
   title: string
   description: string
+  link?: string | null
+  relatedId?: string | null
+  isRead?: boolean
+  isDeleted?: boolean
   readAt?: Date | string | null
   createdAt?: Date | string
 }
@@ -305,8 +390,13 @@ export type NotificationCreateManyInput = {
 export type NotificationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -315,8 +405,13 @@ export type NotificationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -335,8 +430,13 @@ export type NotificationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  link?: Prisma.SortOrder
+  relatedId?: Prisma.SortOrder
+  isRead?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -345,8 +445,13 @@ export type NotificationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  link?: Prisma.SortOrder
+  relatedId?: Prisma.SortOrder
+  isRead?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -355,8 +460,13 @@ export type NotificationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  link?: Prisma.SortOrder
+  relatedId?: Prisma.SortOrder
+  isRead?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -410,8 +520,13 @@ export type EnumNotificationKindFieldUpdateOperationsInput = {
 export type NotificationCreateWithoutUserInput = {
   id?: string
   kind?: $Enums.NotificationKind
+  type?: string | null
   title: string
   description: string
+  link?: string | null
+  relatedId?: string | null
+  isRead?: boolean
+  isDeleted?: boolean
   readAt?: Date | string | null
   createdAt?: Date | string
 }
@@ -419,8 +534,13 @@ export type NotificationCreateWithoutUserInput = {
 export type NotificationUncheckedCreateWithoutUserInput = {
   id?: string
   kind?: $Enums.NotificationKind
+  type?: string | null
   title: string
   description: string
+  link?: string | null
+  relatedId?: string | null
+  isRead?: boolean
+  isDeleted?: boolean
   readAt?: Date | string | null
   createdAt?: Date | string
 }
@@ -458,8 +578,13 @@ export type NotificationScalarWhereInput = {
   id?: Prisma.UuidFilter<"Notification"> | string
   userId?: Prisma.UuidFilter<"Notification"> | string
   kind?: Prisma.EnumNotificationKindFilter<"Notification"> | $Enums.NotificationKind
+  type?: Prisma.StringNullableFilter<"Notification"> | string | null
   title?: Prisma.StringFilter<"Notification"> | string
   description?: Prisma.StringFilter<"Notification"> | string
+  link?: Prisma.StringNullableFilter<"Notification"> | string | null
+  relatedId?: Prisma.UuidNullableFilter<"Notification"> | string | null
+  isRead?: Prisma.BoolFilter<"Notification"> | boolean
+  isDeleted?: Prisma.BoolFilter<"Notification"> | boolean
   readAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
 }
@@ -467,8 +592,13 @@ export type NotificationScalarWhereInput = {
 export type NotificationCreateManyUserInput = {
   id?: string
   kind?: $Enums.NotificationKind
+  type?: string | null
   title: string
   description: string
+  link?: string | null
+  relatedId?: string | null
+  isRead?: boolean
+  isDeleted?: boolean
   readAt?: Date | string | null
   createdAt?: Date | string
 }
@@ -476,8 +606,13 @@ export type NotificationCreateManyUserInput = {
 export type NotificationUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -485,8 +620,13 @@ export type NotificationUpdateWithoutUserInput = {
 export type NotificationUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -494,8 +634,13 @@ export type NotificationUncheckedUpdateWithoutUserInput = {
 export type NotificationUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
+  type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRead?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -506,8 +651,13 @@ export type NotificationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   id?: boolean
   userId?: boolean
   kind?: boolean
+  type?: boolean
   title?: boolean
   description?: boolean
+  link?: boolean
+  relatedId?: boolean
+  isRead?: boolean
+  isDeleted?: boolean
   readAt?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
@@ -517,8 +667,13 @@ export type NotificationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   userId?: boolean
   kind?: boolean
+  type?: boolean
   title?: boolean
   description?: boolean
+  link?: boolean
+  relatedId?: boolean
+  isRead?: boolean
+  isDeleted?: boolean
   readAt?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
@@ -528,8 +683,13 @@ export type NotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   userId?: boolean
   kind?: boolean
+  type?: boolean
   title?: boolean
   description?: boolean
+  link?: boolean
+  relatedId?: boolean
+  isRead?: boolean
+  isDeleted?: boolean
   readAt?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
@@ -539,13 +699,18 @@ export type NotificationSelectScalar = {
   id?: boolean
   userId?: boolean
   kind?: boolean
+  type?: boolean
   title?: boolean
   description?: boolean
+  link?: boolean
+  relatedId?: boolean
+  isRead?: boolean
+  isDeleted?: boolean
   readAt?: boolean
   createdAt?: boolean
 }
 
-export type NotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "kind" | "title" | "description" | "readAt" | "createdAt", ExtArgs["result"]["notification"]>
+export type NotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "kind" | "type" | "title" | "description" | "link" | "relatedId" | "isRead" | "isDeleted" | "readAt" | "createdAt", ExtArgs["result"]["notification"]>
 export type NotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.StudentDefaultArgs<ExtArgs>
 }
@@ -565,8 +730,13 @@ export type $NotificationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     id: string
     userId: string
     kind: $Enums.NotificationKind
+    type: string | null
     title: string
     description: string
+    link: string | null
+    relatedId: string | null
+    isRead: boolean
+    isDeleted: boolean
     readAt: Date | null
     createdAt: Date
   }, ExtArgs["result"]["notification"]>
@@ -996,8 +1166,13 @@ export interface NotificationFieldRefs {
   readonly id: Prisma.FieldRef<"Notification", 'String'>
   readonly userId: Prisma.FieldRef<"Notification", 'String'>
   readonly kind: Prisma.FieldRef<"Notification", 'NotificationKind'>
+  readonly type: Prisma.FieldRef<"Notification", 'String'>
   readonly title: Prisma.FieldRef<"Notification", 'String'>
   readonly description: Prisma.FieldRef<"Notification", 'String'>
+  readonly link: Prisma.FieldRef<"Notification", 'String'>
+  readonly relatedId: Prisma.FieldRef<"Notification", 'String'>
+  readonly isRead: Prisma.FieldRef<"Notification", 'Boolean'>
+  readonly isDeleted: Prisma.FieldRef<"Notification", 'Boolean'>
   readonly readAt: Prisma.FieldRef<"Notification", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Notification", 'DateTime'>
 }

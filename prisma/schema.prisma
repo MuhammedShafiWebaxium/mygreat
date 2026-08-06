@@ -600,7 +600,6 @@ model Document {
   user          Student        @relation("StudentDocuments", fields: [userId], references: [id], onDelete: Cascade)
   application   Application?   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   verifier      Partner?       @relation("VerifiedDocuments", fields: [verifiedBy], references: [id], onDelete: SetNull)
-
   @@index([userId], map: "documents_user_idx")
   @@map("documents")
 }
@@ -626,13 +625,19 @@ model Notification {
   id          String           @id @default(uuid()) @db.Uuid
   userId      String           @map("user_id") @db.Uuid
   kind        NotificationKind @default(SYSTEM)
+  type        String?
   title       String
   description String
+  link        String?
+  relatedId   String?          @map("related_id") @db.Uuid
+  isRead      Boolean          @default(false) @map("is_read")
+  isDeleted   Boolean          @default(false) @map("is_deleted")
   readAt      DateTime?        @map("read_at") @db.Timestamptz(6)
   createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
   user        Student          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt], map: "notifications_user_idx")
+  @@index([userId, isDeleted, createdAt(sort: Desc)], map: "notifications_user_deleted_created_idx")
   @@map("notifications")
 }
 

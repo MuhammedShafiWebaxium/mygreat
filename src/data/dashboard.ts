@@ -41,6 +41,25 @@ export interface DocItem {
 
 export interface Deadline {
   id: string
+}
+
+export interface Task {
+  id: string
+  label: string
+  due?: string
+  tag: string
+  done: boolean
+}
+
+export interface DocItem {
+  id: string
+  name: string
+  status: DocStatus
+  note: string
+}
+
+export interface Deadline {
+  id: string
   label: string
   org: string
   date: string
@@ -60,28 +79,23 @@ export interface StudentProfile {
   journeyStep: number
 }
 
-export type NoticeKind = 'offer' | 'doc' | 'deadline' | 'message' | 'system'
+export type NoticeKind = 'offer' | 'doc' | 'deadline' | 'message' | 'system' | string
 
 export interface Notice {
   id: string
+  _id?: string
   kind: NoticeKind
+  type?: string
   title: string
   desc: string
+  description?: string
+  message?: string
+  link?: string
   time: string
   read: boolean
-}
-
-export const STUDENT: StudentProfile = {
-  name: 'Aarav Mehta',
-  firstName: 'Aarav',
-  initials: 'AM',
-  target: 'MSc Data Science & AI',
-  country: 'United Kingdom',
-  flag: '🇬🇧',
-  intake: 'Fall 2027',
-  gpa: 3.7,
-  profileComplete: 80,
-  journeyStep: 2, // 0-based index into JOURNEY
+  isRead?: boolean
+  isDeleted?: boolean
+  createdAt?: string
 }
 
 export const JOURNEY = ['Profile', 'Shortlist', 'Upload docs', 'Applications', 'Visa', 'Enroll']

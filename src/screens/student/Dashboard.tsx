@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from '@/lib/navigation'
@@ -27,6 +27,12 @@ import { logoutFn, updateMyAccountFn } from '@/features/auth/auth.functions'
 import { addMyShortlistedUniversityFn, saveMyAgencyProfileFn } from '@/features/profile/profile.functions'
 import type { StudentAgencyDetails } from '@/types'
 import { toggleTaskFn } from '@/features/workflow/workflow.functions'
+import {
+  markNotificationAsReadFn,
+  markAllNotificationsAsReadFn,
+  deleteNotificationFn,
+  clearAllNotificationsFn,
+} from '@/features/notifications/notification.functions'
 
 const TAB_TITLES: Record<TabId, string> = {
   overview: 'Your home',
@@ -84,8 +90,25 @@ export default function Dashboard() {
     match: 0,
   })), [serverDashboard?.recommendations])
   const tasks: Task[] = (serverDashboard?.tasks ?? []).map((item) => ({ id: item.id, label: item.label, due: item.dueDate ?? undefined, tag: item.tag, done: item.completed }))
-  const [unread, setUnread] = useState(() => (serverDashboard?.notifications ?? []).filter((item) => !item.readAt).length)
-  const [notices, setNotices] = useState<Notice[]>(() => (serverDashboard?.notifications ?? []).map((item) => ({ id: item.id, kind: item.kind === 'DOCUMENT' ? 'doc' : item.kind.toLowerCase() as Notice['kind'], title: item.title, desc: item.description, time: 'Recently', read: Boolean(item.readAt) })))
+  
+  const [notices, setNotices] = useState<Notice[]>(() =>
+    (serverDashboard?.notifications ?? []).map((item) => ({
+      id: item.id,
+      _id: item.id,
+      kind: item.kind === 'DOCUMENT' ? 'doc' : (item.kind.toLowerCase() as Notice['kind']),
+      type: (item as any).type || item.kind.toLowerCase(),
+      title: item.title,
+      desc: item.description,
+      description: item.description,
+      message: item.description,
+      link: (item as any).link || undefined,
+      time: 'Recently',
+      read: Boolean(item.readAt || (item as any).isRead),
+      isRead: Boolean(item.readAt || (item as any).isRead),
+      createdAt: (item as any).createdAt || undefined,
+    }))
+  )
+
   const [showNotifs, setShowNotifs] = useState(false)
   const [showMobileMore, setShowMobileMore] = useState(false)
   const [showAssistance, setShowAssistance] = useState(false)
@@ -96,7 +119,57 @@ export default function Dashboard() {
   const documentStats={uploaded:requiredDocumentRows.length,verified:requiredDocumentRows.filter(document=>document?.status==='VERIFIED').length,pending:requiredDocumentRows.filter(document=>document?.status==='PENDING').length,needed:requiredDocumentRows.filter(document=>document?.status==='NEEDED').length,total:reqDocs.length}
   const requiredDocumentsComplete=reqDocs.length>0&&requiredDocumentCount===reqDocs.length
 
-  const unreadNotifs = notices.filter((n) => !n.read).length
+  const unreadNotifs = notices.filter((n) => !(n.isRead ?? n.read)).length
+
+  // Prompt for OS Desktop Notification Permission on mount
+  React.useEffect(() => {
+    import('@/lib/notifications').then(({ requestNotificationPermission }) => {
+      requestNotificationPermission()
+    })
+  }, [])
+
+  const markReadMutation = useMutation({
+    mutationFn: ({ id, isRead }: { id: string; isRead?: boolean }) =>
+      markNotificationAsReadFn({ data: { id, isRead } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['student', 'dashboard'] }),
+  })
+
+  const markAllReadMutation = useMutation({
+    mutationFn: () => markAllNotificationsAsReadFn(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['student', 'dashboard'] }),
+  })
+
+  const deleteNotifMutation = useMutation({
+    mutationFn: (id: string) => deleteNotificationFn({ data: { id } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['student', 'dashboard'] }),
+  })
+
+  const clearAllNotifMutation = useMutation({
+    mutationFn: () => clearAllNotificationsFn(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['student', 'dashboard'] }),
+  })
+
+  const handleMarkNotificationRead = (id: string, targetState?: boolean) => {
+    setNotices((items) =>
+      items.map((item) => (item.id === id ? { ...item, read: targetState ?? true, isRead: targetState ?? true } : item))
+    )
+    markReadMutation.mutate({ id, isRead: targetState })
+  }
+
+  const handleMarkAllRead = () => {
+    setNotices((items) => items.map((item) => ({ ...item, read: true, isRead: true })))
+    markAllReadMutation.mutate()
+  }
+
+  const handleDeleteNotification = (id: string) => {
+    setNotices((items) => items.filter((item) => item.id !== id))
+    deleteNotifMutation.mutate(id)
+  }
+
+  const handleClearAllNotifications = () => {
+    setNotices([])
+    clearAllNotifMutation.mutate()
+  }
 
   const taskMutation = useMutation({
     mutationFn: ({ id, completed }: { id: string; completed: boolean }) => toggleTaskFn({ data: { taskId: id, completed } }),
@@ -126,7 +199,6 @@ export default function Dashboard() {
       queryClient.invalidateQueries({ queryKey: ['student', 'dashboard'] }),
     ])
   }
-
   const signOut = async () => {
     await logoutFn()
     queryClient.clear()
@@ -140,11 +212,11 @@ export default function Dashboard() {
       <div className="aurora w-[400px] h-[400px] bottom-[-20%] left-[15%] bg-indigo-600/10" />
 
       <div className="relative flex h-full">
-        <Sidebar tab={tab} onChange={setTab} unread={unread} onSignOut={signOut} />
+        <Sidebar tab={tab} onChange={setTab} unread={unreadNotifs} onSignOut={signOut} />
 
         <div className="flex-1 flex flex-col h-full min-w-0 relative z-10">
           {/* top bar */}
-          <header className="dashboard-header shrink-0 border-b border-white/[0.06] bg-[#070b18]/55 px-4 py-3.5 backdrop-blur-xl sm:px-7 lg:px-8 lg:py-4 flex items-center gap-3 lg:gap-5">
+          <header className="dashboard-header relative z-[100] shrink-0 border-b border-white/[0.06] bg-[#070b18]/55 px-4 py-3.5 backdrop-blur-xl sm:px-7 lg:px-8 lg:py-4 flex items-center gap-3 lg:gap-5">
             {/* mobile brand */}
             <div className="flex lg:hidden items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-300 to-amber-600 flex items-center justify-center">
@@ -203,8 +275,12 @@ export default function Dashboard() {
                 {showNotifs && (
                   <Notifications
                     notices={notices}
-                    onMarkAll={() => setNotices((ns) => ns.map((n) => ({ ...n, read: true })))}
+                    onMarkAll={handleMarkAllRead}
                     onClose={() => setShowNotifs(false)}
+                    onItemClick={(item) => {
+                      if (item.id) handleMarkNotificationRead(item.id, true)
+                    }}
+                    onOpenManagement={() => setTab('notifications')}
                   />
                 )}
               </AnimatePresence>
@@ -245,7 +321,16 @@ export default function Dashboard() {
                   {tab === 'applications' && <Applications applications={applications} documentsComplete={requiredDocumentsComplete} onNavigate={setTab} />}
                   {tab === 'universities' && <UniversitiesTab student={student} shortlisted={profile?.universities ?? []} recommendations={recommendations} onShortlistToggle={handleShortlistAdd} />}
                   {tab === 'documents' && <Documents documents={serverDashboard.documents} requiredDocuments={serverDashboard.requiredDocuments} onChanged={()=>queryClient.invalidateQueries({queryKey:['student','dashboard']})} />}
-                  {tab === 'notifications' && <NotificationCenter notices={notices} onMarkAll={() => { setNotices((items) => items.map((item) => ({ ...item, read: true }))); setUnread(0) }} />}
+                  {tab === 'notifications' && (
+                    <NotificationCenter
+                      notices={notices}
+                      onMarkRead={handleMarkNotificationRead}
+                      onMarkAll={handleMarkAllRead}
+                      onDelete={handleDeleteNotification}
+                      onClearAll={handleClearAllNotifications}
+                      onRefresh={() => queryClient.invalidateQueries({ queryKey: ['student', 'dashboard'] })}
+                    />
+                  )}
                   {tab === 'settings' && (
                     <Settings
                       profile={profile}
@@ -301,7 +386,7 @@ export default function Dashboard() {
                         notifications: 'Review your latest updates',
                         settings: 'Profile, preferences, and sign out',
                       }
-                      return <button key={id} onClick={() => { setTab(id); setShowMobileMore(false) }} className={cn('mobile-more-item relative rounded-2xl border p-4 text-left transition', tab === id ? 'border-amber-300/30 bg-amber-300/[0.09]' : 'border-white/[0.08] bg-white/[0.035]')}><span className={cn('grid size-10 place-items-center rounded-xl', tab === id ? 'bg-amber-400 text-[#10172a]' : 'bg-white/[0.06] text-white/55')}><item.icon className="size-4.5" /></span>{id === 'notifications' && unread > 0 && <span className="absolute right-3 top-3 grid min-w-5 place-items-center rounded-full bg-amber-400 px-1.5 text-[9px] font-bold leading-5 text-[#10172a]">{unread}</span>}<p className="mt-4 text-sm font-semibold">{item.label}</p><p className="mt-1 text-[10.5px] leading-4 text-white/32">{descriptions[id as keyof typeof descriptions]}</p></button>
+                      return <button key={id} onClick={() => { setTab(id); setShowMobileMore(false) }} className={cn('mobile-more-item relative rounded-2xl border p-4 text-left transition', tab === id ? 'border-amber-300/30 bg-amber-300/[0.09]' : 'border-white/[0.08] bg-white/[0.035]')}><span className={cn('grid size-10 place-items-center rounded-xl', tab === id ? 'bg-amber-400 text-[#10172a]' : 'bg-white/[0.06] text-white/55')}><item.icon className="size-4.5" /></span>{id === 'notifications' && unreadNotifs > 0 && <span className="absolute right-3 top-3 grid min-w-5 place-items-center rounded-full bg-amber-400 px-1.5 text-[9px] font-bold leading-5 text-[#10172a]">{unreadNotifs}</span>}<p className="mt-4 text-sm font-semibold">{item.label}</p><p className="mt-1 text-[10.5px] leading-4 text-white/32">{descriptions[id as keyof typeof descriptions]}</p></button>
                     })}
                   </div>
                 </motion.section>
