@@ -371,6 +371,11 @@ export type ApplicationScalarFieldEnum = (typeof ApplicationScalarFieldEnum)[key
 export const RequiredDocumentSettingScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  category: 'category',
+  stage: 'stage',
+  countryCode: 'countryCode',
+  programLevel: 'programLevel',
+  financialType: 'financialType',
   accept: 'accept',
   active: 'active',
   sortOrder: 'sortOrder',

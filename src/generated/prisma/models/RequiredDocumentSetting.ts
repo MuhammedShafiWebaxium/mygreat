@@ -37,6 +37,11 @@ export type RequiredDocumentSettingSumAggregateOutputType = {
 export type RequiredDocumentSettingMinAggregateOutputType = {
   id: string | null
   name: string | null
+  category: $Enums.DocumentCategory | null
+  stage: $Enums.DocumentStage | null
+  countryCode: string | null
+  programLevel: string | null
+  financialType: string | null
   accept: string | null
   active: boolean | null
   sortOrder: number | null
@@ -47,6 +52,11 @@ export type RequiredDocumentSettingMinAggregateOutputType = {
 export type RequiredDocumentSettingMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  category: $Enums.DocumentCategory | null
+  stage: $Enums.DocumentStage | null
+  countryCode: string | null
+  programLevel: string | null
+  financialType: string | null
   accept: string | null
   active: boolean | null
   sortOrder: number | null
@@ -57,6 +67,11 @@ export type RequiredDocumentSettingMaxAggregateOutputType = {
 export type RequiredDocumentSettingCountAggregateOutputType = {
   id: number
   name: number
+  category: number
+  stage: number
+  countryCode: number
+  programLevel: number
+  financialType: number
   accept: number
   active: number
   sortOrder: number
@@ -77,6 +92,11 @@ export type RequiredDocumentSettingSumAggregateInputType = {
 export type RequiredDocumentSettingMinAggregateInputType = {
   id?: true
   name?: true
+  category?: true
+  stage?: true
+  countryCode?: true
+  programLevel?: true
+  financialType?: true
   accept?: true
   active?: true
   sortOrder?: true
@@ -87,6 +107,11 @@ export type RequiredDocumentSettingMinAggregateInputType = {
 export type RequiredDocumentSettingMaxAggregateInputType = {
   id?: true
   name?: true
+  category?: true
+  stage?: true
+  countryCode?: true
+  programLevel?: true
+  financialType?: true
   accept?: true
   active?: true
   sortOrder?: true
@@ -97,6 +122,11 @@ export type RequiredDocumentSettingMaxAggregateInputType = {
 export type RequiredDocumentSettingCountAggregateInputType = {
   id?: true
   name?: true
+  category?: true
+  stage?: true
+  countryCode?: true
+  programLevel?: true
+  financialType?: true
   accept?: true
   active?: true
   sortOrder?: true
@@ -194,6 +224,11 @@ export type RequiredDocumentSettingGroupByArgs<ExtArgs extends runtime.Types.Ext
 export type RequiredDocumentSettingGroupByOutputType = {
   id: string
   name: string
+  category: $Enums.DocumentCategory
+  stage: $Enums.DocumentStage
+  countryCode: string | null
+  programLevel: string | null
+  financialType: string | null
   accept: string
   active: boolean
   sortOrder: number
@@ -227,6 +262,11 @@ export type RequiredDocumentSettingWhereInput = {
   NOT?: Prisma.RequiredDocumentSettingWhereInput | Prisma.RequiredDocumentSettingWhereInput[]
   id?: Prisma.StringFilter<"RequiredDocumentSetting"> | string
   name?: Prisma.StringFilter<"RequiredDocumentSetting"> | string
+  category?: Prisma.EnumDocumentCategoryFilter<"RequiredDocumentSetting"> | $Enums.DocumentCategory
+  stage?: Prisma.EnumDocumentStageFilter<"RequiredDocumentSetting"> | $Enums.DocumentStage
+  countryCode?: Prisma.StringNullableFilter<"RequiredDocumentSetting"> | string | null
+  programLevel?: Prisma.StringNullableFilter<"RequiredDocumentSetting"> | string | null
+  financialType?: Prisma.StringNullableFilter<"RequiredDocumentSetting"> | string | null
   accept?: Prisma.StringFilter<"RequiredDocumentSetting"> | string
   active?: Prisma.BoolFilter<"RequiredDocumentSetting"> | boolean
   sortOrder?: Prisma.IntFilter<"RequiredDocumentSetting"> | number
@@ -237,6 +277,11 @@ export type RequiredDocumentSettingWhereInput = {
 export type RequiredDocumentSettingOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  countryCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  programLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  financialType?: Prisma.SortOrderInput | Prisma.SortOrder
   accept?: Prisma.SortOrder
   active?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -250,6 +295,11 @@ export type RequiredDocumentSettingWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.RequiredDocumentSettingWhereInput[]
   NOT?: Prisma.RequiredDocumentSettingWhereInput | Prisma.RequiredDocumentSettingWhereInput[]
   name?: Prisma.StringFilter<"RequiredDocumentSetting"> | string
+  category?: Prisma.EnumDocumentCategoryFilter<"RequiredDocumentSetting"> | $Enums.DocumentCategory
+  stage?: Prisma.EnumDocumentStageFilter<"RequiredDocumentSetting"> | $Enums.DocumentStage
+  countryCode?: Prisma.StringNullableFilter<"RequiredDocumentSetting"> | string | null
+  programLevel?: Prisma.StringNullableFilter<"RequiredDocumentSetting"> | string | null
+  financialType?: Prisma.StringNullableFilter<"RequiredDocumentSetting"> | string | null
   accept?: Prisma.StringFilter<"RequiredDocumentSetting"> | string
   active?: Prisma.BoolFilter<"RequiredDocumentSetting"> | boolean
   sortOrder?: Prisma.IntFilter<"RequiredDocumentSetting"> | number
@@ -260,6 +310,11 @@ export type RequiredDocumentSettingWhereUniqueInput = Prisma.AtLeast<{
 export type RequiredDocumentSettingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  countryCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  programLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  financialType?: Prisma.SortOrderInput | Prisma.SortOrder
   accept?: Prisma.SortOrder
   active?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -278,6 +333,11 @@ export type RequiredDocumentSettingScalarWhereWithAggregatesInput = {
   NOT?: Prisma.RequiredDocumentSettingScalarWhereWithAggregatesInput | Prisma.RequiredDocumentSettingScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"RequiredDocumentSetting"> | string
   name?: Prisma.StringWithAggregatesFilter<"RequiredDocumentSetting"> | string
+  category?: Prisma.EnumDocumentCategoryWithAggregatesFilter<"RequiredDocumentSetting"> | $Enums.DocumentCategory
+  stage?: Prisma.EnumDocumentStageWithAggregatesFilter<"RequiredDocumentSetting"> | $Enums.DocumentStage
+  countryCode?: Prisma.StringNullableWithAggregatesFilter<"RequiredDocumentSetting"> | string | null
+  programLevel?: Prisma.StringNullableWithAggregatesFilter<"RequiredDocumentSetting"> | string | null
+  financialType?: Prisma.StringNullableWithAggregatesFilter<"RequiredDocumentSetting"> | string | null
   accept?: Prisma.StringWithAggregatesFilter<"RequiredDocumentSetting"> | string
   active?: Prisma.BoolWithAggregatesFilter<"RequiredDocumentSetting"> | boolean
   sortOrder?: Prisma.IntWithAggregatesFilter<"RequiredDocumentSetting"> | number
@@ -288,6 +348,11 @@ export type RequiredDocumentSettingScalarWhereWithAggregatesInput = {
 export type RequiredDocumentSettingCreateInput = {
   id: string
   name: string
+  category?: $Enums.DocumentCategory
+  stage?: $Enums.DocumentStage
+  countryCode?: string | null
+  programLevel?: string | null
+  financialType?: string | null
   accept?: string
   active?: boolean
   sortOrder?: number
@@ -298,6 +363,11 @@ export type RequiredDocumentSettingCreateInput = {
 export type RequiredDocumentSettingUncheckedCreateInput = {
   id: string
   name: string
+  category?: $Enums.DocumentCategory
+  stage?: $Enums.DocumentStage
+  countryCode?: string | null
+  programLevel?: string | null
+  financialType?: string | null
   accept?: string
   active?: boolean
   sortOrder?: number
@@ -308,6 +378,11 @@ export type RequiredDocumentSettingUncheckedCreateInput = {
 export type RequiredDocumentSettingUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumDocumentCategoryFieldUpdateOperationsInput | $Enums.DocumentCategory
+  stage?: Prisma.EnumDocumentStageFieldUpdateOperationsInput | $Enums.DocumentStage
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  programLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  financialType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accept?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -318,6 +393,11 @@ export type RequiredDocumentSettingUpdateInput = {
 export type RequiredDocumentSettingUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumDocumentCategoryFieldUpdateOperationsInput | $Enums.DocumentCategory
+  stage?: Prisma.EnumDocumentStageFieldUpdateOperationsInput | $Enums.DocumentStage
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  programLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  financialType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accept?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -328,6 +408,11 @@ export type RequiredDocumentSettingUncheckedUpdateInput = {
 export type RequiredDocumentSettingCreateManyInput = {
   id: string
   name: string
+  category?: $Enums.DocumentCategory
+  stage?: $Enums.DocumentStage
+  countryCode?: string | null
+  programLevel?: string | null
+  financialType?: string | null
   accept?: string
   active?: boolean
   sortOrder?: number
@@ -338,6 +423,11 @@ export type RequiredDocumentSettingCreateManyInput = {
 export type RequiredDocumentSettingUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumDocumentCategoryFieldUpdateOperationsInput | $Enums.DocumentCategory
+  stage?: Prisma.EnumDocumentStageFieldUpdateOperationsInput | $Enums.DocumentStage
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  programLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  financialType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accept?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -348,6 +438,11 @@ export type RequiredDocumentSettingUpdateManyMutationInput = {
 export type RequiredDocumentSettingUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.EnumDocumentCategoryFieldUpdateOperationsInput | $Enums.DocumentCategory
+  stage?: Prisma.EnumDocumentStageFieldUpdateOperationsInput | $Enums.DocumentStage
+  countryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  programLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  financialType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accept?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -358,6 +453,11 @@ export type RequiredDocumentSettingUncheckedUpdateManyInput = {
 export type RequiredDocumentSettingCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  countryCode?: Prisma.SortOrder
+  programLevel?: Prisma.SortOrder
+  financialType?: Prisma.SortOrder
   accept?: Prisma.SortOrder
   active?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -372,6 +472,11 @@ export type RequiredDocumentSettingAvgOrderByAggregateInput = {
 export type RequiredDocumentSettingMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  countryCode?: Prisma.SortOrder
+  programLevel?: Prisma.SortOrder
+  financialType?: Prisma.SortOrder
   accept?: Prisma.SortOrder
   active?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -382,6 +487,11 @@ export type RequiredDocumentSettingMaxOrderByAggregateInput = {
 export type RequiredDocumentSettingMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  countryCode?: Prisma.SortOrder
+  programLevel?: Prisma.SortOrder
+  financialType?: Prisma.SortOrder
   accept?: Prisma.SortOrder
   active?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -393,11 +503,24 @@ export type RequiredDocumentSettingSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
+export type EnumDocumentCategoryFieldUpdateOperationsInput = {
+  set?: $Enums.DocumentCategory
+}
+
+export type EnumDocumentStageFieldUpdateOperationsInput = {
+  set?: $Enums.DocumentStage
+}
+
 
 
 export type RequiredDocumentSettingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  category?: boolean
+  stage?: boolean
+  countryCode?: boolean
+  programLevel?: boolean
+  financialType?: boolean
   accept?: boolean
   active?: boolean
   sortOrder?: boolean
@@ -408,6 +531,11 @@ export type RequiredDocumentSettingSelect<ExtArgs extends runtime.Types.Extensio
 export type RequiredDocumentSettingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  category?: boolean
+  stage?: boolean
+  countryCode?: boolean
+  programLevel?: boolean
+  financialType?: boolean
   accept?: boolean
   active?: boolean
   sortOrder?: boolean
@@ -418,6 +546,11 @@ export type RequiredDocumentSettingSelectCreateManyAndReturn<ExtArgs extends run
 export type RequiredDocumentSettingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  category?: boolean
+  stage?: boolean
+  countryCode?: boolean
+  programLevel?: boolean
+  financialType?: boolean
   accept?: boolean
   active?: boolean
   sortOrder?: boolean
@@ -428,6 +561,11 @@ export type RequiredDocumentSettingSelectUpdateManyAndReturn<ExtArgs extends run
 export type RequiredDocumentSettingSelectScalar = {
   id?: boolean
   name?: boolean
+  category?: boolean
+  stage?: boolean
+  countryCode?: boolean
+  programLevel?: boolean
+  financialType?: boolean
   accept?: boolean
   active?: boolean
   sortOrder?: boolean
@@ -435,7 +573,7 @@ export type RequiredDocumentSettingSelectScalar = {
   updatedAt?: boolean
 }
 
-export type RequiredDocumentSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "accept" | "active" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["requiredDocumentSetting"]>
+export type RequiredDocumentSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "category" | "stage" | "countryCode" | "programLevel" | "financialType" | "accept" | "active" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["requiredDocumentSetting"]>
 
 export type $RequiredDocumentSettingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RequiredDocumentSetting"
@@ -443,6 +581,11 @@ export type $RequiredDocumentSettingPayload<ExtArgs extends runtime.Types.Extens
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    category: $Enums.DocumentCategory
+    stage: $Enums.DocumentStage
+    countryCode: string | null
+    programLevel: string | null
+    financialType: string | null
     accept: string
     active: boolean
     sortOrder: number
@@ -873,6 +1016,11 @@ export interface Prisma__RequiredDocumentSettingClient<T, Null = never, ExtArgs 
 export interface RequiredDocumentSettingFieldRefs {
   readonly id: Prisma.FieldRef<"RequiredDocumentSetting", 'String'>
   readonly name: Prisma.FieldRef<"RequiredDocumentSetting", 'String'>
+  readonly category: Prisma.FieldRef<"RequiredDocumentSetting", 'DocumentCategory'>
+  readonly stage: Prisma.FieldRef<"RequiredDocumentSetting", 'DocumentStage'>
+  readonly countryCode: Prisma.FieldRef<"RequiredDocumentSetting", 'String'>
+  readonly programLevel: Prisma.FieldRef<"RequiredDocumentSetting", 'String'>
+  readonly financialType: Prisma.FieldRef<"RequiredDocumentSetting", 'String'>
   readonly accept: Prisma.FieldRef<"RequiredDocumentSetting", 'String'>
   readonly active: Prisma.FieldRef<"RequiredDocumentSetting", 'Boolean'>
   readonly sortOrder: Prisma.FieldRef<"RequiredDocumentSetting", 'Int'>

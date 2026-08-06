@@ -9,7 +9,7 @@ import { countrySchema, courseSchema, deleteSchema, feeSchema, universitySchema 
 import { deleteEntity, listCatalog, saveCountry, saveCourse, saveUniversity, setCourseFee } from '@/features/university-management/university.server'
 import { createCourseImportJob, listImportErrors, listImportJobs, processCourseImportBatch, readImportJob } from '@/features/university-management/import.server'
 import { readExchangeRateSettings, refreshExchangeRates } from '@/features/exchange-rates/exchange-rates.server'
-import { deleteRequiredDocumentSetting, listRequiredDocumentSettings, requiredDocumentSettingSchema, saveRequiredDocumentSetting } from '@/features/required-documents/required-documents.server'
+import { deleteRequiredDocumentSetting, listRequiredDocumentSettings, requiredDocumentSettingSchema, saveRequiredDocumentSetting, seedDefaultCountryChecklists } from '@/features/required-documents/required-documents.server'
 import { z } from 'zod'
 
 export async function GET(request: Request) {
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     }
     if (action === 'catalogImportJobs') { assertRole(user.role,['SUPER_ADMIN']); return Response.json(await listImportJobs(user.id)) }
     if (action === 'exchangeRates') { assertRole(user.role,['SUPER_ADMIN']); return Response.json(await readExchangeRateSettings()) }
-    if (action === 'requiredDocuments') { assertRole(user.role,['SUPER_ADMIN']); return Response.json(await listRequiredDocumentSettings()) }
+    if (action === 'requiredDocuments') { assertRole(user.role,['SUPER_ADMIN', 'PARTNER_ADMIN', 'ADMISSIONS_EXECUTIVE', 'VISA_EXECUTIVE', 'MARKETING_EXECUTIVE', 'FINANCE_EXECUTIVE', 'SUPPORT_EXECUTIVE']); return Response.json(await listRequiredDocumentSettings()) }
     if (action === 'listStaff') {
       assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN'])
       return Response.json(await listStaffUsers(user))
@@ -67,8 +67,9 @@ export async function POST(request: Request) {
     if (action === 'setCourseFee') { assertRole(user.role, ['SUPER_ADMIN']); return Response.json(await setCourseFee(user.id, feeSchema.parse(body))) }
     if (action === 'deleteCatalogEntity') { assertRole(user.role, ['SUPER_ADMIN']); const parsed = deleteSchema.parse(body); return Response.json(await deleteEntity(user.id, parsed.entity, parsed.id)) }
     if (action === 'refreshExchangeRates') { assertRole(user.role,['SUPER_ADMIN']); return Response.json(await refreshExchangeRates(user.id)) }
-    if (action === 'saveRequiredDocument') { assertRole(user.role,['SUPER_ADMIN']); return Response.json(await saveRequiredDocumentSetting(requiredDocumentSettingSchema.parse(body))) }
-    if (action === 'deleteRequiredDocument') { assertRole(user.role,['SUPER_ADMIN']); const {id}=z.object({id:z.string().min(1)}).parse(body); return Response.json(await deleteRequiredDocumentSetting(id)) }
+    if (action === 'saveRequiredDocument') { assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN', 'ADMISSIONS_EXECUTIVE', 'VISA_EXECUTIVE', 'MARKETING_EXECUTIVE', 'FINANCE_EXECUTIVE', 'SUPPORT_EXECUTIVE']); return Response.json(await saveRequiredDocumentSetting(requiredDocumentSettingSchema.parse(body))) }
+    if (action === 'deleteRequiredDocument') { assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN', 'ADMISSIONS_EXECUTIVE', 'VISA_EXECUTIVE', 'MARKETING_EXECUTIVE', 'FINANCE_EXECUTIVE', 'SUPPORT_EXECUTIVE']); const {id}=z.object({id:z.string().min(1)}).parse(body); return Response.json(await deleteRequiredDocumentSetting(id)) }
+    if (action === 'seedDefaultCountryChecklists') { assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN', 'ADMISSIONS_EXECUTIVE', 'VISA_EXECUTIVE', 'MARKETING_EXECUTIVE', 'FINANCE_EXECUTIVE', 'SUPPORT_EXECUTIVE']); return Response.json(await seedDefaultCountryChecklists()) }
     if (action === 'createStaff') {
       assertRole(user.role, ['SUPER_ADMIN', 'PARTNER_ADMIN'])
       return Response.json(await createStaffUser(user, createStaffSchema.parse(body)))

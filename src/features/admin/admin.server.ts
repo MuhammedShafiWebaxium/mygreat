@@ -4,7 +4,7 @@ import { prisma } from '@/db/client.server'
 import { hashPassword } from '@/features/auth/password.server'
 import type { AccountType, UserRole } from '@/features/auth/auth.schema'
 import type { Country } from '@/types'
-import { listRequiredDocumentSettings } from '@/features/required-documents/required-documents.server'
+import { detectStudentProgramLevels, filterStudentRequiredDocuments, listRequiredDocumentSettings, normalizeCountryCode } from '@/features/required-documents/required-documents.server'
 
 const adminRoles = ['SUPER_ADMIN', 'MARKETING_EXECUTIVE', 'FINANCE_EXECUTIVE', 'SUPPORT_EXECUTIVE'] as const
 type AdminRole = typeof adminRoles[number]
@@ -280,18 +280,72 @@ export async function readStudentProfileForStaff(
       profile: true,
       shortlist: { include: { university: true }, orderBy: { createdAt: 'asc' } },
       applications: {
-        include: { university: true },
+        include: { university: { include: { country: true } } },
         orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
       },
       documents: { select: { id: true, name: true, status: true, note: true, storageKey: true }, orderBy: { createdAt: 'asc' } },
     },
   })
   if (!student) throw new Error('Student not found.')
+  const [allRequired, visaStages] = await Promise.all([
+    listRequiredDocumentSettings(true),
+    student.applications.length
+      ? prisma.$queryRaw<Array<{ applicationId: string; currentStage: string }>>(
+          Prisma.sql`SELECT application_id AS "applicationId", current_stage AS "currentStage" FROM visa_attempts WHERE is_current=TRUE AND application_id IN (${Prisma.join(
+            student.applications.map(row => Prisma.sql`${row.id}::uuid`)
+          )})`
+        )
+      : Promise.resolve([]),
+  ])
+  const visaStageByApplication = new Map(visaStages.map(item => [item.applicationId, item.currentStage]))
+
+  const destination = student.profile?.destinationCountry as any
+  const visaActiveStages = new Set([
+    'MOVE_TO_VISA',
+    'APPLICATION_ACCEPTED',
+    'UNCONDITIONAL_OFFER_RECEIVED',
+    'CONDITIONAL_OFFER_RECEIVED',
+    'MEET_OFFER_CONDITIONS',
+  ])
+
+  const studentCountries = new Set<string>()
+  if (destination) {
+    if (typeof destination === 'string') {
+      for (const code of normalizeCountryCode(destination)) studentCountries.add(code)
+    } else if (destination.code) {
+      for (const code of normalizeCountryCode(String(destination.code))) studentCountries.add(code)
+    } else if (destination.id) {
+      const c = await prisma.country.findUnique({ where: { id: destination.id }, select: { code: true } })
+      if (c?.code) {
+        for (const code of normalizeCountryCode(c.code)) studentCountries.add(code)
+      }
+    }
+  }
+
+  const visaActiveCountries = new Set<string>()
+  for (const app of student.applications) {
+    const cCode = app.university?.country?.code?.toUpperCase()
+    if (cCode) {
+      for (const code of normalizeCountryCode(cCode)) studentCountries.add(code)
+      const inVisa = visaActiveStages.has(app.applicationStage) || Boolean(visaStageByApplication.get(app.id))
+      if (inVisa) {
+        for (const code of normalizeCountryCode(cCode)) visaActiveCountries.add(code)
+      }
+    }
+  }
+
+  const requiredDocuments = filterStudentRequiredDocuments(allRequired, {
+    studentCountries,
+    hasApplications: student.applications.length > 0,
+    visaActiveCountries,
+    studentProgramLevels: detectStudentProgramLevels(student.profile, student.applications),
+  })
+
   const priorities=student.applications.length?await prisma.$queryRaw<Array<{id:string;isPriority:boolean}>>(Prisma.sql`SELECT id,is_priority AS "isPriority" FROM applications WHERE student_id=${studentId}::uuid`):[]
   const priorityById=new Map(priorities.map(item=>[item.id,item.isPriority]))
-  return {
+  const rawResult = {
     ...student,
-    requiredDocuments:await listRequiredDocumentSettings(true),
+    requiredDocuments,
     profile: student.profile ? { ...student.profile, gpa: student.profile.gpa === null ? null : Number(student.profile.gpa) } : null,
     applications: student.applications.map(({ university, ...application }) => ({
       ...application,
@@ -300,6 +354,7 @@ export async function readStudentProfileForStaff(
       university,
     })),
   }
+  return JSON.parse(JSON.stringify(rawResult)) as typeof rawResult
 }
 
 export async function readDocumentReviewQueue(actor: { id: string; role: UserRole }) {

@@ -2903,6 +2903,11 @@ export type ApplicationScalarFieldEnum = (typeof ApplicationScalarFieldEnum)[key
 export const RequiredDocumentSettingScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  category: 'category',
+  stage: 'stage',
+  countryCode: 'countryCode',
+  programLevel: 'programLevel',
+  financialType: 'financialType',
   accept: 'accept',
   active: 'active',
   sortOrder: 'sortOrder',
@@ -3302,6 +3307,34 @@ export type EnumOfferTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'OfferType[]'
  */
 export type ListEnumOfferTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OfferType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DocumentCategory'
+ */
+export type EnumDocumentCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentCategory'>
+    
+
+
+/**
+ * Reference to a field of type 'DocumentCategory[]'
+ */
+export type ListEnumDocumentCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentCategory[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DocumentStage'
+ */
+export type EnumDocumentStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentStage'>
+    
+
+
+/**
+ * Reference to a field of type 'DocumentStage[]'
+ */
+export type ListEnumDocumentStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentStage[]'>
     
 
 

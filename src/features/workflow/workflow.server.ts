@@ -6,7 +6,7 @@ import type { z } from 'zod'
 import type { applicationUpdateSchema, createApplicationSchema } from './workflow.schema'
 import type { workflowCaseActionSchema } from './workflow.schema'
 import { APPLICATION_WORKFLOW, VISA_WORKFLOW, WORKFLOW_TRANSITIONS, isValidWorkflowTransition } from './workflow.transitions'
-import { listRequiredDocumentSettings } from '@/features/required-documents/required-documents.server'
+import { detectStudentProgramLevels, filterStudentRequiredDocuments, listRequiredDocumentSettings, normalizeCountryCode } from '@/features/required-documents/required-documents.server'
 
 const dateOnly = (date: Date | null) => date?.toISOString().slice(0, 10) ?? null
 
@@ -85,7 +85,7 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
     if(input.workflowType==='VISA'&&!visaAttemptId){const [created]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO visa_attempts(application_id,attempt_number,is_current,current_stage) VALUES(${input.applicationId}::uuid,1,TRUE,${target}::visa_status) RETURNING id`);visaAttemptId=created.id}
     if(input.workflowType==='VISA'&&stage==='VISA_SUBMISSION'&&target==='VISA_REAPPLY_OR_APPEAL'){
       const restart='VISA_DOCUMENT_COLLECTION'
-      await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followups(student_id,application_id,visa_attempt_id,workflow_type,stage,outcome,notes,created_by_id,created_by_name) VALUES(${detail.studentId}::uuid,${input.applicationId}::uuid,${visaAttemptId}::uuid,'VISA','VISA_REAPPLY_OR_APPEAL','NEW_ATTEMPT',${input.note},${actor.id}::uuid,${actor.name})`)
+      await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followups(id,student_id,application_id,visa_attempt_id,workflow_type,stage,outcome,notes,created_by_id,created_by_name) VALUES(gen_random_uuid(),${detail.studentId}::uuid,${input.applicationId}::uuid,${visaAttemptId}::uuid,'VISA','VISA_REAPPLY_OR_APPEAL','NEW_ATTEMPT',${input.note},${actor.id}::uuid,${actor.name})`)
       await tx.$executeRaw(Prisma.sql`UPDATE visa_attempts SET is_current=FALSE,updated_at=NOW() WHERE application_id=${input.applicationId}::uuid`)
       const [created]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO visa_attempts(application_id,attempt_number,is_current,current_stage) SELECT ${input.applicationId}::uuid,COALESCE(MAX(attempt_number),0)+1,TRUE,${restart}::visa_status FROM visa_attempts WHERE application_id=${input.applicationId}::uuid RETURNING id`);visaAttemptId=created.id
       persistedTarget=restart
@@ -107,15 +107,15 @@ export async function actOnWorkflowCase(actor:{id:string;name:string;role:UserRo
       await tx.notification.create({data:{userId:detail.studentId,kind:'DOCUMENT',title:'Urgent action required for your application',description:`${detail.universityName} needs corrected documents before your application can be resubmitted. Open Document center and replace the requested files immediately.`}})
     }
     if(input.workflowType==='APPLICATION'&&input.rejectionType==='UNIVERSITY_FINAL')await tx.notification.create({data:{userId:detail.studentId,kind:'SYSTEM',title:`Application rejected by ${detail.universityName}`,description:`The university has issued a final rejection for your ${detail.program} application. This application is now closed and cannot proceed further.`}})
-    const [followup]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO workflow_followups(student_id,application_id,visa_attempt_id,workflow_type,stage,outcome,notes,expected_completion_at,expected_completion_end_at,next_follow_up_at,assigned_staff_id,assigned_staff_name,created_by_id,created_by_name) VALUES(${detail.studentId}::uuid,${input.applicationId}::uuid,${visaAttemptId??null}::uuid,${input.workflowType},${persistedTarget},${recordedOutcome??null},${input.note},${input.expectedCompletionAt?new Date(input.expectedCompletionAt):null},${input.expectedCompletionEndAt?new Date(input.expectedCompletionEndAt):null},${input.nextFollowUpAt?new Date(input.nextFollowUpAt):null},${input.assignedStaffId??null}::uuid,${input.assignedStaffName??null},${actor.id}::uuid,${actor.name}) RETURNING id`)
-    if(input.workflowType==='APPLICATION'&&stage!=='SOP_VERIFICATION'&&persistedTarget==='SOP_VERIFICATION')await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_approval_requests(student_id,application_id,followup_id,stage,requested_by_id,requested_by_name) VALUES(${detail.studentId}::uuid,${input.applicationId}::uuid,${followup.id}::uuid,'SOP_VERIFICATION',${actor.id}::uuid,${actor.name})`)
+    const [followup]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO workflow_followups(id,student_id,application_id,visa_attempt_id,workflow_type,stage,outcome,notes,expected_completion_at,expected_completion_end_at,next_follow_up_at,assigned_staff_id,assigned_staff_name,created_by_id,created_by_name) VALUES(gen_random_uuid(),${detail.studentId}::uuid,${input.applicationId}::uuid,${visaAttemptId??null}::uuid,${input.workflowType},${persistedTarget},${recordedOutcome??null},${input.note},${input.expectedCompletionAt?new Date(input.expectedCompletionAt):null},${input.expectedCompletionEndAt?new Date(input.expectedCompletionEndAt):null},${input.nextFollowUpAt?new Date(input.nextFollowUpAt):null},${input.assignedStaffId??null}::uuid,${input.assignedStaffName??null},${actor.id}::uuid,${actor.name}) RETURNING id`)
+    if(input.workflowType==='APPLICATION'&&stage!=='SOP_VERIFICATION'&&persistedTarget==='SOP_VERIFICATION')await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_approval_requests(id,student_id,application_id,followup_id,stage,requested_by_id,requested_by_name) VALUES(gen_random_uuid(),${detail.studentId}::uuid,${input.applicationId}::uuid,${followup.id}::uuid,'SOP_VERIFICATION',${actor.id}::uuid,${actor.name})`)
     if(input.workflowType==='APPLICATION'&&stage==='SOP_VERIFICATION'&&['SOP_APPROVED','SOP_CORRECTION_REQUIRED'].includes(persistedTarget))await tx.$executeRaw(Prisma.sql`UPDATE workflow_approval_requests SET status=${persistedTarget==='SOP_APPROVED'?'APPROVED':'REJECTED'},reviewed_by_id=${actor.id}::uuid,reviewed_by_name=${actor.name},review_note=${input.note},reviewed_at=NOW() WHERE id=${input.approvalRequestId}::uuid AND status='PENDING'`)
     const requestedVisaStage=persistedTarget==='VISA_SLOT_BOOKING'?'VISA_LEVEL_1_VERIFICATION':persistedTarget==='VISA_LEVEL_1_VERIFICATION'?'VISA_LEVEL_2_VERIFICATION':null
-    if(input.workflowType==='VISA'&&requestedVisaStage)await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_approval_requests(student_id,application_id,followup_id,workflow_type,visa_attempt_id,stage,requested_by_id,requested_by_name) SELECT ${detail.studentId}::uuid,${input.applicationId}::uuid,${followup.id}::uuid,'VISA',${visaAttemptId}::uuid,${requestedVisaStage},${actor.id}::uuid,${actor.name} WHERE NOT EXISTS(SELECT 1 FROM workflow_approval_requests WHERE visa_attempt_id=${visaAttemptId}::uuid AND stage=${requestedVisaStage} AND status='PENDING')`)
+    if(input.workflowType==='VISA'&&requestedVisaStage)await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_approval_requests(id,student_id,application_id,followup_id,workflow_type,visa_attempt_id,stage,requested_by_id,requested_by_name) SELECT gen_random_uuid(),${detail.studentId}::uuid,${input.applicationId}::uuid,${followup.id}::uuid,'VISA',${visaAttemptId}::uuid,${requestedVisaStage},${actor.id}::uuid,${actor.name} WHERE NOT EXISTS(SELECT 1 FROM workflow_approval_requests WHERE visa_attempt_id=${visaAttemptId}::uuid AND stage=${requestedVisaStage} AND status='PENDING')`)
     if(input.workflowType==='VISA'&&input.approvalStage&&actor.role==='SUPER_ADMIN')await tx.$executeRaw(Prisma.sql`UPDATE workflow_approval_requests SET status=${input.outcome==='REJECTED'?'REJECTED':'APPROVED'},reviewed_by_id=${actor.id}::uuid,reviewed_by_name=${actor.name},review_note=${input.note},reviewed_at=NOW() WHERE visa_attempt_id=${visaAttemptId}::uuid AND stage=${input.approvalStage} AND status='PENDING'`)
     if(input.workflowType==='APPLICATION'&&target==='MOVE_TO_VISA'){
       const [attempt]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO visa_attempts(application_id,attempt_number,is_current,current_stage) SELECT ${input.applicationId}::uuid,1,TRUE,'MEET_OFFER_CONDITIONS' WHERE NOT EXISTS(SELECT 1 FROM visa_attempts WHERE application_id=${input.applicationId}::uuid AND is_current=TRUE) RETURNING id`)
-      if(attempt)await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followups(student_id,application_id,visa_attempt_id,workflow_type,stage,notes,created_by_id,created_by_name) VALUES(${detail.studentId}::uuid,${input.applicationId}::uuid,${attempt.id}::uuid,'VISA','MEET_OFFER_CONDITIONS','Visa workflow activated from accepted application.',${actor.id}::uuid,${actor.name})`)
+      if(attempt)await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followups(id,student_id,application_id,visa_attempt_id,workflow_type,stage,notes,created_by_id,created_by_name) VALUES(gen_random_uuid(),${detail.studentId}::uuid,${input.applicationId}::uuid,${attempt.id}::uuid,'VISA','MEET_OFFER_CONDITIONS','Visa workflow activated from accepted application.',${actor.id}::uuid,${actor.name})`)
     }
     await tx.auditLog.create({data:{actorId:actor.id,action:`${input.workflowType}_FOLLOW_UP_CREATED`,entityType:`${input.workflowType.toLowerCase()}_workflow`,entityId:input.applicationId,metadata:{from:stage,to:persistedTarget,outcome:input.outcome,note:input.note,visaAttemptId,reapplyMode:input.reapplyMode}}})
   })
@@ -131,8 +131,8 @@ export async function uploadSopFile(actor:{id:string;name:string;role:UserRole},
   const bytes=Buffer.from(await file.arrayBuffer())
   await prisma.$transaction(async tx=>{
     await tx.$executeRaw(Prisma.sql`DELETE FROM workflow_followup_files wf USING workflow_followups f WHERE wf.followup_id=f.id AND f.application_id=${applicationId}::uuid AND f.workflow_type='APPLICATION'`)
-    const [followup]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO workflow_followups(student_id,application_id,workflow_type,stage,notes,created_by_id,created_by_name) VALUES(${detail.studentId}::uuid,${applicationId}::uuid,'APPLICATION',${detail.currentStage},${note||'SOP file attached.'},${actor.id}::uuid,${actor.name}) RETURNING id`)
-    await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followup_files(followup_id,file_name,mime_type,size_bytes,file_data) VALUES(${followup.id}::uuid,${file.name},${file.type},${file.size},${bytes})`)
+    const [followup]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO workflow_followups(id,student_id,application_id,workflow_type,stage,notes,created_by_id,created_by_name) VALUES(gen_random_uuid(),${detail.studentId}::uuid,${applicationId}::uuid,'APPLICATION',${detail.currentStage},${note||'SOP file attached.'},${actor.id}::uuid,${actor.name}) RETURNING id`)
+    await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followup_files(id,followup_id,file_name,mime_type,size_bytes,file_data) VALUES(gen_random_uuid(),${followup.id}::uuid,${file.name},${file.type},${file.size},${bytes})`)
   })
   return readWorkflowCase(actor,applicationId,'APPLICATION',null,true)
 }
@@ -255,9 +255,9 @@ export async function createApplicationForStudent(
         nextAction: 'Pending Super Admin SOP verification',
       },
     })
-    const [followup]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO workflow_followups(student_id,application_id,workflow_type,stage,notes,created_by_id,created_by_name) VALUES(${input.studentId}::uuid,${created.id}::uuid,'APPLICATION','SOP_PREPARATION','SOP attached before application activation.',${actor.id}::uuid,${actor.name}) RETURNING id`)
-    await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followup_files(followup_id,file_name,mime_type,size_bytes,file_data) VALUES(${followup.id}::uuid,${sopFile.name},${sopFile.type},${sopFile.size},${sopBytes})`)
-    await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_approval_requests(student_id,application_id,followup_id,stage,requested_by_id,requested_by_name) VALUES(${input.studentId}::uuid,${created.id}::uuid,${followup.id}::uuid,'SOP_VERIFICATION',${actor.id}::uuid,${actor.name})`)
+    const [followup]=await tx.$queryRaw<Array<{id:string}>>(Prisma.sql`INSERT INTO workflow_followups(id,student_id,application_id,workflow_type,stage,notes,created_by_id,created_by_name) VALUES(gen_random_uuid(),${input.studentId}::uuid,${created.id}::uuid,'APPLICATION','SOP_PREPARATION','SOP attached before application activation.',${actor.id}::uuid,${actor.name}) RETURNING id`)
+    await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_followup_files(id,followup_id,file_name,mime_type,size_bytes,file_data) VALUES(gen_random_uuid(),${followup.id}::uuid,${sopFile.name},${sopFile.type},${sopFile.size},${sopBytes})`)
+    await tx.$executeRaw(Prisma.sql`INSERT INTO workflow_approval_requests(id,student_id,application_id,followup_id,stage,requested_by_id,requested_by_name) VALUES(gen_random_uuid(),${input.studentId}::uuid,${created.id}::uuid,${followup.id}::uuid,'SOP_VERIFICATION',${actor.id}::uuid,${actor.name})`)
     await tx.$executeRaw(Prisma.sql`
       UPDATE applications a SET course_id=priced.course_id, quoted_fee_amount=priced.amount,
         quoted_fee_currency=priced.currency_code, fee_quoted_at=NOW()
@@ -318,10 +318,10 @@ export async function updateApplication(
 }
 
 export async function readStudentDashboard(userId: string) {
-  const [applicationRows, taskRows, documentRows, deadlineRows, notificationRows, profile, shortlist, requiredDocuments] = await Promise.all([
+  const [applicationRows, taskRows, documentRows, deadlineRows, notificationRows, profile, shortlist, allRequired] = await Promise.all([
     prisma.application.findMany({
       where: { studentId: userId,applicationStage:{notIn:['SOP_PREPARATION','SOP_VERIFICATION','SOP_CORRECTION_REQUIRED']} },
-      include: { university: true },
+      include: { university: { include: { country: true } } },
     }),
     prisma.task.findMany({ where: { userId } }),
     prisma.document.findMany({ where: { userId } }),
@@ -331,9 +331,62 @@ export async function readStudentDashboard(userId: string) {
     prisma.studentShortlist.findMany({ where: { userId }, select: { universityId: true } }),
     listRequiredDocumentSettings(true),
   ])
-  const visaStages=applicationRows.length?await prisma.$queryRaw<Array<{applicationId:string;currentStage:string}>>(Prisma.sql`SELECT application_id AS "applicationId",current_stage AS "currentStage" FROM visa_attempts WHERE is_current=TRUE AND application_id IN (${Prisma.join(applicationRows.map(row=>Prisma.sql`${row.id}::uuid`))})`):[]
-  const visaStageByApplication=new Map(visaStages.map(item=>[item.applicationId,item.currentStage]))
-  const destination = profile?.destinationCountry as { id?: string } | null
+  const visaActiveStages = new Set([
+    'MOVE_TO_VISA',
+    'APPLICATION_ACCEPTED',
+    'UNCONDITIONAL_OFFER_RECEIVED',
+    'CONDITIONAL_OFFER_RECEIVED',
+    'MEET_OFFER_CONDITIONS',
+  ])
+
+  const allStudentApps = await prisma.application.findMany({
+    where: { studentId: userId },
+    include: { university: { include: { country: true } } },
+  })
+
+  const visaStages = allStudentApps.length
+    ? await prisma.$queryRaw<Array<{ applicationId: string; currentStage: string }>>(
+        Prisma.sql`SELECT application_id AS "applicationId", current_stage AS "currentStage" FROM visa_attempts WHERE is_current=TRUE AND application_id IN (${Prisma.join(
+          allStudentApps.map(row => Prisma.sql`${row.id}::uuid`)
+        )})`
+      )
+    : []
+  const visaStageByApplication = new Map(visaStages.map(item => [item.applicationId, item.currentStage]))
+  const destination = profile?.destinationCountry as any
+
+  const studentCountries = new Set<string>()
+  if (destination) {
+    if (typeof destination === 'string') {
+      for (const code of normalizeCountryCode(destination)) studentCountries.add(code)
+    } else if (destination.code) {
+      for (const code of normalizeCountryCode(String(destination.code))) studentCountries.add(code)
+    } else if (destination.id) {
+      const c = await prisma.country.findUnique({ where: { id: destination.id }, select: { code: true } })
+      if (c?.code) {
+        for (const code of normalizeCountryCode(c.code)) studentCountries.add(code)
+      }
+    }
+  }
+
+  const visaActiveCountries = new Set<string>()
+  for (const app of allStudentApps) {
+    const cCode = app.university?.country?.code?.toUpperCase()
+    if (cCode) {
+      for (const code of normalizeCountryCode(cCode)) studentCountries.add(code)
+      const inVisa = visaActiveStages.has(app.applicationStage) || Boolean(visaStageByApplication.get(app.id))
+      if (inVisa) {
+        for (const code of normalizeCountryCode(cCode)) visaActiveCountries.add(code)
+      }
+    }
+  }
+
+  const requiredDocuments = filterStudentRequiredDocuments(allRequired ?? [], {
+    studentCountries,
+    hasApplications: applicationRows.length > 0,
+    visaActiveCountries,
+    studentProgramLevels: detectStudentProgramLevels(profile, allStudentApps),
+  })
+
   const recommendationRows = destination?.id && profile?.field
     ? await prisma.university.findMany({
         where: {
@@ -347,7 +400,7 @@ export async function readStudentDashboard(userId: string) {
         take: 50,
       })
     : []
-  return {
+  const dashboardData = {
     applications: (applicationRows ?? []).map(({ university, ...application }) => ({
       id: application.id,
       universityId: university?.id ?? '',
@@ -368,6 +421,7 @@ export async function readStudentDashboard(userId: string) {
     recommendations: recommendationRows ?? [],
     requiredDocuments: requiredDocuments ?? [],
   }
+  return JSON.parse(JSON.stringify(dashboardData)) as typeof dashboardData
 }
 
 export async function setTaskCompleted(userId: string, taskId: string, completed: boolean) {
@@ -380,12 +434,51 @@ export async function setTaskCompleted(userId: string, taskId: string, completed
 }
 
 async function assertRequiredDocumentsVerified(userId: string) {
-  const names = (await listRequiredDocumentSettings(true)).map(item=>item.name)
+  const [profile, applications, allRequired] = await Promise.all([
+    prisma.studentProfile.findUnique({ where: { userId } }),
+    prisma.application.findMany({
+      where: { studentId: userId },
+      include: { university: { include: { country: true } } },
+    }),
+    listRequiredDocumentSettings(true),
+  ])
+
+  const destination = profile?.destinationCountry as any
+  const studentCountries = new Set<string>()
+  if (destination) {
+    if (typeof destination === 'string' && destination.length === 3) {
+      studentCountries.add(destination.toUpperCase())
+    } else if (destination.code) {
+      studentCountries.add(String(destination.code).toUpperCase())
+    } else if (destination.id) {
+      const c = await prisma.country.findUnique({ where: { id: destination.id }, select: { code: true } })
+      if (c?.code) studentCountries.add(c.code.toUpperCase())
+    }
+  }
+
+  for (const app of applications) {
+    const cCode = app.university?.country?.code?.toUpperCase()
+    if (cCode) studentCountries.add(cCode)
+  }
+
+  const studentProgramLevels = detectStudentProgramLevels(profile, applications)
+
+  const relevantRequired = filterStudentRequiredDocuments(allRequired, {
+    studentCountries,
+    hasApplications: applications.length > 0,
+    visaActiveCountries: new Set(),
+    studentProgramLevels,
+  }).filter(doc => doc.stage === 'PROFILE_ONBOARDING')
+
+  const names = relevantRequired.map(item => item.name)
+  if (names.length === 0) return
+
   const verified = await prisma.document.count({
     where: { userId, name: { in: names }, status: 'VERIFIED' },
   })
-  if (verified !== names.length) {
-    throw new Error('All required documents must be verified before an application can be created.')
+
+  if (verified < names.length) {
+    throw new Error('All required onboarding documents must be verified before an application can be created.')
   }
 }
 

@@ -18,7 +18,7 @@ export async function GET(request?:Request) {
       assertRole(user.role,['SUPER_ADMIN','PARTNER_ADMIN','ADMISSIONS_EXECUTIVE','VISA_EXECUTIVE'])
       const workflowType=url.searchParams.get('workflowType')
       if(workflowType!=='APPLICATION'&&workflowType!=='VISA')throw new Error('Invalid workflow type.')
-      return Response.json(await readWorkflowCase(user,String(url.searchParams.get('applicationId')||''),workflowType,url.searchParams.get('visaAttemptId')))
+      return Response.json(await readWorkflowCase(user,String(url.searchParams.get('applicationId')||''),workflowType,url.searchParams.get('visaAttemptId'), user.role === 'SUPER_ADMIN'))
     }
     assertRole(user.role, ['STUDENT'])
     return Response.json(await readStudentDashboard(user.id))

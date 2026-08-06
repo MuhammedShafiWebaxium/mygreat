@@ -113,3 +113,22 @@ export const NotificationKind = {
 } as const
 
 export type NotificationKind = (typeof NotificationKind)[keyof typeof NotificationKind]
+
+
+export const DocumentCategory = {
+  PERSONAL: 'PERSONAL',
+  ACADEMIC: 'ACADEMIC',
+  FINANCIAL: 'FINANCIAL',
+  VISA_COUNTRY: 'VISA_COUNTRY'
+} as const
+
+export type DocumentCategory = (typeof DocumentCategory)[keyof typeof DocumentCategory]
+
+
+export const DocumentStage = {
+  PROFILE_ONBOARDING: 'PROFILE_ONBOARDING',
+  APPLICATION_SUBMISSION: 'APPLICATION_SUBMISSION',
+  VISA_PROCESSING: 'VISA_PROCESSING'
+} as const
+
+export type DocumentStage = (typeof DocumentStage)[keyof typeof DocumentStage]

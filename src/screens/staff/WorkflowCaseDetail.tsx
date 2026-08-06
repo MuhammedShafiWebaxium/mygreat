@@ -169,7 +169,7 @@ export default function WorkflowCaseDetail({
     currentIndex = progressStages.indexOf(data.currentStage)
   const validTargets = [data.currentStage, ...data.validNextStages].filter(
     (stage: string) =>
-      !['SOP_PREPARATION','SOP_VERIFICATION','SOP_APPROVED', 'SOP_CORRECTION_REQUIRED'].includes(stage) &&
+      (!['SOP_PREPARATION','SOP_VERIFICATION','SOP_APPROVED', 'SOP_CORRECTION_REQUIRED'].includes(stage) || data.currentStage === 'SOP_VERIFICATION') &&
       (data.canApprove || !decisionStages.has(stage)) &&
       !(
         workflowType === 'VISA' &&
