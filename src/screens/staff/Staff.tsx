@@ -2,7 +2,7 @@
 
 import { Link } from '@/lib/navigation'
 import { usePathname, useRouter } from '@/lib/navigation'
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { BarChart3, Bell, BriefcaseBusiness, Building2, ChevronRight, Compass, FileText, GraduationCap, LayoutDashboard, LogOut, Menu, MessageSquare, Plane, Settings2, ShieldCheck, Users, WalletCards, X } from 'lucide-react'
 import { useState } from 'react'
 import { currentUserQuery } from '@/features/auth/auth.queries'
@@ -11,6 +11,15 @@ import type { UserRole } from '@/features/auth/auth.schema'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
+import Notifications from '@/components/dashboard/Notifications'
+import { AnimatePresence } from 'framer-motion'
+import {
+  getNotificationsFn,
+  getUnreadNotificationCountFn,
+  markAllNotificationsAsReadFn,
+  markNotificationAsReadFn,
+} from '@/features/notifications/notification.functions'
+import { getStaffThreads } from '@/features/support/support.functions'
 
 export const STAFF_ROLE_LABELS: Record<UserRole, string> = {
   SUPER_ADMIN: 'Super Admin',
@@ -45,12 +54,41 @@ export default function Staff({ children }: { children: React.ReactNode }) {
   const theme = useAppStore((state) => state.theme)
   const { data: user } = useSuspenseQuery(currentUserQuery)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [showNotifs, setShowNotifs] = useState(false)
+
   const meta = pageMeta[pathname as keyof typeof pageMeta]
     ?? (pathname.startsWith('/staff/students/') ? pageMeta['/staff/students']
       : pathname.startsWith('/staff/partners/') ? pageMeta['/staff/partners']
         : pathname.startsWith('/staff/applications/') ? pageMeta['/staff/applications']
           : pathname.startsWith('/staff/visas/') ? pageMeta['/staff/visas']
         : pageMeta['/staff'])
+
+  const { data: notifData } = useQuery({
+    queryKey: ['staff', 'header-notifications'],
+    queryFn: () => getNotificationsFn({ data: { page: 1, limit: 20 } }),
+    refetchInterval: 10000,
+  })
+
+  const { data: threads } = useQuery({
+    queryKey: ['staff', 'header-threads'],
+    queryFn: () => getStaffThreads(),
+    refetchInterval: 10000,
+  })
+
+  const markAllReadMutation = useMutation({
+    mutationFn: () => markAllNotificationsAsReadFn(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['staff'] })
+    },
+  })
+
+  const markItemReadMutation = useMutation({
+    mutationFn: (vars: { id: string; isRead?: boolean }) => markNotificationAsReadFn({ data: vars }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['staff'] })
+    },
+  })
+
   const logout = useMutation({
     mutationFn: () => logoutFn(),
     onSuccess: async () => {
@@ -58,6 +96,25 @@ export default function Staff({ children }: { children: React.ReactNode }) {
       router.replace(user?.accountType === 'ADMIN' ? '/login/admin' : '/login/partner')
     },
   })
+
+  const systemNotifs = notifData?.items || []
+  const threadNotifs = (threads || [])
+    .filter((t: any) => t.unread > 0)
+    .map((t: any) => ({
+      id: `thread-${t.id}`,
+      title: `New message from ${t.requesterName}`,
+      message: `Ticket #${t.ticketNumber}: ${t.subject}`,
+      desc: `Ticket #${t.ticketNumber}: ${t.subject}`,
+      kind: 'message',
+      type: 'new_ticket',
+      link: '/staff/messages',
+      read: false,
+      isRead: false,
+      time: t.lastMessageAt || 'Recently',
+    }))
+
+  const allNotices = [...systemNotifs, ...threadNotifs]
+  const unreadCount = allNotices.filter((n) => !('isRead' in n ? n.isRead : n.read)).length
 
   const navigationGroups = [
     {
@@ -82,8 +139,8 @@ export default function Staff({ children }: { children: React.ReactNode }) {
     {
       label: 'Communication',
       items: [
-        ...(['SUPER_ADMIN', 'SUPPORT_EXECUTIVE'].includes(user?.role ?? '') ? [{ to: '/staff/messages' as const, label: 'Messages', icon: MessageSquare }] : []),
-        ...(['SUPER_ADMIN', 'SUPPORT_EXECUTIVE'].includes(user?.role ?? '') ? [{ to: '/staff/notifications' as const, label: 'Notifications', icon: Bell }] : []),
+        ...(user?.accountType !== 'STUDENT' ? [{ to: '/staff/messages' as const, label: 'Tickets', icon: MessageSquare }] : []),
+        ...(user?.accountType !== 'STUDENT' ? [{ to: '/staff/notifications' as const, label: 'Notifications', icon: Bell }] : []),
       ],
     },
     {
@@ -113,10 +170,32 @@ export default function Staff({ children }: { children: React.ReactNode }) {
       <nav className="mt-7 min-h-0 flex-1 space-y-5 overflow-y-auto pr-1 scrollbar-thin">
         {navigationGroups.map((group) => <div key={group.label}>
           <p className="mb-1.5 px-3 text-[9px] font-bold uppercase tracking-[0.22em] text-white/25">{group.label}</p>
-          <div className="space-y-1">{group.items.map((item) => {
-            const active = 'exact' in item && item.exact ? pathname === item.to : pathname.startsWith(item.to)
-            return <Link key={item.to} href={item.to} onClick={() => setMobileOpen(false)} className={cn('staff-nav-item group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13px] font-medium transition', active ? 'staff-nav-active bg-white/[0.075] text-white ring-1 ring-white/[0.08]' : 'text-white/45 hover:bg-white/[0.04] hover:text-white/80')}><item.icon className={cn('size-[17px]', active ? 'text-amber-300' : 'text-white/30')} /><span className="flex-1">{item.label}</span>{active && <ChevronRight className="size-3.5 text-white/25" />}</Link>
-          })}</div>
+          <div className="space-y-1">
+            {group.items.map((item) => {
+              const active = 'exact' in item && item.exact ? pathname === item.to : pathname.startsWith(item.to)
+              const showUnreadBadge = item.to === '/staff/notifications' && unreadCount > 0
+              return (
+                <Link
+                  key={item.to}
+                  href={item.to}
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    'staff-nav-item group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13px] font-medium transition',
+                    active ? 'staff-nav-active bg-white/[0.075] text-white ring-1 ring-white/[0.08]' : 'text-white/45 hover:bg-white/[0.04] hover:text-white/80'
+                  )}
+                >
+                  <item.icon className={cn('size-[17px]', active ? 'text-amber-300' : 'text-white/30')} />
+                  <span className="flex-1">{item.label}</span>
+                  {showUnreadBadge && (
+                    <span className="grid min-w-5 place-items-center rounded-full bg-amber-400 px-1.5 text-[9px] font-bold leading-5 text-[#10172a]">
+                      {unreadCount}
+                    </span>
+                  )}
+                  {active && <ChevronRight className="size-3.5 text-white/25" />}
+                </Link>
+              )
+            })}
+          </div>
         </div>)}
       </nav>
 
@@ -133,10 +212,45 @@ export default function Staff({ children }: { children: React.ReactNode }) {
         {mobileOpen && <div className="fixed inset-0 z-[70] lg:hidden"><button aria-label="Close menu" onClick={() => setMobileOpen(false)} className="absolute inset-0 bg-black/55 backdrop-blur-sm" /><aside className="staff-sidebar absolute inset-y-0 left-0 flex w-[286px] flex-col border-r border-white/10 bg-[#080d1d] p-5 pt-6">{sidebar}</aside></div>}
 
         <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-          <header className="staff-header flex shrink-0 items-center gap-3 border-b border-white/[0.06] bg-[#070b18]/55 px-4 py-3.5 backdrop-blur-xl sm:px-7 lg:px-8 lg:py-4">
+          <header className="staff-header relative z-[100] flex shrink-0 items-center gap-3 border-b border-white/[0.06] bg-[#070b18]/55 px-4 py-3.5 backdrop-blur-xl sm:px-7 lg:px-8 lg:py-4">
             <button onClick={() => setMobileOpen(true)} className="grid size-10 place-items-center rounded-xl border border-white/10 lg:hidden"><Menu className="size-4.5" /></button>
             <div className="min-w-0"><div className="flex items-center gap-2"><BarChart3 className="size-3.5 text-amber-300" /><span className="text-[9px] font-bold uppercase tracking-[0.2em] text-amber-300/75">Staff workspace</span></div><h1 className="mt-0.5 truncate font-display text-xl">{meta.title}</h1><p className="mt-0.5 hidden truncate text-[10.5px] text-white/32 sm:block">{meta.description}</p></div>
-            <div className="flex-1" /><ThemeToggle />
+            <div className="flex-1" />
+            <ThemeToggle />
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifs((s) => !s)}
+                className={cn(
+                  'relative w-10 h-10 rounded-xl border flex items-center justify-center transition-all',
+                  showNotifs
+                    ? 'border-amber-400/50 text-amber-300 bg-amber-400/[0.08]'
+                    : 'border-white/10 text-white/60 hover:text-white hover:border-white/25'
+                )}
+                title="Notifications"
+              >
+                <Bell className="w-4.5 h-4.5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 rounded-full bg-amber-400 text-[#0a0f24] text-[9.5px] font-bold flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+              <AnimatePresence>
+                {showNotifs && (
+                  <Notifications
+                    notices={allNotices}
+                    onMarkAll={() => markAllReadMutation.mutate()}
+                    onClose={() => setShowNotifs(false)}
+                    onItemClick={(item) => {
+                      if (item.id && !item.id.startsWith('thread-')) {
+                        markItemReadMutation.mutate({ id: item.id, isRead: true })
+                      }
+                    }}
+                    onOpenManagement={() => router.push('/staff/notifications')}
+                  />
+                )}
+              </AnimatePresence>
+            </div>
           </header>
           <main className="flex-1 overflow-y-auto scrollbar-thin"><div className="mx-auto max-w-[1450px] px-4 py-6 sm:px-7 lg:px-8 lg:py-7">{children}</div></main>
         </div>

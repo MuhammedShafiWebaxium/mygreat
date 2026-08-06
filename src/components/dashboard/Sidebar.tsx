@@ -47,7 +47,7 @@ export default function Sidebar({ tab, onChange, unread, onSignOut }: Props) {
   }
 
   return (
-    <aside className="dashboard-sidebar relative hidden h-full w-[276px] shrink-0 flex-col overflow-hidden border-r border-white/[0.06] bg-[#080d1d]/75 px-5 pb-5 pt-6 noise lg:flex">
+    <aside className="dashboard-sidebar relative hidden h-full w-[232px] shrink-0 flex-col overflow-hidden border-r border-white/[0.06] bg-[#080d1d]/75 px-4 pb-5 pt-6 noise lg:flex">
       <div className="aurora -left-36 -top-28 size-[320px] bg-indigo-600/20" />
 
       <Link href="/" className="relative z-10 flex w-fit items-center gap-3 px-1" aria-label="Mygreat home">

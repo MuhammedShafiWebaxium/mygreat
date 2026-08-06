@@ -1,1 +1,104 @@
-import{useEffect,useState}from'react';import{Bell,CheckCheck,Crown,MessageSquare}from'lucide-react';import{getStaffThreads}from'@/features/support/support.functions';import{Link}from'@/lib/navigation';export default function AdminNotifications(){const[threads,setThreads]=useState<any[]>([]);useEffect(()=>{getStaffThreads().then(setThreads)},[]);const unread=threads.filter(t=>t.unread>0);return <div className="max-w-5xl space-y-5"><div><h2 className="font-display text-3xl">Notifications</h2><p className="mt-1 text-sm text-white/40">Operational alerts and student support updates.</p></div><section className="staff-card overflow-hidden rounded-3xl border border-white/[.07]"><header className="flex items-center border-b border-white/[.07] p-5"><Bell className="size-4 text-amber-300"/><h3 className="ml-2 font-semibold">Support notifications</h3><span className="ml-auto rounded-full bg-amber-400/10 px-2.5 py-1 text-[10px] text-amber-300">{unread.length} unread conversations</span></header><div className="divide-y divide-white/[.06]">{unread.map(t=><Link key={t.id} href="/staff/messages" className="flex items-center gap-4 p-5 transition hover:bg-white/[.03]"><span className="grid size-10 place-items-center rounded-xl bg-indigo-400/10"><MessageSquare className="size-4 text-indigo-300"/></span><div className="flex-1"><div className="flex items-center gap-2"><p className="text-sm font-semibold">New messages from {t.studentName}</p>{t.priority&&<Crown className="size-3.5 text-amber-300"/>}</div><p className="mt-1 text-xs text-white/35">{t.unread} unread · {t.email}</p></div><span className="size-2 rounded-full bg-amber-400"/></Link>)}{!unread.length&&<div className="py-16 text-center"><CheckCheck className="mx-auto size-7 text-emerald-300"/><p className="mt-3 text-sm text-white/40">No unread notifications.</p></div>}</div></section></div>}
+'use client'
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import NotificationCenter from '@/components/dashboard/NotificationCenter'
+import {
+  getNotificationsFn,
+  markNotificationAsReadFn,
+  markAllNotificationsAsReadFn,
+  deleteNotificationFn,
+  clearAllNotificationsFn,
+} from '@/features/notifications/notification.functions'
+import { getStaffThreads } from '@/features/support/support.functions'
+import { speakNotification } from '@/lib/notifications'
+import { useEffect } from 'react'
+
+export default function AdminNotifications() {
+  const queryClient = useQueryClient()
+
+  const { data: notifData, isLoading } = useQuery({
+    queryKey: ['staff', 'notifications'],
+    queryFn: async () => {
+      return getNotificationsFn({ data: { page: 1, limit: 50 } })
+    },
+    refetchInterval: 10000,
+  })
+
+  const { data: threads } = useQuery({
+    queryKey: ['staff', 'threads'],
+    queryFn: () => getStaffThreads(),
+    refetchInterval: 10000,
+  })
+
+  const markReadMutation = useMutation({
+    mutationFn: (vars: { id: string; isRead?: boolean }) => markNotificationAsReadFn({ data: vars }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['staff', 'notifications'] })
+    },
+  })
+
+  const markAllMutation = useMutation({
+    mutationFn: () => markAllNotificationsAsReadFn(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['staff', 'notifications'] })
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteNotificationFn({ data: { id } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['staff', 'notifications'] })
+    },
+  })
+
+  const clearAllMutation = useMutation({
+    mutationFn: () => clearAllNotificationsFn(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['staff', 'notifications'] })
+    },
+  })
+
+  // Combine system notifications + support thread updates
+  const items = (notifData?.items || []).concat(
+    (threads || [])
+      .filter((t: any) => t.unread > 0)
+      .map((t: any) => ({
+        id: `thread-${t.id}`,
+        _id: `thread-${t.id}`,
+        title: `New message from ${t.requesterName}`,
+        message: `${t.unread} unread support message${t.unread > 1 ? 's' : ''} for ticket #${t.ticketNumber}: ${t.subject}`,
+        description: `${t.unread} unread support message${t.unread > 1 ? 's' : ''} for ticket #${t.ticketNumber}: ${t.subject}`,
+        kind: 'message',
+        type: 'new_ticket',
+        link: '/staff/messages',
+        isRead: false,
+        read: false,
+        createdAt: t.lastMessageAt || new Date().toISOString(),
+      }))
+  )
+
+  return (
+    <div className="space-y-6">
+      <NotificationCenter
+        notices={items}
+        loading={isLoading}
+        onMarkRead={(id, isRead) => {
+          if (!id.startsWith('thread-')) {
+            markReadMutation.mutate({ id, isRead })
+          }
+        }}
+        onMarkAll={() => markAllMutation.mutate()}
+        onDelete={(id) => {
+          if (!id.startsWith('thread-')) {
+            deleteMutation.mutate(id)
+          }
+        }}
+        onClearAll={() => clearAllMutation.mutate()}
+        onRefresh={async () => {
+          await queryClient.invalidateQueries({ queryKey: ['staff', 'notifications'] })
+          await queryClient.invalidateQueries({ queryKey: ['staff', 'threads'] })
+        }}
+      />
+    </div>
+  )
+}
